@@ -1,0 +1,59 @@
+# Jmix
+.jmix
+
+# Gradle
+.gradle
+# Local cache directories (committed to repo for team sharing)
+!.gradle-cache/
+!.gradle-build-cache/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+# Remove this line if you want to follow recommendations in src/main/bundles/README.md
+src/main/bundles/
+
+### IntelliJ IDEA ###
+.idea/*
+!.idea/encodings.xml
+*.iws
+*.iml
+*.ipr
+out/
+/target/
+
+# VS Code
+.vscode/
+
+# Vaadin generated files
+node_modules/
+src/main/frontend/generated/
+pnpmfile.js
+vite.generated.ts
+webpack.generated.js
+
+# Testcontainers
+.testcontainers/
+
+# OS
+.DS_Store
+
+# Coverage reports
+.nyc_output/
+coverage/
+*.lcov
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Archive (reports, research, subject documents)
+.archive/
+
+# Logs
+logs/
+
+# Application properties (local/dev with secrets)
+.env
