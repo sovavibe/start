@@ -1,0 +1,100 @@
+---
+globs: ["**/service/**/*.java", "**/repository/**/*.java", "**/entity/**/*.java"]
+autoFix: true
+version: "8.0.0"
+---
+
+# DATABASE - JPA (EclipseLink via Jmix)
+
+Jmix uses EclipseLink as JPA. All DB operations go through JPA persistence context.
+
+## DATA ACCESS
+
+**DataManager** (preferred): `dataManager.create()`, `save()`, `load()`, `remove()` - wraps EntityManager, adds security/fetch plans.
+
+**EntityManager** (sparingly): Only for native SQL or complex JPA ops. Still use `dataManager.create()` for entity creation.
+
+**Rule**: Prefer DataManager. EntityManager only for: native SQL, complex JPA ops, direct persistence context control.
+
+## PERSISTENCE CONTEXT
+
+Entity states: New (transient) → Managed (tracked) → Detached (context closed) → Removed.
+
+**CRITICAL**: `new Entity()` creates detached entity. `dataManager.create()` creates managed entity in persistence context.
+
+## QUERIES
+
+**JPQL** (preferred): Type-safe, portable. Use `dataManager.load().query("SELECT e FROM Entity e WHERE e.field = :value").parameter("value", v).list()`
+
+**Native SQL** (sparingly): Only when JPQL insufficient. ALWAYS parameterize: `.setParameter("id", id)` to prevent SQL injection.
+
+**FetchPlan** (optimization): `fetchPlans.builder(Order.class).add("customer").build()` - avoid N+1 queries, control lazy loading.
+
+## TRANSACTIONS
+
+**Service layer**: `@Transactional` required for write ops, `@Transactional(readOnly = true)` for queries.
+
+**Boundaries**: Services = @Transactional, Views = NO @Transactional (use services), REST = use services, DataContext = auto-managed.
+
+**Propagation**: REQUIRED (default), REQUIRES_NEW (new tx), MANDATORY (must exist).
+
+## ENTITY RELATIONSHIPS
+
+### Relationship Types
+**@OneToMany**: `@OneToMany(mappedBy="order", cascade=CascadeType.ALL, orphanRemoval=true) List<OrderItem> items` | Default: LAZY
+**@ManyToOne**: `@ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="ORDER_ID") Order order` | Default: EAGER (change to LAZY)
+**@ManyToMany**: `@ManyToMany @JoinTable(name="USER_ROLE", joinColumns=@JoinColumn(name="USER_ID"), inverseJoinColumns=@JoinColumn(name="ROLE_ID")) Set<Role> roles` | Use `mappedBy` on inverse
+**@OneToOne**: `@OneToOne(fetch=FetchType.LAZY) @JoinColumn(name="PROFILE_ID", unique=true) UserProfile profile`
+
+### Cascade Types
+**CascadeType.ALL**: All operations (use carefully, composition only) | **PERSIST**: Create | **MERGE**: Update | **REMOVE**: Delete | **REFRESH**: Refresh | **orphanRemoval=true**: Remove child when removed from collection
+
+### Fetch Types
+**LAZY** (default @OneToMany/@ManyToMany): Load on access. ⚠️ Outside tx = LazyInitializationException
+**EAGER** (default @ManyToOne/@OneToOne): Load immediately. ⚠️ Can cause N+1 queries
+**Best practice**: Always LAZY, load via FetchPlan: `fetchPlans.builder(Order.class).add("items").build()`
+
+### Join Columns
+**@JoinColumn**: Explicit FK name. Always specify `name`: `@JoinColumn(name="ORDER_ID", nullable=false)`
+**@JoinTable**: For @ManyToMany. Specify table/columns: `@JoinTable(name="USER_ROLE", joinColumns=@JoinColumn(name="USER_ID"), inverseJoinColumns=@JoinColumn(name="ROLE_ID"))`
+
+## OPTIMISTIC LOCKING
+
+**@Version** (required): `@Version @Column(name = "VERSION", nullable = false) private Integer version;` - required for optimistic locking.
+
+**Handling**: Catch `OptimisticLockException` on save - entity modified by another tx. Reload and retry or notify user.
+
+## ENTITY ANNOTATIONS
+
+### Basic Annotations
+**@Entity**: Marks JPA entity | **@Table**: `@Table(name="USER_", indexes={@Index(name="IDX_USER__ON_USERNAME", columnList="USERNAME", unique=true)})` | **@Id**: UUID with `@JmixGeneratedValue` | **@Column**: Always specify `name`: `@Column(name="USERNAME", nullable=false, length=100)` | **@Version**: `@Version @Column(name="VERSION", nullable=false) Integer version` | **@Transient**: Not persisted
+
+### Embedded Objects
+**@Embedded/@Embeddable**: `@Embedded Address address` where `Address` is `@Embeddable` with `@Column` fields
+
+### Entity Callbacks
+**@PrePersist**: Before create | **@PreUpdate**: Before update | **@PostLoad**: After load | **@PostPersist**: After create | **@PostUpdate**: After update | **@PostRemove**: After remove
+Example: `@PrePersist void prePersist() { if (createdDate == null) createdDate = Instant.now(); }`
+
+### Enumerated Types
+**@Enumerated**: `@Enumerated(EnumType.STRING) @Column(name="STATUS") OrderStatus status` | Prefer STRING over ORDINAL
+
+## VALIDATION
+
+Layers: UI (Binder) → Service (business) → DTO (technical) → Entity (Bean Validation: @NotNull, @Size) → Repository (none).
+
+Bean Validation: `@NotNull @Size(min=1, max=100) @Column(name="NAME", nullable=false) private String name;`
+
+## DETACHED ENTITIES
+**Problem**: Detached when tx closes → LazyInitializationException on lazy access
+**Solutions**: FetchPlan within tx | @Transactional in service | DTOs for transfer | Reattach: `dataManager.save(detachedEntity)`
+
+## ENTITY INHERITANCE
+**Single Table**: All subclasses in one table (discriminator) | **Joined Table**: Each class has own table (FK join) | **Table Per Class**: Each class has own table (rare)
+**Jmix**: Prefer composition over inheritance. Use `@Embedded` for value objects.
+
+## ANTIPATTERNS
+
+❌ NEVER: `new Entity()` (use `dataManager.create()`) | EntityManager.persist() without create() | Unparameterized SQL | Missing @Transactional | Lazy access outside tx | Missing @Version | N+1 queries (use FetchPlan) | Validation in Repository | EAGER on @OneToMany | CascadeType.ALL everywhere | Missing @JoinColumn name | @ManyToOne without LAZY
+
+✅ ALWAYS: DataManager for CRUD | @Transactional in services (readOnly=true queries) | JPQL over native | FetchPlan for relationships | @Version in entities | Parameterized queries | Handle OptimisticLockException | LAZY for collections | Explicit @JoinColumn | Cascade carefully

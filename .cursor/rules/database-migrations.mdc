@@ -1,0 +1,9 @@
+---
+globs: ["**/liquibase/**/*.xml", "**/entity/**/*.java"]
+autoFix: true
+version: "4.0.0"
+---
+
+# MIGRATIONS
+
+Liquibase changelog, incremental | Entities: @Entity, @Table indexes, @Index unique | Naming: UPPER_SNAKE_CASE, USER_ not USER | Relationships: Explicit @JoinColumn, cascade carefully | Queries: JPQL over native, @Query | Performance: Indexes on FKs, frequently queried | Versioning: @Version optimistic locking | See `rules.mdc` for database rules

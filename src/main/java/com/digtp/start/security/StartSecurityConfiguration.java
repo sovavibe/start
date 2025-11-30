@@ -40,9 +40,7 @@ public class StartSecurityConfiguration {
     @Order(JmixSecurityFilterChainOrder.CUSTOM)
     SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
         http.securityMatcher("/public/**")
-                .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().permitAll()
-                );
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
 
         return http.build();
     }

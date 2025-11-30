@@ -1,0 +1,89 @@
+---
+globs: ["**/view/**/*.java", "**/service/**/*.java", "**/entity/**/*.java", "**/rest/**/*.java"]
+autoFix: true
+version: "2.0.0"
+---
+
+# JMIX BEST PRACTICES
+
+## ENTITY CREATION - CRITICAL
+❌ `new Entity()` → ✅ `dataManager.create(Entity.class)` | Why: UUID generation, EntityEntry init, security, state tracking
+
+## DATA ACCESS - CRITICAL
+**DataManager (MANDATORY)**: ALWAYS use `DataManager` for ALL database operations:
+- ✅ `dataManager.create(Entity.class)` - create entities (NEVER `new Entity()`)
+- ✅ `dataManager.save(entity)` - save entities
+- ✅ `dataManager.load(Entity.class).id(id).one()` - load by ID
+- ✅ `dataManager.load(Entity.class).condition(PropertyCondition.equal("field", value)).list()` - load by condition
+- ✅ `dataManager.remove(entity)` - delete entities
+- ✅ `dataManager.unconstrained()` - UnconstrainedDataManager for bypassing security (authentication setup, system operations)
+
+**EntityManager (EXCEPTIONS ONLY)**:
+- ❌ NEVER use EntityManager for regular CRUD operations
+- ✅ ONLY for: native SQL queries (health checks, complex reports), direct persistence context control
+- ✅ Example: `entityManager.createNativeQuery("SELECT 1").getSingleResult()` for health checks
+
+**DataContext**: StandardDetailView for related entities (auto-managed)
+
+**CRITICAL RULE**: ALL database operations MUST go through DataManager. EntityManager is ONLY for native SQL or special cases.
+
+## VIEW ARCHITECTURE
+StandardView (general) | StandardListView<T> (lists) | StandardDetailView<T> (detail/edit) | Constructor: services | @ViewComponent: UI components | ❌ @Autowired fields
+
+## TRANSACTIONS
+@Transactional in services (readOnly=true queries) | NO @Transactional in views | DataContext auto-manages in StandardDetailView
+
+## ENTITY ANNOTATIONS
+@JmixEntity @Entity @Table(name="MY_ENTITY") | @Id @JmixGeneratedValue @Column(name="ID") UUID id | @Version @Column(name="VERSION", nullable=false) Integer version
+
+## SECURITY
+@SystemLevel for system entities (User, Role) | DataManager enforces row-level security | JmixUserDetails for authentication
+
+## ANTIPATTERNS
+❌ new Entity() | ❌ @Autowired fields | ❌ @Transactional in views | ❌ Native SQL without params | ❌ Missing @Version | ❌ Missing @JmixGeneratedValue | ❌ Lazy collections outside transaction | ❌ N+1 queries (use FetchPlan)
+
+## PERFORMANCE
+FetchPlan: `fetchPlans.builder(Order.class).add("customer").build()` | Lazy loading: default for @OneToMany/@ManyToMany | ⚠️ Outside transaction = LazyInitializationException
+
+## VIEW ANNOTATIONS
+**@ViewController**: Marks view class | **@ViewDescriptor**: XML layout path | **@LookupComponent**: Component for lookup dialogs | **@EditedEntityContainer**: Data container for detail views | **@DialogMode**: Dialog size configuration
+
+**@ViewComponent**: Inject UI components (fields, buttons, grids) | Constructor injection for services | **@Install**: Customize component behavior (renderers, validators)
+
+## VIEW SERVICES
+**Messages**: `messages.getMessage("key")` for i18n | **MessageBundle**: View-specific messages | **UiComponents**: Factory for creating components | **ViewNavigators**: Programmatic navigation | **Notifications**: User notifications | **EntityStates**: Check entity state (isNew, isDetached)
+
+## ENTITY METADATA
+**@InstanceName**: Display name method | **@DependsOnProperties**: Instance name dependencies | **@Composition**: Composition relationship (cascade delete) | **@OnDelete**: Delete policy (CASCADE, DENY, DISABLE)
+
+## SECURITY SERVICES
+**SystemAuthenticator**: System-level authentication for background tasks | **CurrentUserSubstitution**: User substitution (impersonation) | **JmixUserDetails**: User details interface | **HasTimeZone**: Time zone support interface
+
+## EXAMPLES
+
+### View with Services
+```java
+@ViewController(id = "User.detail")
+@ViewDescriptor(path = "user-detail-view.xml")
+@RequiredArgsConstructor
+public class UserDetailView extends StandardDetailView<User> {
+    @ViewComponent
+    TypedTextField<String> usernameField;
+    
+    final transient Messages messages;
+    final transient EntityStates entityStates;
+}
+```
+
+### Entity with Metadata
+```java
+@JmixEntity
+@Entity
+public class User {
+    @InstanceName
+    @DependsOnProperties({"firstName", "lastName"})
+    public String getDisplayName() {
+        return firstName + " " + lastName;
+    }
+}
+```

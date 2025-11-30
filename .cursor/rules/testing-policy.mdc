@@ -1,0 +1,25 @@
+---
+globs: ["**/test/**/*.java", "**/*Test*.java", "**/*IT.java"]
+autoFix: true
+version: "7.0.0"
+---
+
+# TESTING
+
+## PRINCIPLE
+NEVER DELETE FAILING TESTS! Fix the reason, not the test.
+
+## WHEN FAILS
+✅ Investigate → Root cause → ASK USER if external dependency → FIX → Run | ❌ Delete | @Disabled | Comment out
+
+## COMMON FAILURES
+TestContainers: Docker not running → Ask user start Docker | NEVER delete integration tests | Missing Dependencies: Implement or wait | NEVER delete tests
+
+## EXCEPTIONS FOR DELETION
+User requests | Duplicate | Removed feature | Better replacement | If all NO → DON'T DELETE
+
+## SPRING BOOT + JMIX TESTING PATTERNS
+**Annotations**: `@SpringBootTest` (integration) | `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})` (Jmix) | `@UiTest` (Vaadin) | `@Autowired` fields allowed in tests
+**DI**: `@Autowired` fields (Spring Boot standard) | Constructor injection also works | `@RequiredArgsConstructor` only if needed
+**Import Order**: Java stdlib → Spring → Jmix → Project → Static imports
+**Jmix Extensions**: `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})` | SpringExtension first (init ApplicationContext) | AuthenticatedAsAdmin provides admin context | Order matters

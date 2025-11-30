@@ -1,0 +1,47 @@
+---
+alwaysApply: true
+autoFix: false
+version: "1.0.0"
+---
+
+# CONVENTIONAL COMMITS
+
+## FORMAT
+```
+<type>[scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+## TYPES
+`feat` | `fix` | `docs` | `style` | `refactor` | `perf` | `test` | `build` | `ci` | `chore` | `revert`
+
+## SCOPES (Jmix/Vaadin)
+`jmix` | `vaadin` | `entity` | `view` | `service` | `security` | `liquibase` | `ui` | `api` | `db` | `config` | `test`
+
+## RULES
+- Imperative mood: "add" not "added"/"adds"
+- Lowercase, no period, max 72 chars (50 preferred)
+- Body: WHAT/WHY, wrap 72, bullets for multiple
+- Footer: `BREAKING CHANGE:`, `Closes #123`, `Fixes #456`
+- Breaking: `type!:` or footer `BREAKING CHANGE:`
+
+## EXAMPLES
+```
+feat(vaadin): add login form component
+fix(jmix): resolve DataManager null pointer
+refactor(service): extract payment calculation logic
+refactor(service): separate REDUCE_TERM and REDUCE_PAYMENT handling
+
+Refactor early payment handling to support separate processing.
+Adjust remaining balance and loan term accordingly.
+
+feat(service)!: migrate to virtual threads
+
+BREAKING CHANGE: Service methods now return CompletableFuture
+```
+
+## PROHIBITIONS
+❌ Past/present tense | Period at end | Vague | Multiple types | Uppercase type

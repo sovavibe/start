@@ -1,20 +1,56 @@
+import name.remal.gradle_plugins.sonarlint.SonarLint
+import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
+import com.github.gradle.node.npm.task.NpmTask
+
+// Plugins
 plugins {
+    // Framework plugins
     id 'io.jmix' version '2.7.1'
+
+    // Core plugins
     id 'java'
-    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.9'
+    id 'io.spring.dependency-management' version '1.1.7'
+
+    // IDE plugins
+    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
+
+    // Code quality plugins
+    id 'com.diffplug.spotless' version '8.1.0'
+    id 'name.remal.sonarlint' version '7.0.0'
+    id 'checkstyle'
+    id 'pmd'
+    id 'com.github.spotbugs' version '6.4.6'
+
+    // Testing & coverage
+    id 'jacoco'
+
+    // Security
+    id 'org.owasp.dependencycheck' version '12.1.9'
+
+    // Node.js for frontend linting (prettier, stylelint)
+    id 'com.github.node-gradle.node' version '7.1.0'
+
+    // Dependency updates checker
+    id 'com.github.ben-manes.versions' version '0.53.0'
+
+    // Note: SonarLint is primarily an IDE plugin, not needed for build
+    // If build-time analysis is needed, use SonarQube plugin instead:
+    // id 'org.sonarqube' version '4.0.0'
 }
 
+// Spring Boot and Vaadin plugins are applied by Jmix plugin
 apply plugin: 'org.springframework.boot'
 apply plugin: 'com.vaadin'
 
-jmix {
-    bomVersion = '2.7.1'
-}
-
 group = 'com.digtp'
 version = '0.0.1-SNAPSHOT'
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
 
 repositories {
+    gradlePluginPortal()
     mavenCentral()
     maven {
         url = 'https://global.repo.jmix.io/repository/public'
@@ -22,6 +58,9 @@ repositories {
 }
 
 dependencies {
+    implementation 'io.jmix.translations:jmix-translations-ru'
+
+    // Jmix dependencies
     implementation 'io.jmix.core:jmix-core-starter'
     implementation 'io.jmix.data:jmix-eclipselink-starter'
     implementation 'io.jmix.security:jmix-security-starter'
@@ -34,14 +73,35 @@ dependencies {
     implementation 'io.jmix.datatools:jmix-datatools-starter'
     implementation 'io.jmix.datatools:jmix-datatools-flowui-starter'
 
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
 
+    // Database
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Caching
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+
+    // Rate limiting
+    implementation 'com.bucket4j:bucket4j-core:8.10.1'
+
+    // Lombok - reduce boilerplate, auto-generate getters/setters/constructors
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Runtime
     runtimeOnly 'org.hsqldb:hsqldb'
 
+    // Test dependencies
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 configurations.implementation {
@@ -50,16 +110,370 @@ configurations.implementation {
     exclude group: 'com.vaadin', module: 'copilot'
 }
 
-test {
-    useJUnitPlatform()
+// Dependency locking
+configurations {
+    compileClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+    runtimeClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+    testCompileClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
+    testRuntimeClasspath {
+        resolutionStrategy.activateDependencyLocking()
+    }
 }
 
-idea {
-    module {
-        excludeDirs.addAll(files '.jmix', 'node_modules', 'src/main/frontend/generated/', 'src/main/bundles')
-    }
+// Plugin configurations
+
+jmix {
+    bomVersion = '2.7.1'
 }
 
 vaadin {
     optimizeBundle = false
 }
+
+idea {
+    project {
+        languageLevel = new IdeaLanguageLevel(JavaVersion.VERSION_21)
+    }
+    module {
+        excludeDirs.addAll(files '.jmix', 'node_modules', 'src/main/frontend/generated/', 'src/main/bundles')
+    }
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        targetExclude(
+                'build/**',
+                '**/generated/**',
+                '**/build/**',
+                '**/.archive/**'
+        )
+        importOrder(
+                'java',
+                'javax',
+                'jakarta',
+                'org',
+                'com',
+                'com.digtp',
+                ''
+        ).wildcardsLast()
+        removeUnusedImports()
+        cleanthat()
+                .sourceCompatibility('21')
+        formatAnnotations()
+        trimTrailingWhitespace()
+        endWithNewline()
+        lineEndings = 'UNIX'
+        palantirJavaFormat('2.68.0')
+        toggleOffOn()
+    }
+    kotlinGradle {
+        target '*.gradle.kts', 'buildSrc/**/*.gradle.kts'
+        targetExclude '**/build/**/*.gradle.kts'
+        ktlint()
+        endWithNewline()
+        trimTrailingWhitespace()
+    }
+}
+
+checkstyle {
+    toolVersion = "10.12.1"
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+}
+
+pmd {
+    toolVersion = "7.9.0"
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
+tasks.withType(Pmd).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+tasks.named("pmdTest", Pmd) {
+    ruleSetFiles = files("config/pmd/ruleset-test.xml")
+}
+
+// SonarLint configuration
+// All settings are in config/sonar-project.properties (single source of truth)
+// IDE SonarLint reads it automatically, Gradle plugin loads it here
+// Note: afterEvaluate is safe for configuration cache (runs in configuration phase)
+project.afterEvaluate {
+    def sonarlintExt = project.extensions.findByName('sonarlint')
+    if (sonarlintExt) {
+        sonarlintExt.languages {
+            include 'java', 'xml'
+        }
+
+        // Load all properties from sonar-project.properties
+        // Capture file path during configuration phase (configuration cache compatible)
+        def sonarPropsFile = file('config/sonar-project.properties')
+        def sonarProps = new Properties()
+        sonarPropsFile.withInputStream { sonarProps.load(it) }
+
+        // Pass all sonar.* properties to analyzer
+        def analyzerProps = [:]
+        sonarProps.each { key, value ->
+            if (key.startsWith('sonar.')) {
+                analyzerProps[key] = value
+            }
+        }
+
+        sonarlintExt.analyzer {
+            properties = analyzerProps as PropertyReportTask
+        }
+    }
+}
+
+// SonarLint configuration
+// All settings are in config/sonar-project.properties (single source of truth)
+// Suppressions: use sonar-project.properties for global rules or @SuppressWarnings("squid:RuleKey") in code
+tasks.withType(SonarLint).configureEach { task ->
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+spotbugs {
+    showProgress = true
+    includeFilter = file("config/spotbugs/include.xml")
+    excludeFilter = file("config/spotbugs/exclude.xml")
+}
+
+jacoco {
+    toolVersion = "0.8.13"
+}
+
+// Task configurations
+
+tasks.withType(Test).configureEach {
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    description = "Run tests"
+
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+    }
+    reports {
+        junitXml.required = true
+        html.required = true
+    }
+    finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+tasks.named("jacocoTestReport") {
+    dependsOn(tasks.named("test"))
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+    finalizedBy(tasks.named("jacocoTestCoverageVerification"))
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.compilerArgs.addAll([
+            "-parameters",
+            "-Xlint:all,-serial,-processing"
+    ])
+    dependsOn("spotlessApply")
+    // Note: Spotless plugin may access project at execution time, causing configuration cache warnings
+    // This is a known limitation of the Spotless plugin and doesn't affect functionality
+}
+
+// JavaDoc configuration
+tasks.withType(Javadoc).configureEach {
+    options.encoding = "UTF-8"
+    options.charSet = "UTF-8"
+    options.docEncoding = "UTF-8"
+    options.addStringOption("Xdoclint:none", "-quiet")
+    options.addBooleanOption("html5", true)
+    options.addStringOption("Xmaxwarns", "1000")
+
+    // Set source compatibility
+    source = sourceSets.main.allJava
+    classpath = sourceSets.main.compileClasspath
+
+    // Set destination directory
+    destinationDir = file("${layout.buildDirectory.get()}/docs/javadoc")
+
+    // Fail on warnings (optional, can be disabled)
+    failOnError = false
+}
+
+// Configure main javadoc task to exclude generated and test files
+tasks.named("javadoc", Javadoc) {
+    exclude "**/generated/**"
+    exclude "**/test/**"
+    exclude "**/build/**"
+}
+
+node {
+    version = '24.11.0'
+    download = true
+    workDir = file("${layout.buildDirectory.get()}/nodejs")
+    npmWorkDir = file("${layout.buildDirectory.get()}/npm")
+}
+
+// Fix task dependency: npmInstall needs vaadinPrepareFrontend to run first
+// because vaadinPrepareFrontend generates/modifies package.json
+tasks.named("npmInstall") {
+    dependsOn("vaadinPrepareFrontend")
+}
+
+// Custom tasks
+
+tasks.register("codeQuality") {
+    description = "Runs code quality checks"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    dependsOn(
+            "sonarlintMain",
+            "sonarlintTest",
+            "spotbugsMain",
+            "spotbugsTest",
+            "checkstyleMain",
+            "checkstyleTest",
+            "pmdMain",
+            "pmdTest"
+    )
+}
+
+tasks.register("lintCss", NpmTask) {
+    description = "Run stylelint for CSS in themes"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    mustRunAfter("vaadinPrepareFrontend")
+    args = ["run", "lint:css"]
+}
+
+tasks.register("lintCssFix", NpmTask) {
+    description = "Run stylelint --fix for CSS in themes"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    mustRunAfter("vaadinPrepareFrontend")
+    args = ["run", "lint:css:fix"]
+}
+
+tasks.register("lintYaml", NpmTask) {
+    description = "Run prettier --check for YAML files"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    args = ["run", "lint:yaml"]
+}
+
+tasks.register("lintYamlFix", NpmTask) {
+    description = "Run prettier --write for YAML files"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn("npmInstall")
+    args = ["run", "lint:yaml:fix"]
+}
+
+tasks.register("codeQualityFull") {
+    description = "Runs all code quality checks"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    dependsOn(
+            "codeQuality",
+            "lintCss",
+            "lintYaml"
+    )
+}
+
+tasks.register("ciBuild") {
+    description = "CI build pipeline"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    dependsOn(
+            "spotlessCheck",
+            "codeQualityFull",
+            "test",
+            "build"
+    )
+}
+
+// NOTE: This task requires --no-configuration-cache flag
+// because it accesses project.configurations at execution time.
+// Use: ./gradlew --no-configuration-cache lockDependencies
+// Or disable configuration cache in gradle.properties
+tasks.register("lockDependencies") {
+    description = "Lock dependency versions"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    // Capture configurations during configuration phase (not execution)
+    def resolvableConfigs = project.configurations.findAll { it.canBeResolved }
+
+    doLast {
+        resolvableConfigs.each { config ->
+            try {
+                config.resolve()
+            } catch (Exception ignored) {
+                // Ignore unresolvable configurations
+            }
+        }
+    }
+}
+
+tasks.register("updateDependencies") {
+    description = "Update dependency lock files"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    dependsOn("lockDependencies")
+}
+
+// NOTE: This task requires --no-configuration-cache flag
+// because it accesses project.extensions at execution time.
+// Use: ./gradlew --no-configuration-cache managedVersions
+// Or disable configuration cache in gradle.properties
+tasks.register("managedVersions") {
+    description = "Prints dependency versions from Spring Boot BOM"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    // Capture extension during configuration phase (not execution)
+    def dependencyManagement = project.extensions.findByName("dependencyManagement")
+    def hasManagedVersions = dependencyManagement != null && dependencyManagement.hasProperty("managedVersions")
+
+    doLast {
+        if (hasManagedVersions) {
+            println("Managed dependency versions:")
+            dependencyManagement.managedVersions.each { key, value ->
+                println("  ${key}:${value}")
+            }
+        } else {
+            println("Dependency management extension not found or managedVersions not available")
+            println("Run './gradlew dependencies --configuration compileClasspath' to see managed versions")
+        }
+    }
+}
+
+tasks.register("buildInfo") {
+    description = "Show build information"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+
+    doLast {
+        println("Run './gradlew properties' to see all build information")
+        println("Or check build.gradle for: group, version, java version")
+    }
+}
+
+tasks.register("javadocAll") {
+    description = "Generate JavaDoc for all source code"
+    group = JavaBasePlugin.DOCUMENTATION_GROUP
+    dependsOn("javadoc")
+}
+
+defaultTasks("bootRun")

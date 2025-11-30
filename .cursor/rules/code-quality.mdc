@@ -1,0 +1,34 @@
+---
+globs: ["**/*.java", "**/*.yml", "**/*.properties", "**/*.yaml"]
+autoFix: true
+version: "4.1.0"
+---
+
+# CODE QUALITY & CONFIG
+
+## JAVA 21
+Virtual Threads (spring.threads.virtual.enabled=true) | Pattern matching | Records (5+ params → Builder) | Text blocks | Compact constructors (tech validation)
+
+## QUALITY
+SOLID + Clean Architecture | DRY + KISS | Final fields, immutable | Constructor injection | @Nullable/@NonNull | Validation: @Email, @NotNull, @Size | Exceptions: specific types, meaningful | Senior+ level: production-ready, maintainable, testable
+
+## CODE SIZE & COMPLEXITY LIMITS
+**File size**: Max 250 lines (Checkstyle) | **Cognitive complexity**: Max 10/method (SonarLint) | **Cyclomatic complexity**: Max 10/method (PMD) | **Rationale**: Industry best practices (Google/Amazon: 300-400 lines, 10-15 complexity; we use stricter) | **Action**: If exceeded → refactor: extract methods, split files, simplify
+
+## CODE FORMATTING
+**Line length**: Max 100 chars (Checkstyle) | **Formatting**: Palantir Java Format (Spotless) | **Long expressions**: Single line if fits, else break logically | **Method chains**: Single line if readable (≤100 chars) | **Auto-format**: `./gradlew spotlessApply` before commit
+
+## LINTER SUPPRESSIONS - MINIMIZE
+❌ @SuppressWarnings only if necessary (document why) | ❌ NO suppressions in config files unless justified | ✅ Fix root cause: refactor, extract methods, improve design | ✅ Prefer architectural changes over workarounds | Every suppression must have justification
+
+## SPRING BOOT
+Configuration: application.properties, profiles | Beans: @Configuration, @Bean | Transactions: @Transactional service, read-only | Testing: @SpringBootTest, @MockBean, Testcontainers | Performance: Lazy loading, pagination, batch
+
+## ENV CONFIG
+❌ System.getenv() → ✅ @Value("${app.key:default}") | application-{profile}.yml | @Profile → conditional beans | NO secrets in code/git → env vars | ALWAYS fallback defaults
+
+## LOGGING
+DEBUG (tech) | INFO (business) | WARN (recoverable) | ERROR (failures) | Structured: log.info("id={}", id) | NO concat | NO passwords/tokens | MDC: Filter handles requestId/userId | Cleanup custom fields in finally
+
+## SECURITY
+@Secret passwords | Parameterized queries (JPQL) | XSS: Vaadin auto-escaping | Jmix security (row-level) | Input validation: @Email, @NotNull | CSRF: Vaadin built-in | Secrets: Externalize config, never hardcode
