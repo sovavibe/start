@@ -25,8 +25,10 @@ public class MainView extends StandardMainView {
 
     @Autowired
     private Messages messages;
+
     @Autowired
     private UiComponents uiComponents;
+
     @Autowired
     private CurrentUserSubstitution currentUserSubstitution;
 
@@ -103,9 +105,8 @@ public class MainView extends StandardMainView {
     }
 
     private String generateUserName(User user) {
-        String userName = String.format("%s %s",
-                        Strings.nullToEmpty(user.getFirstName()),
-                        Strings.nullToEmpty(user.getLastName()))
+        String userName = String.format(
+                        "%s %s", Strings.nullToEmpty(user.getFirstName()), Strings.nullToEmpty(user.getLastName()))
                 .trim();
 
         return userName.isEmpty() ? user.getUsername() : userName;

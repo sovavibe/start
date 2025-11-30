@@ -11,12 +11,11 @@ import io.jmix.core.EntityStates;
 import io.jmix.flowui.Notifications;
 import io.jmix.flowui.component.textfield.TypedTextField;
 import io.jmix.flowui.view.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Route(value = "users/:id", layout = MainView.class)
 @ViewController(id = "User.detail")
@@ -26,19 +25,25 @@ public class UserDetailView extends StandardDetailView<User> {
 
     @ViewComponent
     private TypedTextField<String> usernameField;
+
     @ViewComponent
     private PasswordField passwordField;
+
     @ViewComponent
     private PasswordField confirmPasswordField;
+
     @ViewComponent
     private ComboBox<String> timeZoneField;
+
     @ViewComponent
     private MessageBundle messageBundle;
+
     @Autowired
     private Notifications notifications;
 
     @Autowired
     private EntityStates entityStates;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -83,7 +88,8 @@ public class UserDetailView extends StandardDetailView<User> {
     @Subscribe
     public void onAfterSave(final AfterSaveEvent event) {
         if (newEntity) {
-            notifications.create(messageBundle.getMessage("noAssignedRolesNotification"))
+            notifications
+                    .create(messageBundle.getMessage("noAssignedRolesNotification"))
                     .withThemeVariant(NotificationVariant.LUMO_WARNING)
                     .withPosition(Notification.Position.TOP_END)
                     .show();

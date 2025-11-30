@@ -1,0 +1,59 @@
+---
+globs: ["**/*.md", "**/*.java", "**/*.gradle", "**/*.properties"]
+autoFix: false
+version: "1.0.0"
+---
+
+# GITHUB WORKFLOW
+
+## AUTHENTICATION
+✅ Use `gh auth login --with-token` for token authentication
+✅ Tokens stored in system keyring (NOT in code/.env)
+✅ Use `gh auth switch` to switch between accounts
+✅ Run `gh auth setup-git` after authentication
+
+## REPOSITORY OPERATIONS
+✅ Create repo: `gh repo create <name> --public --source=. --remote=origin`
+✅ View repo: `gh repo view --web`
+✅ Clone: `gh repo clone <owner>/<repo>`
+
+## COMMITS
+✅ ALWAYS use Conventional Commits format
+✅ Format: `<type>[scope]: <description>`
+✅ Types: feat, fix, docs, refactor, test, chore, perf, style
+✅ Examples:
+  - `feat(vaadin): add flashcard creation view`
+  - `fix(service): resolve null pointer`
+  - `refactor(service): extract payment calculation logic`
+
+## BRANCH WORKFLOW
+1. Create branch: `git checkout -b feat/my-feature`
+2. Make changes and commit: `git commit -m "feat: description"`
+3. Push branch: `git push -u origin feat/my-feature`
+4. Create PR: `gh pr create --title "feat: description" --body "Details"`
+5. After review: `gh pr merge --squash`
+
+## PULL REQUESTS
+✅ Create: `gh pr create --title "Title" --body "Description"`
+✅ List: `gh pr list`
+✅ View: `gh pr view <number>`
+✅ Merge: `gh pr merge <number> --squash`
+
+## ISSUES
+✅ Create: `gh issue create --title "Title" --body "Description"`
+✅ List: `gh issue list`
+✅ View: `gh issue view <number>`
+✅ Close: `gh issue close <number>`
+
+## SECURITY
+❌ NEVER commit tokens to code
+❌ NEVER add tokens to .env files
+❌ NEVER share tokens publicly
+✅ Tokens in system keyring only
+✅ Use `gh auth login` for authentication
+
+## QUICK COMMANDS
+- `gh status` - check auth status
+- `gh repo view --web` - open repo in browser
+- `gh pr create` - create pull request
+- `gh issue create` - create issue

@@ -1,0 +1,72 @@
+# Build artifacts
+build/
+!build/reports/
+.gradle/
+.jmix/
+out/
+target/
+*.class
+*.jar
+*.war
+
+# Generated files
+**/generated/
+**/build/
+node_modules/
+src/main/frontend/generated/
+src/main/bundles/
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# Gradle
+.gradle/
+gradle/wrapper/gradle-wrapper.jar
+# Note: gradlew/gradlew.bat are usually committed, but can be ignored for Cursor analysis
+
+# Vaadin generated
+vite.generated.ts
+webpack.generated.js
+pnpmfile.js
+vaadin-dev-server-settings.json
+build/vaadin-generated/
+frontend/generated/
+frontend/build/
+
+# Jmix generated
+.jmix/
+build/tmp/entitiesEnhancing/  # Jmix entity enhancement + Liquibase checksums
+
+# Test reports
+build/reports/
+build/test-results/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# Documentation (optional - uncomment if you want to exclude)
+# *.md
+# README.md
+
+# Frontend dependencies (if not needed for analysis)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Spotless cache
+build/spotless/

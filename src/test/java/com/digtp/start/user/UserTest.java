@@ -1,5 +1,7 @@
 package com.digtp.start.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.digtp.start.entity.User;
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
 import io.jmix.core.DataManager;
@@ -11,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Sample integration test for the User entity.
@@ -51,7 +51,6 @@ public class UserTest {
 
     @AfterEach
     void tearDown() {
-        if (savedUser != null)
-            dataManager.remove(savedUser);
+        if (savedUser != null) dataManager.remove(savedUser);
     }
 }

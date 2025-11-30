@@ -8,18 +8,18 @@ import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.InstanceName;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import io.jmix.security.authentication.JmixUserDetails;
-import org.springframework.security.core.GrantedAuthority;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
+import org.springframework.security.core.GrantedAuthority;
 
 @JmixEntity
 @Entity
-@Table(name = "USER_", indexes = {
-        @Index(name = "IDX_USER__ON_USERNAME", columnList = "USERNAME", unique = true)
-})
+@Table(
+        name = "USER_",
+        indexes = {@Index(name = "IDX_USER__ON_USERNAME", columnList = "USERNAME", unique = true)})
 public class User implements JmixUserDetails, HasTimeZone {
 
     @Id
@@ -156,8 +156,10 @@ public class User implements JmixUserDetails, HasTimeZone {
     @InstanceName
     @DependsOnProperties({"firstName", "lastName", "username"})
     public String getDisplayName() {
-        return String.format("%s %s [%s]", (firstName != null ? firstName : ""),
-                (lastName != null ? lastName : ""), username).trim();
+        return String.format(
+                        "%s %s [%s]",
+                        (firstName != null ? firstName : ""), (lastName != null ? lastName : ""), username)
+                .trim();
     }
 
     @Override

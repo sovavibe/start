@@ -1,0 +1,16 @@
+---
+globs: ["**/test/**/*.java", "**/*Test*.java", "**/*IT.java"]
+autoFix: true
+version: "5.0.0"
+---
+
+# TESTCONTAINERS
+
+## PATTERN
+@Testcontainers abstract BaseIntegrationTest | @Container static PostgreSQLContainer withReuse(true) | @DynamicPropertySource configureProperties | @SpringBootTest @Transactional extends BaseIntegrationTest
+
+## PERFORMANCE
+testcontainers.reuse.enable=true (2-5s startup) | @Transactional rollback | Singleton container (NOT per test)
+
+## ANTIPATTERNS
+New container per test → singleton | @DirtiesContext everywhere → slow | No reuse → slow

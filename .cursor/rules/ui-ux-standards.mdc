@@ -1,0 +1,9 @@
+---
+globs: ["**/view/**/*.java", "**/view/**/*.xml"]
+autoFix: true
+version: "3.0.0"
+---
+
+# UI/UX
+
+Material Design-inspired, calm palette | Views: XML layout, Java logic | Components: Jmix UiComponents factory | Responsive: Mobile-first, breakpoints | Accessibility: ARIA labels, keyboard nav | Loading: Progress indicators, skeleton screens | Error: User-friendly messages, validation feedback | I18n: Messages service, externalize strings

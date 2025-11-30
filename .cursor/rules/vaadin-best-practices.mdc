@@ -1,0 +1,25 @@
+---
+globs: ["**/view/**/*.java", "**/view/**/*.xml", "**/*View*.java", "**/*Component*.java"]
+autoFix: true
+version: "8.0.0"
+---
+
+# VAADIN BEST PRACTICES
+
+## LIFECYCLE
+@Route: Constructor (DI+UI) → beforeEnter → afterNavigation → onDetach | @UIScope: Constructor (data) → onAttach (hasBeenInitialized) → onDetach (Registration.remove)
+
+## PERFORMANCE
+Lazy: grid.setItems(query→service.find(PageRequest)) | Virtual: grid.setPageSize(50) | Smart refresh: track state
+
+## SECURITY
+@AnonymousAllowed/@PermitAll/@RolesAllowed on @Route | Check permissions in beforeEnter() | Hidden != secure | getTranslation() auto-escapes | Html() only trusted
+
+## @UIScope
+Use: @Component + reused + needs UI.getCurrent() | Don't: @Route, Dialogs, Stateless | @UIScope = tab, @SessionScope = shared
+
+## DIALOG
+✅ new Dialog() each time | ❌ @Component extends Dialog = singleton corruption
+
+## ANTIPATTERNS
+getTranslation() in @UIScope constructor → NPE | Listeners no cleanup → leak | grid.setItems(all) >100 → OOM | @Component + Dialog → singleton | removeAll() + add(same) → leak | @PostConstruct @UIScope → UI not ready | onAttach without hasBeenInitialized → double init

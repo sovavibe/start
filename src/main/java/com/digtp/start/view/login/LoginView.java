@@ -16,6 +16,10 @@ import io.jmix.flowui.kit.component.loginform.JmixLoginI18n;
 import io.jmix.flowui.view.*;
 import io.jmix.securityflowui.authentication.AuthDetails;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +28,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
-
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Route(value = "login")
 @ViewController(id = "LoginView")
@@ -66,8 +65,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private void initLocales() {
         LinkedHashMap<Locale, String> locales = coreProperties.getAvailableLocales().stream()
-                .collect(Collectors.toMap(Function.identity(), messageTools::getLocaleDisplayName, (s1, s2) -> s1,
-                        LinkedHashMap::new));
+                .collect(Collectors.toMap(
+                        Function.identity(), messageTools::getLocaleDisplayName, (s1, s2) -> s1, LinkedHashMap::new));
 
         ComponentUtils.setItemsMap(login, locales);
 
@@ -87,11 +86,9 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     @Subscribe("login")
     public void onLogin(final LoginEvent event) {
         try {
-            loginViewSupport.authenticate(
-                    AuthDetails.of(event.getUsername(), event.getPassword())
-                            .withLocale(login.getSelectedLocale())
-                            .withRememberMe(login.isRememberMe())
-            );
+            loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
+                    .withLocale(login.getSelectedLocale())
+                    .withRememberMe(login.isRememberMe()));
         } catch (final BadCredentialsException | DisabledException | LockedException | AccessDeniedException e) {
             log.warn("Login failed for user '{}': {}", event.getUsername(), e.toString());
             event.getSource().setError(true);

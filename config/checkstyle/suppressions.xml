@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!-- Conflict with spotless  -->
+    <suppress checks="LineLength" files=".*"/>
+    <suppress checks="WhitespaceAround" files=".*"/>
+
+    <!-- Java 21 switch expressions with pattern matching -->
+    <!-- InnerAssignment conflicts with modern switch expression syntax -->
+    <suppress checks="InnerAssignment" files=".*"/>
+
+    <!-- Exclude i18n files from nonEnglish character check -->
+    <suppress checks="RegexpSingleline" files=".*i18n.*"/>
+    <suppress checks="RegexpSingleline" files=".*messages_.*\.properties"/>
+
+        <!-- Exclude build and generated files -->
+    <suppress checks="RegexpSingleline" files=".*build.*"/>
+    <suppress checks="RegexpSingleline" files=".*generated.*"/>
+
+    <!-- Framework patterns: Jmix/Vaadin -->
+    <!-- DesignForExtension: Framework views/entities are designed for extension -->
+    <suppress checks="DesignForExtension" files=".*View\.java"/>
+    <suppress checks="DesignForExtension" files=".*Configuration\.java"/>
+    <suppress checks="DesignForExtension" files=".*Application\.java"/>
+    
+    <!-- HiddenField: Standard pattern for setters (parameter name matches field) -->
+    <suppress checks="HiddenField" files=".*/entity/.*\.java"/>
+    
+    <!-- HiddenField: Constructor parameters hiding fields is standard DI pattern (we use this.) -->
+    <suppress checks="HiddenField" files=".*View\.java"/>
+    
+    <!-- VisibilityModifier: Entity fields use Lombok @Getter/@Setter (generates accessors) -->
+    <suppress checks="VisibilityModifier" files=".*/entity/.*\.java"/>
+    
+    <!-- DesignForExtension: Entity classes are designed for extension -->
+    <suppress checks="DesignForExtension" files=".*/entity/.*\.java"/>
+    
+    <!-- DesignForExtension: Repository classes are designed for extension -->
+    <suppress checks="DesignForExtension" files=".*Repository\.java"/>
+    
+    
+    <!-- VisibilityModifier: Test fields can be package-private for convenience -->
+    <suppress checks="VisibilityModifier" files=".*Test\.java"/>
+    
+    <!-- JavadocVariable: Test fields don't need javadoc -->
+    <suppress checks="JavadocVariable" files=".*Test\.java"/>
+    
+    <!-- DesignForExtension: Test classes and extensions are designed for extension -->
+    <suppress checks="DesignForExtension" files=".*Test\.java"/>
+    <suppress checks="DesignForExtension" files=".*Extension\.java"/>
+    
+    <!-- MethodName: Test methods can use underscores (JUnit 5 style) -->
+    <suppress checks="MethodName" files=".*Test\.java"/>
+    
+    <!-- VisibilityModifier: View fields use @ViewComponent (framework pattern) -->
+    <suppress checks="VisibilityModifier" files=".*View\.java"/>
+    
+    <!-- DesignForExtension: Config classes implement framework interfaces (HealthIndicator, Filter) -->
+    <suppress checks="DesignForExtension" files=".*/config/.*\.java"/>
+    
+    <!-- Service classes: Use Lombok @FieldDefaults for fields -->
+    <!-- VisibilityModifier: Service fields use Lombok @FieldDefaults (generates private final) -->
+    <suppress checks="VisibilityModifier" files=".*/service/.*\.java"/>
+    <!-- DesignForExtension: Service classes are designed for extension -->
+    <suppress checks="DesignForExtension" files=".*/service/.*\.java"/>
+    
+    <!-- Application classes: Spring Boot main class pattern -->
+    <!-- VisibilityModifier: Application fields use constructor injection -->
+    <suppress checks="VisibilityModifier" files=".*Application\.java"/>
+    
+    <!-- Security classes: Framework pattern -->
+    <suppress checks="VisibilityModifier" files=".*/security/.*\.java"/>
+    
+    <!-- 
+    NOTE: Checkstyle does NOT have a rule requiring final fields.
+    If such a rule is added in the future, add suppressions here:
+    
+    <suppress checks="SomeFinalFieldRule" files=".*Entity\.java"/>
+    <suppress checks="SomeFinalFieldRule" files=".*View\.java"/>
+    
+    For now, use Lombok @FieldDefaults to automatically add final to fields where appropriate.
+    See docs/quality/lombok-checkstyle-integration.md for details.
+    -->
+</suppressions>

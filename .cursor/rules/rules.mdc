@@ -1,0 +1,71 @@
+---
+alwaysApply: true
+autoFix: true
+version: "7.2.0"
+---
+
+# PROJECT RULES
+Java 21 | Jmix 2.7.1 | Vaadin 24+ | Spring Boot 3.x | PostgreSQL | Liquibase
+
+## TECH STACK
+Java 21 (virtual threads, pattern matching, records, text blocks) | Jmix 2.7.1 | Vaadin FlowUI 24+ | Spring Boot 3.x | EclipseLink (via Jmix) | Liquibase | Gradle | Code Quality: Spotless/Palantir, Checkstyle, PMD, SpotBugs, SonarLint, JaCoCo | Frontend: stylelint, prettier, Node.js 24.11.0
+
+## CODE METRICS LIMITS
+**File size**: Maximum 250 lines (Checkstyle FileLength) | **Cyclomatic complexity**: Maximum 10 per method (PMD) | **Cognitive complexity**: Maximum 10 per method (SonarLint) | Based on industry best practices (Google: 300-400 lines/10-15 complexity, Amazon: 400 lines/10 complexity) | If exceeded → refactor: extract methods, split files, simplify logic | See `docs/quality/code-metrics-best-practices.md` for details
+
+## AI BEHAVIOR
+Autonomous end-to-end | context7 MCP docs | Senior+ Software Engineer level | Quality first | Production-ready code | See ai-rules.mdc for detailed AI assistant rules
+
+## WORKFLOW - MANDATORY
+**IMPORTANT**: Linter checks (checkstyle, PMD, SpotBugs, SonarLint) run ONLY at the end of all work.
+During development and fixes, checks are NOT run automatically.
+Before commit: run `./gradlew codeQualityFull` for final check.
+All changes MUST comply with rules and pass linters | Linters: Spotless, Checkstyle, PMD, SpotBugs, SonarLint, stylelint, prettier | Fix all linter errors before completion | NO exceptions
+
+## CODE STANDARDS - SENIOR+ LEVEL
+**ALL CHANGES**: Must fix root causes, not symptoms | Refactor or change architecture, NEVER add workarounds/hacks | Code must be production-ready, maintainable, testable | Minimize linter suppressions: ❌ @SuppressWarnings only if absolutely necessary (document why) | ❌ NO suppressions in config files unless justified | Fix issues properly: refactor, extract methods, improve design | Every change must improve code quality, not degrade it
+
+## JMIX CRITICAL
+See jmix-best-practices.mdc | Key: `dataManager.create()` not `new Entity()` | @JmixEntity + @JmixGeneratedValue + @Version | StandardListView<T>/StandardDetailView<T> | DataManager/DataContext | @SystemLevel/JmixUserDetails | @Transactional in services only | Constructor injection
+
+## VAADIN
+Lifecycle: @Route Constructor → beforeEnter → afterNavigation → onDetach | @UIScope: Constructor → onAttach (hasBeenInitialized) → onDetach | @ViewComponent for UI, constructor for services | ❌ @Component + Dialog = singleton corruption | ❌ removeAll() + add(same) = leak | See vaadin-best-practices.mdc for details
+
+## CODE QUALITY
+SOLID + Clean Architecture | DRY + KISS | Final fields, immutable | Constructor injection | Records (5+ params → Builder) | @Nullable/@NonNull | Validation: @Email, @NotNull, @Size | See code-quality.mdc for details
+
+## SECURITY
+@Secret passwords | Parameterized queries (JPQL) | XSS: Vaadin auto-escaping | Jmix security (row-level) | @Value("${key}") not System.getenv() | NO secrets in code
+
+## DATABASE - CRITICAL
+**DataManager (MANDATORY)**: ALWAYS use `DataManager` for ALL database operations:
+- ✅ `dataManager.create(Entity.class)` - NEVER `new Entity()`
+- ✅ `dataManager.save(entity)` - save entities
+- ✅ `dataManager.load(Entity.class).id(id).one()` - load by ID
+- ✅ `dataManager.load(Entity.class).condition(PropertyCondition.equal("field", value)).list()` - load by condition
+- ✅ `dataManager.remove(entity)` - delete entities
+- ✅ `dataManager.unconstrained()` - UnconstrainedDataManager for authentication setup, system operations
+
+**EntityManager (EXCEPTIONS ONLY)**:
+- ❌ NEVER use EntityManager for regular CRUD operations
+- ✅ ONLY for: native SQL queries (health checks, complex reports)
+- ✅ Example: `entityManager.createNativeQuery("SELECT 1")` for health checks
+
+**JPQL over native SQL** | **Liquibase (V{version}__{desc}.xml)** | **NEVER modify applied** | **@Version optimistic locking** | **Indexes on FKs**
+
+**CRITICAL**: ALL database operations MUST use DataManager. EntityManager ONLY for native SQL exceptions.
+
+## LOGGING
+DEBUG (tech) | INFO (business) | WARN (recoverable) | ERROR (failures) | Structured: log.info("id={}", id) | NO concat | NO passwords/tokens | MDC: Filter handles requestId/userId
+
+## TESTING
+NEVER delete failing tests → fix root | Testcontainers: singleton, reuse | @Transactional rollback | Spring Boot + Jmix: @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class}) | @Autowired fields allowed in tests | Import order: Java stdlib → Spring → Jmix → project
+
+## COMMITS
+Conventional Commits: `type(scope): description` | Types: feat|fix|docs|refactor|perf|test|build|chore | Scopes: jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test | Imperative, lowercase, max 72 chars | See conventional-commits.mdc
+
+## PROHIBITIONS
+System.out.println → SLF4J | System.getenv() → @Value | Hardcoded UI → getTranslation() | @Autowired fields → constructor (EXCEPT tests: @Autowired allowed) | Dead code → remove | final + @Lazy → CGLIB fail | Workarounds/hacks → refactor | @SuppressWarnings without justification → fix properly | Linter suppressions → fix root cause
+
+## COMMUNICATION
+English code | English documentation | Russian chat | No reports | Brevity (1-2 sentences)

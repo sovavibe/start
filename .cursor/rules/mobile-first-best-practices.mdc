@@ -1,0 +1,25 @@
+---
+globs: ["**/*.css", "**/view/**/*.java", "**/view/**/*.xml", "**/*.html"]
+autoFix: true
+version: "5.0.0"
+---
+
+# MOBILE-FIRST
+
+## BREAKPOINTS
+768px (tablet/mobile) | 1024px (desktop) | 1280px (large)
+
+## CSS
+Mobile base: .nav { display: none; } | Desktop: @media (min-width: 768px) { .nav { display: flex; } }
+
+## TOUCH TARGETS (WCAG 2.1 AAA)
+44x44px min, 48x48px recommended, spacing ≥8px
+
+## VIEWPORT
+width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes
+
+## VAADIN
+AppLayout: auto-overlay <768px (addToDrawer mobile, addToNavbar desktop) | FormLayout: ResponsiveStep("0", 1), ResponsiveStep("768px", 2) | Button: @media (max-width: 767px) hide label ::part(label), 44x44px, center icon
+
+## ANTIPATTERNS
+Fixed widths → max-width: 100% | user-scalable=no → accessibility violation | Touch <44px → WCAG fail | Desktop-first @media (max-width) → min-width | Font-size <16px → iOS zooms
