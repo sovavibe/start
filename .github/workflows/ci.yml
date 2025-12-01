@@ -88,22 +88,14 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      - name: Set up Docker for Testcontainers
-        uses: docker/setup-buildx-action@v3
-
-      - name: Configure Docker API version for Testcontainers
-        run: |
-          mkdir -p ~/.docker-java
-          echo "api.version=1.44" > ~/.docker-java.properties
-
       - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Run tests
         run: ./gradlew test --no-daemon
         env:
-          # Testcontainers Docker configuration
-          DOCKER_HOST: unix:///var/run/docker.sock
+          # Disable Testcontainers reuse in CI (containers are not reused between runs)
+          TESTCONTAINERS_REUSE_ENABLE: false
 
       - name: Upload test results
         if: always()
