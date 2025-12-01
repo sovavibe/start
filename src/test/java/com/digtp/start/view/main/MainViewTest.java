@@ -2,7 +2,6 @@ package com.digtp.start.view.main;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.digtp.start.entity.User;
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
@@ -10,7 +9,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.html.Div;
 import io.jmix.core.security.UserRepository;
-import io.jmix.core.usersubstitution.CurrentUserSubstitution;
 import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
 import io.jmix.flowui.testassist.UiTest;
@@ -20,20 +18,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @UiTest
-@SpringBootTest(
-        classes = {
-            com.digtp.start.StartApplication.class,
-            FlowuiTestAssistConfiguration.class,
-            MainViewTest.TestConfig.class
-        })
+@SpringBootTest(classes = {com.digtp.start.StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
 @SuppressWarnings("java:S5976") // Separate test methods are clearer than parameterized for these scenarios
 class MainViewTest {
@@ -42,24 +31,7 @@ class MainViewTest {
     private ViewNavigators viewNavigators;
 
     @Autowired
-    private CurrentUserSubstitution currentUserSubstitution;
-
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        @Primary
-        CurrentUserSubstitution currentUserSubstitution(@Lazy final UserRepository userRepository) {
-            final CurrentUserSubstitution mock = mock(CurrentUserSubstitution.class);
-            // Configure default answer to return admin user to prevent NPE during UserMenu initialization
-            // Create User directly to avoid circular dependency
-            final User adminUser = new User();
-            adminUser.setUsername("admin");
-            adminUser.setFirstName("Admin");
-            adminUser.setLastName("User");
-            when(mock.getAuthenticatedUser()).thenReturn(adminUser);
-            return mock;
-        }
-    }
+    private UserRepository userRepository;
 
     @Test
     void testGenerateUserNameWithFirstNameAndLastName() throws ReflectiveOperationException {
@@ -110,10 +82,8 @@ class MainViewTest {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
-        final User authenticatedUser = createTestUser("admin", "Admin", "User");
-
-        when(currentUserSubstitution.getAuthenticatedUser()).thenReturn(authenticatedUser);
-
+        // Authenticated user is "admin" (from AuthenticatedAsAdmin), user is different
+        // So isSubstituted should return true
         final boolean isSubstituted = invokePrivateMethod(mainView, "isSubstituted", User.class, user);
 
         assertThat(isSubstituted).isTrue();
@@ -123,10 +93,11 @@ class MainViewTest {
     void testIsSubstitutedWhenUserIsNotSubstituted() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
-        final User user = createTestUser("john.doe", "John", "Doe");
+        // Authenticated user is "admin" (from AuthenticatedAsAdmin), so use admin user
+        final UserDetails adminUserDetails = userRepository.loadUserByUsername("admin");
+        final User user = (User) adminUserDetails;
 
-        when(currentUserSubstitution.getAuthenticatedUser()).thenReturn(user);
-
+        // No substitution - authenticated user is the same as the user
         final boolean isSubstituted = invokePrivateMethod(mainView, "isSubstituted", User.class, user);
 
         assertThat(isSubstituted).isFalse();
@@ -136,10 +107,8 @@ class MainViewTest {
     void testIsSubstitutedWhenUserIsNull() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
-        final User authenticatedUser = createTestUser("admin", "Admin", "User");
 
-        when(currentUserSubstitution.getAuthenticatedUser()).thenReturn(authenticatedUser);
-
+        // When user is null, isSubstituted should return false
         final boolean isSubstituted = invokePrivateMethod(mainView, "isSubstituted", User.class, (User) null);
 
         assertThat(isSubstituted).isFalse();
@@ -162,9 +131,6 @@ class MainViewTest {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
-        final User authenticatedUser = createTestUser("admin", "Admin", "User");
-
-        when(currentUserSubstitution.getAuthenticatedUser()).thenReturn(authenticatedUser);
 
         final Component component = invokePrivateMethod(mainView, "userMenuButtonRenderer", UserDetails.class, user);
 
@@ -189,9 +155,6 @@ class MainViewTest {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
-        final User authenticatedUser = createTestUser("admin", "Admin", "User");
-
-        when(currentUserSubstitution.getAuthenticatedUser()).thenReturn(authenticatedUser);
 
         final Component component = invokePrivateMethod(mainView, "userMenuHeaderRenderer", UserDetails.class, user);
 
@@ -204,8 +167,6 @@ class MainViewTest {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", null, null);
-
-        when(currentUserSubstitution.getAuthenticatedUser()).thenReturn(user);
 
         final Component component = invokePrivateMethod(mainView, "userMenuHeaderRenderer", UserDetails.class, user);
 
