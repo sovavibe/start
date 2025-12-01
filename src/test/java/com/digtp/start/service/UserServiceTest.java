@@ -29,8 +29,7 @@ class UserServiceTest {
         final String plainPassword = "test-password-123";
         final String encodedPassword = userService.encodePassword(plainPassword);
 
-        assertThat(encodedPassword).isNotBlank();
-        assertThat(encodedPassword).isNotEqualTo(plainPassword);
+        assertThat(encodedPassword).isNotBlank().isNotEqualTo(plainPassword);
         assertThat(encodedPassword.length()).isGreaterThan(plainPassword.length());
     }
 
@@ -51,8 +50,7 @@ class UserServiceTest {
 
         userService.prepareUserForSave(user, password, true);
 
-        assertThat(user.getPassword()).isNotBlank();
-        assertThat(user.getPassword()).isNotEqualTo(password);
+        assertThat(user.getPassword()).isNotBlank().isNotEqualTo(password);
         savedUser = dataManager.save(user);
     }
 
@@ -73,7 +71,7 @@ class UserServiceTest {
     void tearDown() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
-            savedUser = null;
+            savedUser = null; // NOPMD - NullAssignment: prevents accidental reuse of removed entity
         }
     }
 }
