@@ -1,6 +1,7 @@
 package com.digtp.start.view.user;
 
 import com.digtp.start.entity.User;
+import com.digtp.start.service.UserService;
 import com.digtp.start.view.main.MainView;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.notification.Notification;
@@ -18,11 +19,9 @@ import io.jmix.flowui.view.ViewComponent;
 import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import java.util.List;
-import java.util.Objects;
 import java.util.TimeZone;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Route(value = "users/:id", layout = MainView.class)
 @ViewController(id = "User.detail")
@@ -49,9 +48,9 @@ public class UserDetailView extends StandardDetailView<User> {
     @ViewComponent
     private MessageBundle messageBundle;
 
-    private final Notifications notifications;
-    private final EntityStates entityStates;
-    private final PasswordEncoder passwordEncoder;
+    private final transient Notifications notifications;
+    private final transient EntityStates entityStates;
+    private final transient UserService userService;
 
     private boolean newEntity;
 
@@ -77,7 +76,8 @@ public class UserDetailView extends StandardDetailView<User> {
     @Subscribe
     public void onValidation(final ValidationEvent event) {
         if (entityStates.isNew(getEditedEntity())
-                && !Objects.equals(passwordField.getValue(), confirmPasswordField.getValue())) {
+                && !userService.validatePasswordConfirmation(
+                        passwordField.getValue(), confirmPasswordField.getValue())) {
             event.getErrors().add(messageBundle.getMessage("passwordsDoNotMatch"));
         }
     }
@@ -85,12 +85,12 @@ public class UserDetailView extends StandardDetailView<User> {
     @Subscribe
     public void onBeforeSave(final BeforeSaveEvent event) {
         final User user = getEditedEntity();
-        if (entityStates.isNew(user)) {
-            getEditedEntity().setPassword(passwordEncoder.encode(passwordField.getValue()));
-            log.info("Creating new user: username={}", user.getUsername());
+        final boolean isNew = entityStates.isNew(user);
+        if (isNew) {
+            userService.prepareUserForSave(user, passwordField.getValue(), true);
             newEntity = true;
         } else {
-            log.info("Updating user: id={}, username={}", user.getId(), user.getUsername());
+            userService.prepareUserForSave(user, null, false);
         }
     }
 
@@ -104,7 +104,6 @@ public class UserDetailView extends StandardDetailView<User> {
                     .withThemeVariant(NotificationVariant.LUMO_WARNING)
                     .withPosition(Notification.Position.TOP_END)
                     .show();
-
             newEntity = false;
         } else {
             log.info("User updated successfully: id={}, username={}", user.getId(), user.getUsername());

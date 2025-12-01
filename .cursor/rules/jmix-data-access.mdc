@@ -1,0 +1,66 @@
+---
+globs: ["**/service/**/*.java", "**/repository/**/*.java"]
+autoFix: true
+version: "1.0.0"
+---
+
+# JMIX DATA ACCESS
+
+## DATA MANAGER
+**DataManager**: `create()`, `save()`, `saveAll()`, `load().id().one()`, `load().ids().list()`, `load().condition()`, `load().query()`, `load().all()`, `remove()`, `removeAll()`, `unconstrained()` | **UnconstrainedDataManager**: System ops, migrations, background jobs only | ⚠️ Bypasses security - use with caution | **EntityManager**: Only native SQL (health checks) | See rules.mdc for basics
+
+**PropertyConditions**: `equal()`, `greaterThan()`, `lessThan()`, `contains()` (LIKE), `in()`, `isNull()/isNotNull()`, `isSet()`, `and()`, `or()`, `not()` | **Query Options**: `.maxResults()`, `.firstResult()`, `.sort()`, `.fetchPlan()`, `.cacheable()`
+
+## FETCHPLAN
+**FetchPlan**: Control which entity attributes and relationships are loaded | Prevents N+1 queries | Used for eager loading of lazy relationships
+
+**Basic Usage**:
+```java
+FetchPlan fetchPlan = fetchPlans.builder(Order.class)
+    .add("customer")  // Load customer relationship
+    .add("items")    // Load items collection
+    .add("customer.name")  // Load nested attribute
+    .build();
+
+Order order = dataManager.load(Order.class)
+    .id(orderId)
+    .fetchPlan(fetchPlan)
+    .one();
+```
+
+**Features**: `add("field")`, `add("field", FetchPlan.BASE)`, `addAll()`, `addFetchPlan()`, `partial(true)` | **System FetchPlans**: `FetchPlan.LOCAL`, `FetchPlan.BASE`, `FetchPlan.INSTANCE_NAME` | **Best Practices**: Always use for @OneToMany/@ManyToMany, use partial for read-only, load nested explicitly
+
+## TRANSACTIONS
+**@Transactional**: Required for write operations | Optional for read-only queries | **Propagation**: REQUIRED (default), REQUIRES_NEW, MANDATORY, SUPPORTS, NOT_SUPPORTED, NEVER, NESTED | **Isolation**: READ_UNCOMMITTED, READ_COMMITTED (default), REPEATABLE_READ, SERIALIZABLE
+
+**Boundaries**: ✅ Services: @Transactional | ❌ Views: NO @Transactional (use services) | ✅ REST controllers: use services | ✅ DataContext: auto-managed
+
+**Optimistic Locking**: Handle `OptimisticLockException` on save, reload and retry, `@Version` field required | **Error Handling**: `OptimisticLockException`, `ConstraintViolationException`, `EntityAccessException`, `NoResultException` (use `.optional()`)
+
+## ENTITY EVENTS
+**Entity Event Listeners**: React to entity lifecycle events | Use `@EventListener` on service methods | **Event Types**: `BeforeEntityChangedEvent<T>`, `EntityChangedEvent<T>`, `BeforeEntityDeletedEvent<T>`, `EntityDeletedEvent<T>`
+
+**JPA Entity Callbacks** (alternative): `@PrePersist`, `@PostPersist`, `@PreUpdate`, `@PostUpdate`, `@PostLoad`, `@PreRemove`, `@PostRemove` | **Note**: Entity events work with DataManager. JPA callbacks work with EntityManager but may bypass Jmix features.
+
+## CACHING
+**Entity Cache**: Second-level cache for entities | Configured via `jmix.core.entity-cache.*` properties | **Query Cache**: Cache query results | Use `cacheable(true)` on queries
+
+**Cache Invalidation**: Automatic on entity save/delete | Manual: `entityCache.evict(entityClass, id)` | **Best Practices**: Use query cache for frequently accessed, rarely changed data | Use entity cache for read-heavy entities
+
+## DATA REPOSITORIES
+**JmixDataRepository**: Extend for custom repository methods | Combines Spring Data with Jmix features | **Features**: Spring Data query methods, Custom JPQL queries via @Query, Jmix security and FetchPlan support | **Note**: Prefer DataManager for most operations. Use repositories for custom query methods.
+
+## JDBC ACCESS
+**JdbcTemplate**: Use for complex SQL, batch operations, stored procedures | **Best Practices**: ✅ Use for complex SQL that JPQL can't handle | ✅ Use for batch operations (performance) | ✅ Use for stored procedures | ✅ ALWAYS parameterize queries (prevent SQL injection) | ⚠️ Bypasses Jmix security, audit, dynamic attributes | ⚠️ Returns raw data, not entities
+
+## JPQL EXTENSIONS
+**Jmix JPQL Extensions**: Additional functions for JPQL queries | **Date/Time**: `DATE_TRUNC('day', e.createdDate)`, `DATEADD('day', 7, e.createdDate)`, `DATEDIFF('day', e.startDate, e.endDate)` | **String**: `CONCAT()`, `LOWER()`, `UPPER()`, `SUBSTRING()` | **Aggregate**: `COUNT()`, `SUM()`, `AVG()`, `MIN()`, `MAX()`
+
+## LOADCONTEXT API
+**LoadContext**: Programmatic data loading | Used by loaders internally | Can be used directly in services/views | **Note**: Prefer DataManager fluent API for most cases. LoadContext useful for complex scenarios or when reusing query definitions.
+
+## DATA PROPERTIES
+**Configuration Properties**: Control DataManager behavior via `application.properties` | **Key Properties**: `jmix.data.number-id-cache-size`, `jmix.data.default-fetch-plan`, `jmix.data.entity-cache.enabled`, `jmix.data.entity-cache.max-size`, `jmix.data.query-cache.enabled` | **Store-Specific**: `{storeName}.datasource.*`, `{storeName}.liquibase.change-log`
+
+## PERFORMANCE OPTIMIZATION
+**Best Practices**: ✅ Use FetchPlan to avoid N+1 queries | ✅ Use query cache for frequently accessed data | ✅ Use batch operations (`saveAll`, `removeAll`) for multiple entities | ✅ Use `readOnly = true` for query transactions | ✅ Use partial FetchPlan for read-only operations | ✅ Index foreign keys and frequently queried columns | ⚠️ Avoid loading large collections without pagination | ⚠️ Use lazy loading by default, eager only when needed

@@ -43,9 +43,9 @@ import org.springframework.security.authentication.LockedException;
 // plugin.
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
-    private final CoreProperties coreProperties;
-    private final LoginViewSupport loginViewSupport;
-    private final MessageTools messageTools;
+    private final transient CoreProperties coreProperties;
+    private final transient LoginViewSupport loginViewSupport;
+    private final transient MessageTools messageTools;
 
     @ViewComponent
     private JmixLoginForm login;
@@ -103,14 +103,19 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         event.getSource().setError(true);
     }
 
+    @SuppressWarnings("java:S1192") // String literals should not be duplicated - but these are distinct error messages
     private String getLoginFailureReason(final Exception e) {
-        return switch (e) {
-            case BadCredentialsException ignored -> "invalid credentials";
-            case DisabledException ignored -> "account disabled";
-            case LockedException ignored -> "account locked";
-            case AccessDeniedException ignored -> "access denied";
-            default -> "unknown error";
-        };
+        if (e instanceof BadCredentialsException) {
+            return "invalid credentials";
+        } else if (e instanceof DisabledException) {
+            return "account disabled";
+        } else if (e instanceof LockedException) {
+            return "account locked";
+        } else if (e instanceof AccessDeniedException) {
+            return "access denied";
+        } else {
+            return "unknown error";
+        }
     }
 
     @Override

@@ -1,0 +1,88 @@
+---
+globs: ["**/view/**/*.java", "**/view/**/*.xml"]
+autoFix: true
+version: "1.0.0"
+---
+
+# JMIX VIEWS
+
+## VIEW ARCHITECTURE
+StandardView (general) | StandardListView<T> (lists) | StandardDetailView<T> (detail/edit) | Constructor: services | @ViewComponent: UI components | ❌ @Autowired fields
+
+## VIEW ANNOTATIONS
+**@ViewController**: Marks view class | **@ViewDescriptor**: XML layout path | **@LookupComponent**: Component for lookup dialogs | **@EditedEntityContainer**: Data container for detail views | **@DialogMode**: Dialog size configuration | **@ViewComponent**: Inject UI components (fields, buttons, grids) | Constructor injection for services | **@Install**: Customize component behavior (renderers, validators)
+
+## VIEW SERVICES
+**Messages**: `messages.getMessage("key")` for i18n | **MessageBundle**: View-specific messages | **UiComponents**: Factory for creating components | **ViewNavigators**: Programmatic navigation | **Notifications**: User notifications | **EntityStates**: Check entity state (isNew, isDetached)
+
+## DECLARATIVE UI (XML VIEW DESCRIPTORS)
+
+### Data Containers
+**InstanceContainer**: Holds single entity instance | **CollectionContainer**: Holds collection of entities | Defined in `<data>` section of XML
+
+**Binding to Components**: `dataContainer="containerId"` - bind container to component (formLayout, dataGrid) | `property="fieldName"` - bind field to component (textField, comboBox) | `dataLoader="loaderId"` - bind loader to component (pagination, genericFilter)
+
+### Data Loaders
+**InstanceLoader**: Loads single entity | **CollectionLoader**: Loads collection | Defined inside `<instance>` or `<collection>` | **Loader Attributes**: `id` (optional for instance, required for collection), `readOnly="true"`, `dataContext="contextId"` (optional)
+
+**Programmatic Loading**: `@ViewComponent CollectionLoader<Order> ordersDl;` | `ordersDl.load()` | `ordersDl.setParameter("status", OrderStatus.PENDING); ordersDl.load()`
+
+### Actions
+**Actions**: Reusable UI operations | Defined in `<actions>` section | Types: `list_create`, `list_edit`, `list_remove`, `detail_saveClose`, `detail_close`, `lookup_select`, `lookup_discard`
+
+**Binding Actions**: `action="actionId"` - bind to button/component | `ref="component.actionId"` - reference component action (e.g., `usersDataGrid.createAction`)
+
+**Custom Actions**: `@Subscribe("customButton")` for custom action logic
+
+### Facets
+**dataLoadCoordinator**: Automatic data loading | `auto="true"` - automatically load data on view open | Loads all loaders when view is ready
+
+**urlQueryParameters**: URL synchronization | Syncs filter and pagination state with URL | Enables bookmarking and sharing filtered views
+
+### FetchPlan in XML
+**FetchPlan**: Control loaded attributes | Use `extends` to reference system FetchPlans | **System FetchPlans**: `_base` (base attributes, default), `_instance_name` (includes @InstanceName method), `_local` (only direct attributes, no relationships)
+
+### Data Binding
+**Property Binding**: `property="fieldName"` binds component to entity field | **Container Binding**: `dataContainer="containerId"` binds container to component | **Loader Binding**: `dataLoader="loaderId"` binds loader to component
+
+## DATACONTEXT
+**DataContext**: UI-level data management | Tracks entity changes | Manages save operations | Auto-created in StandardDetailView
+
+**StandardDetailView**: Automatically creates and manages DataContext | All entities loaded in view are registered in DataContext | Changes tracked automatically | Save operation saves all "dirty" entities
+
+**DataContext Methods**: `save()` - saves all dirty entities | `clear()` - clears all entities | `hasChanges()` - check if there are unsaved changes | `get(entity)` - get entity from context | `remove(entity)` - mark entity for deletion
+
+**DataContext Hierarchy (Aggregates)**: Parent-Child Contexts for editing aggregates | Child contexts save to parent, parent saves to database | Use for @Composition relationships
+
+**Best Practices**: ✅ StandardDetailView manages DataContext automatically | ✅ Use DataContext hierarchy for aggregates (@Composition) | ✅ Check `hasChanges()` before closing view | ✅ Save operations are transactional (all or nothing) | ⚠️ DataContext is view-scoped (not shared across views) | ⚠️ Entities in DataContext are managed (changes tracked automatically)
+
+## EDITING AGGREGATES
+**Aggregates**: Complex data structures with parent-child relationships | Root entity + composed entities | Must be saved in single transaction
+
+**@Composition**: Marks composition relationship | Child entities belong to parent | Cascade delete | Saved together in one transaction
+
+**Aggregate Editing Flow**: Parent View creates parent DataContext, loads aggregate with FetchPlan | Child View (opened from parent) creates child DataContext, automatically sets parent context | Save in child → saves to parent context (not database) | Save in parent → saves entire aggregate to database in one transaction
+
+**Best Practices**: ✅ Use @Composition for parent-child relationships | ✅ Always load aggregates with FetchPlan (include child collections) | ✅ Use StandardDetailView for aggregate editing (automatic context hierarchy) | ✅ Child views automatically inherit parent context | ✅ Save only in root entity view (parent) | ⚠️ Don't save child entities separately - save through parent
+
+## VIEW LIFECYCLE EVENTS
+**Lifecycle Events**: React to view initialization, navigation, and component events | Use `@Subscribe` annotation
+
+**View Events**: **InitEvent** - View initialization (after constructor, before UI ready) | **BeforeShowEvent** - Before view is shown (after InitEvent, UI ready), access URL parameters | **AfterShowEvent** - After view is shown (view fully rendered) | **ReadyEvent** - View is ready (all components initialized)
+
+**Component Events**: **@Subscribe** - Subscribe to component events by component ID | **Button Click**: `@Subscribe("saveButton")` | **Field Value Change**: `@Subscribe("nameField")` | **Grid Selection**: `@Subscribe("usersDataGrid")` | **Form Validation**: `@Subscribe("userForm")`
+
+**Event Subscription Patterns**: By Component ID: `@Subscribe("componentId")` | By Component Reference: `@ViewComponent Button saveButton; @Subscribe` | Multiple Components: `@Subscribe({"button1", "button2"})`
+
+**Best Practices**: ✅ Use InitEvent for data loading and setup | ✅ Use BeforeShowEvent for URL parameter handling | ✅ Use @Subscribe for component events | ✅ Keep event handlers focused and simple | ⚠️ Avoid heavy operations in event handlers (use async if needed)
+
+## LOOKUP DIALOGS
+**Lookup Dialogs**: Select entities from list views | Use `@LookupComponent` annotation | Special view mode for selection
+
+**Lookup View Setup**: **@LookupComponent** - Mark component for lookup selection | **Lookup Actions**: Defined in XML (`lookup_select`, `lookup_discard`) | **Lookup Mode**: View automatically switches to lookup mode when opened as dialog
+
+**Opening Lookup Dialog**: **ViewNavigators** - Programmatic navigation | **Lookup Screen**: Use lookup screen builder (`LookupScreenFacet`)
+
+**Lookup Component API**: `getSingleSelectedItem()` - Get selected entity (single selection) | `getSelectedItems()` - Get selected entities (multi-selection)
+
+**Best Practices**: ✅ Use `@LookupComponent` for lookup views | ✅ Define lookup actions in XML | ✅ Handle selection in `AfterCloseEvent` | ✅ Use `StandardOutcome.SELECT` to check if selection occurred | ⚠️ Lookup mode is automatic when view opened as dialog
