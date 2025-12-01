@@ -38,6 +38,15 @@ version: "1.0.0"
 ✅ List: `gh pr list`
 ✅ View: `gh pr view <number>`
 ✅ Merge: `gh pr merge <number> --squash`
+✅ Auto-merge Dependabot PRs after CI passes (see dependabot-auto-merge.yml)
+
+## DEPENDABOT
+✅ Group updates by type (patch/minor/major) in dependabot.yml
+✅ Limit open PRs: 2-3 per ecosystem
+✅ Monthly schedule for non-critical updates
+✅ Auto-merge safe updates (patch/minor) after CI
+✅ Manual review for major updates
+✅ Use groups to reduce PR count
 
 ## ISSUES
 ✅ Create: `gh issue create --title "Title" --body "Description"`

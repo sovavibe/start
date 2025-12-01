@@ -21,5 +21,8 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
 ## WORKFLOW
 **Commands**: `make analyze-full` (not `./gradlew codeQualityFull`), `make test`, `make format` | **Process**: Understand → Search codebase → Implement → Compile → Linters (end) → Test | **Before completion**: Compiles, linters pass, follows conventions, production-ready
 
+## CI/CD BEST PRACTICES
+**GitHub Actions**: Use latest stable versions, pin major versions (v5, v6), enable caching | **Parallelization**: Split jobs (format-check, code-quality, test, build) for faster execution | **Timeouts**: Set timeouts for all jobs (10-30 min) | **Dependabot**: Group updates, limit PRs, monthly schedule, auto-merge safe updates | **Security**: Use GITHUB_TOKEN, scan dependencies (Trivy, OWASP), upload SARIF reports
+
 ## CONTEXT
 Search codebase first | Follow existing patterns | Use context7 MCP docs | Maintain consistency | See rules.mdc for security, logging, testing, prohibitions, metrics
