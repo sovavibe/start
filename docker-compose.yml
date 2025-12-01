@@ -23,12 +23,14 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: start-app
+    env_file:
+      - .env
     environment:
-      SPRING_PROFILES_ACTIVE: prod
-      MAIN_DATASOURCE_URL: jdbc:postgresql://postgres:5432/start
-      MAIN_DATASOURCE_USERNAME: start
-      MAIN_DATASOURCE_PASSWORD: start
-      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      MAIN_DATASOURCE_URL: ${MAIN_DATASOURCE_URL:-jdbc:postgresql://postgres:5432/start}
+      MAIN_DATASOURCE_USERNAME: ${MAIN_DATASOURCE_USERNAME:-start}
+      MAIN_DATASOURCE_PASSWORD: ${MAIN_DATASOURCE_PASSWORD:-start}
+      SERVER_PORT: ${SERVER_PORT:-8080}
     ports:
       - '8080:8080'
     depends_on:

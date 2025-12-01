@@ -34,6 +34,7 @@
         <exclude name="OnlyOneReturn"/> <!-- Early returns improve code readability -->
         <exclude name="AtLeastOneConstructor"/> <!-- Default constructor is acceptable -->
         <exclude name="ShortVariable"/> <!-- Short variable names are acceptable in some contexts -->
+        <!-- Note: UnnecessaryFullyQualifiedName is enabled by default - checks annotations and classes -->
     </rule>
 
     <!-- Design -->
@@ -43,6 +44,10 @@
         <!-- Exclude rules that are too strict for framework code -->
         <exclude name="LawOfDemeter"/> <!-- Framework code often uses method chaining -->
         <exclude name="SignatureDeclareThrowsException"/> <!-- Framework methods may throw Exception -->
+        <!-- Exclude AvoidCatchingGenericException for DotenvConfig -->
+        <!-- Dotenv library throws various runtime exceptions (IOException wrapped, parsing errors) -->
+        <!-- Catching RuntimeException is necessary as we can't predict all exception types -->
+        <exclude name="AvoidCatchingGenericException"/>
     </rule>
 
     <!-- Configure ExcessiveImports with custom threshold for Vaadin views -->

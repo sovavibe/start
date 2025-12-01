@@ -3,6 +3,7 @@ package com.digtp.start.user;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.digtp.start.entity.User;
+import com.digtp.start.test_support.AbstractIntegrationTest;
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
 import io.jmix.core.DataManager;
 import io.jmix.core.security.UserRepository;
@@ -13,13 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Sample integration test for the User entity.
  */
 @SpringBootTest
+@ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-class UserTest {
+class UserTest extends AbstractIntegrationTest {
 
     @Autowired
     DataManager dataManager;
