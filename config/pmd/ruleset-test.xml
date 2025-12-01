@@ -43,10 +43,10 @@
         <!-- Exclude rules that are too strict for framework code -->
         <exclude name="LawOfDemeter"/> <!-- Framework code often uses method chaining -->
         <exclude name="DataClass"/> <!-- Records are data classes by design -->
-        <exclude name="LoosePackageCoupling"/> <!-- Requires manual configuration -->
         <exclude name="TooManyMethods"/> <!-- Tests can have many test methods -->
         <exclude name="SingularField"/> <!-- Test classes can have single-field mocks -->
         <exclude name="AvoidCatchingGenericException"/> <!-- Required for test exception handling -->
+        <exclude name="SignatureDeclareThrowsException"/> <!-- Tests using reflection must declare ReflectiveOperationException -->
     </rule>
 
     <!-- Configure complexity rules with custom thresholds for tests -->
