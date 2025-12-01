@@ -107,12 +107,22 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <!-- OpenTelemetry Appender (only for docker/kubernetes profiles) -->
+    <springProfile name="docker,kubernetes">
+        <appender name="OpenTelemetry" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+            <captureMdcAttributes>*</captureMdcAttributes>
+        </appender>
+    </springProfile>
     
     <!-- Application logger - only application logs -->
     <logger name="com.digtp.start" level="INFO" additivity="false">
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
         <appender-ref ref="CONSOLE"/>
+        <springProfile name="docker,kubernetes">
+            <appender-ref ref="OpenTelemetry"/>
+        </springProfile>
     </logger>
     
     <!-- Audit logger - security and business events -->
@@ -197,5 +207,8 @@
     <root level="INFO">
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
+        <springProfile name="docker,kubernetes">
+            <appender-ref ref="OpenTelemetry"/>
+        </springProfile>
     </root>
 </configuration>

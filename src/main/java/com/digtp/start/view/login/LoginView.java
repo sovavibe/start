@@ -13,7 +13,12 @@ import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.component.loginform.JmixLoginForm;
 import io.jmix.flowui.kit.component.ComponentUtils;
 import io.jmix.flowui.kit.component.loginform.JmixLoginI18n;
-import io.jmix.flowui.view.*;
+import io.jmix.flowui.view.MessageBundle;
+import io.jmix.flowui.view.StandardView;
+import io.jmix.flowui.view.Subscribe;
+import io.jmix.flowui.view.ViewComponent;
+import io.jmix.flowui.view.ViewController;
+import io.jmix.flowui.view.ViewDescriptor;
 import io.jmix.securityflowui.authentication.AuthDetails;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
 import java.util.LinkedHashMap;
@@ -33,9 +38,9 @@ import org.springframework.security.authentication.LockedException;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("java:S1948") // Framework pattern: Vaadin views contain non-serializable deps
-// Suppressed globally in sonar-project.properties (e7),
-// but required for Gradle SonarLint plugin
+@SuppressWarnings(
+        "java:S1948") // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint
+// plugin.
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private final CoreProperties coreProperties;

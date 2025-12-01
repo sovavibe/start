@@ -1,7 +1,7 @@
 ---
-globs: ["**/view/**/*.java", "**/service/**/*.java", "**/entity/**/*.java", "**/rest/**/*.java"]
+globs: ["**/view/**/*.java", "**/service/**/*.java", "**/entity/**/*.java", "**/rest/**/*.java", "**/security/**/*.java", "**/view/**/*.xml"]
 autoFix: true
-version: "2.0.0"
+version: "3.1.0"
 ---
 
 # JMIX BEST PRACTICES
@@ -12,18 +12,58 @@ version: "2.0.0"
 ## DATA ACCESS - CRITICAL
 **DataManager (MANDATORY)**: ALWAYS use `DataManager` for ALL database operations:
 - ✅ `dataManager.create(Entity.class)` - create entities (NEVER `new Entity()`)
-- ✅ `dataManager.save(entity)` - save entities
+- ✅ `dataManager.save(entity)` - save entities (single or collection)
+- ✅ `dataManager.saveAll(entities)` - batch save multiple entities
 - ✅ `dataManager.load(Entity.class).id(id).one()` - load by ID
 - ✅ `dataManager.load(Entity.class).condition(PropertyCondition.equal("field", value)).list()` - load by condition
+- ✅ `dataManager.load(Entity.class).query("SELECT e FROM Entity e WHERE e.field = :value").parameter("value", v).list()` - JPQL query
 - ✅ `dataManager.remove(entity)` - delete entities
+- ✅ `dataManager.removeAll(entities)` - batch remove multiple entities
 - ✅ `dataManager.unconstrained()` - UnconstrainedDataManager for bypassing security (authentication setup, system operations)
+
+**UnconstrainedDataManager**: Bypasses security, row-level policies, audit | Use ONLY for:
+- System operations (initialization, migrations)
+- Background jobs with SystemAuthenticator
+- Admin operations that need full access
+- ⚠️ NEVER use in regular business logic
+- ⚠️ Security is bypassed - use with extreme caution
+
+**DataManager Query Methods**:
+- `load().id(id).one()` - load by ID
+- `load().ids(ids).list()` - load multiple by IDs
+- `load().condition(condition).list()` - load by condition
+- `load().query(jpql).parameter(name, value).list()` - JPQL query
+- `load().all().list()` - load all entities
+- `load().fetchPlan(fetchPlan)` - specify FetchPlan for eager loading
+
+**PropertyConditions**: Use for type-safe queries:
+- `PropertyCondition.equal("field", value)`
+- `PropertyCondition.greaterThan("field", value)`
+- `PropertyCondition.lessThan("field", value)`
+- `PropertyCondition.contains("field", value)` - LIKE
+- `PropertyCondition.in("field", values)` - IN clause
+- `PropertyCondition.isNull("field")` / `isNotNull("field")`
+- `PropertyCondition.isSet("field")` - not null check
+- `PropertyCondition.and(condition1, condition2)` - AND logic
+- `PropertyCondition.or(condition1, condition2)` - OR logic
+- `PropertyCondition.not(condition)` - NOT logic
+
+**Query Options**:
+- `.maxResults(count)` - limit results
+- `.firstResult(offset)` - pagination offset
+- `.sort("field", Sort.Direction.ASC)` - sorting
+- `.sort("field", Sort.Direction.DESC)` - descending sort
+- `.fetchPlan(fetchPlan)` - specify FetchPlan
+- `.cacheable(true)` - enable query cache
 
 **EntityManager (EXCEPTIONS ONLY)**:
 - ❌ NEVER use EntityManager for regular CRUD operations
 - ✅ ONLY for: native SQL queries (health checks, complex reports), direct persistence context control
+- ⚠️ EntityManager bypasses security, audit, dynamic attributes
+- ⚠️ Still use `dataManager.create()` even with EntityManager
 - ✅ Example: `entityManager.createNativeQuery("SELECT 1").getSingleResult()` for health checks
 
-**DataContext**: StandardDetailView for related entities (auto-managed)
+**DataContext**: StandardDetailView for related entities (auto-managed) | Use for editing related entities in detail views
 
 **CRITICAL RULE**: ALL database operations MUST go through DataManager. EntityManager is ONLY for native SQL or special cases.
 
@@ -33,17 +73,535 @@ StandardView (general) | StandardListView<T> (lists) | StandardDetailView<T> (de
 ## TRANSACTIONS
 @Transactional in services (readOnly=true queries) | NO @Transactional in views | DataContext auto-manages in StandardDetailView
 
-## ENTITY ANNOTATIONS
-@JmixEntity @Entity @Table(name="MY_ENTITY") | @Id @JmixGeneratedValue @Column(name="ID") UUID id | @Version @Column(name="VERSION", nullable=false) Integer version
+## ENTITY ANNOTATIONS (Basic)
+@JmixEntity @Entity @Table(name="MY_ENTITY") | @Id @JmixGeneratedValue @Column(name="ID") UUID id | @Version @Column(name="VERSION", nullable=false) Integer version | @Column(name="FIELD_NAME", nullable=false, length=100) | @Transient for non-persisted fields
 
 ## SECURITY
-@SystemLevel for system entities (User, Role) | DataManager enforces row-level security | JmixUserDetails for authentication
+
+### Entity Security
+@SystemLevel for system entities (User, Role) | @Secret for password fields | DataManager enforces row-level security | JmixUserDetails for authentication
+
+### Resource Roles (@ResourceRole)
+✅ Define roles as interfaces with @ResourceRole annotation | ✅ Use @EntityPolicy for CRUD operations | ✅ Use @EntityAttributePolicy for attribute-level access | ✅ Use @ViewPolicy for screen access | ✅ Use @MenuPolicy for menu items | ✅ Use @SpecificPolicy for custom resources | ✅ SecurityScope.UI for UI-only roles
+
+**Example:**
+```java
+@ResourceRole(name = "Full Access", code = "system-full-access")
+public interface FullAccessRole {
+    @EntityPolicy(entityName = "*", actions = {EntityPolicyAction.ALL})
+    @EntityAttributePolicy(entityName = "*", attributes = "*", action = EntityAttributePolicyAction.MODIFY)
+    @ViewPolicy(viewIds = "*")
+    @MenuPolicy(menuIds = "*")
+    @SpecificPolicy(resources = "*")
+    void fullAccess();
+}
+```
+
+### Row-Level Roles (@RowLevelRole)
+✅ Use @RowLevelRole for instance-level restrictions | ✅ Use @PredicateRowLevelPolicy with JPQL conditions | ✅ Use @JpqlRowLevelPolicy for complex queries | ✅ Combine with resource roles for complete security
+
+**Example:**
+```java
+@RowLevelRole(name = "Department Documents", code = "dept-docs")
+public interface DepartmentDocumentsRole {
+    @PredicateRowLevelPolicy(entityClass = Document.class, 
+        where = "{E}.department.id = :current_user_department_id")
+    void documents();
+}
+```
+
+### User Repository
+✅ Extend AbstractDatabaseUserRepository<User> | ✅ Override initSystemUser() for system operations | ✅ Override initAnonymousUser() for anonymous access | ✅ Use @Primary @Component("userRepository") | ✅ Set authorities via getGrantedAuthoritiesBuilder()
+
+**Example:**
+```java
+@Primary
+@Component("userRepository")
+public class DatabaseUserRepository extends AbstractDatabaseUserRepository<User> {
+    @Override
+    protected void initSystemUser(User systemUser) {
+        systemUser.setAuthorities(getGrantedAuthoritiesBuilder()
+            .addResourceRole(FullAccessRole.CODE)
+            .build());
+    }
+}
+```
+
+### Authentication
+✅ Use `LoginViewSupport.authenticate(AuthDetails)` in login views | ✅ Use `CurrentAuthentication` bean to get current user | ✅ Use `AuthDetails.of(username, password).withLocale().withRememberMe()` | ✅ Handle exceptions: BadCredentialsException, DisabledException, LockedException, AccessDeniedException | ✅ Use `RoleGrantedAuthorityUtils` to create authorities from role codes
+
+**Example:**
+```java
+@Subscribe("login")
+public void onLogin(LoginEvent event) {
+    try {
+        loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
+            .withLocale(login.getSelectedLocale())
+            .withRememberMe(login.isRememberMe()));
+    } catch (BadCredentialsException | DisabledException | LockedException | AccessDeniedException e) {
+        // Handle error
+    }
+}
+
+// Get current user
+@Autowired
+CurrentAuthentication currentAuthentication;
+
+User currentUser = currentAuthentication.getUser();
+```
+
+### Authorization
+✅ Use `CurrentAuthentication.getUser()` to get current user | ✅ Use `CurrentAuthentication.isAuthenticated()` to check authentication | ✅ Use `CurrentAuthentication.getAuthorities()` to get user roles | ✅ Check permissions programmatically via DataManager (enforced automatically) | ✅ Use `SystemAuthenticator` for system-level operations
+
+**Example:**
+```java
+@Autowired
+CurrentAuthentication currentAuthentication;
+
+if (currentAuthentication.isAuthenticated()) {
+    User user = currentAuthentication.getUser();
+    Collection<? extends GrantedAuthority> authorities = currentAuthentication.getAuthorities();
+}
+```
+
+### User Management
+✅ User entity must implement `JmixUserDetails` | ✅ Use `@Secret` for password field | ✅ Use `@SystemLevel` for system entities | ✅ Implement `isEnabled()`, `isAccountNonExpired()`, `isAccountNonLocked()`, `isCredentialsNonExpired()` | ✅ Use `DatabaseUserRepository` to load users from database | ✅ Assign roles via `SEC_ROLE_ASSIGNMENT` table or programmatically
+
+**Example:**
+```java
+@JmixEntity
+@Entity
+public class User implements JmixUserDetails {
+    @Secret
+    @SystemLevel
+    @Column(name = "PASSWORD")
+    private String password;
+    
+    @Override
+    public boolean isEnabled() {
+        return Boolean.TRUE.equals(active);
+    }
+    
+    // Other required methods...
+}
+```
+
+### Password Management
+✅ Always use `PasswordEncoder.encode()` before saving passwords | ✅ Never store plain text passwords | ✅ Use `PasswordEncoder` bean (BCrypt by default in Spring Security) | ✅ Validate password confirmation in UI before save | ✅ Use standard Jmix actions: `sec_changePassword`, `sec_resetPassword` | ✅ Password format in DB: `{encoder}encodedPassword` (e.g., `{bcrypt}$2a$10...`, `{noop}plain` for dev only)
+
+**Password Encoding:**
+```java
+@Autowired
+PasswordEncoder passwordEncoder;
+
+// When creating/updating user
+@Subscribe
+public void onBeforeSave(BeforeSaveEvent event) {
+    if (entityStates.isNew(getEditedEntity())) {
+        String encodedPassword = passwordEncoder.encode(passwordField.getValue());
+        getEditedEntity().setPassword(encodedPassword);
+    }
+}
+```
+
+**Password Validation:**
+```java
+@Subscribe
+public void onValidation(ValidationEvent event) {
+    if (entityStates.isNew(getEditedEntity()) 
+        && !Objects.equals(passwordField.getValue(), confirmPasswordField.getValue())) {
+        event.getErrors().add(messageBundle.getMessage("passwordsDoNotMatch"));
+    }
+}
+```
+
+**Standard Password Actions** (in view XML):
+```xml
+<action id="changePasswordAction" type="sec_changePassword"/>
+<action id="resetPasswordAction" type="sec_resetPassword"/>
+```
+
+**Password Storage Formats**:
+- `{bcrypt}$2a$10...` - BCrypt (production, default)
+- `{noop}plain` - No operation (development only, NEVER in production)
+- `{pbkdf2}...` - PBKDF2
+- Spring Security auto-detects format prefix
+
+### Security Filter Chain
+✅ Use @Order(JmixSecurityFilterChainOrder.CUSTOM) for custom endpoints | ✅ Define SecurityFilterChain beans in @Configuration | ✅ Use securityMatcher() for URL patterns | ✅ Example: public API endpoints with permitAll() | ✅ Custom filter chains are applied before Jmix default chains
+
+**Example:**
+```java
+@Bean
+@Order(JmixSecurityFilterChainOrder.CUSTOM)
+SecurityFilterChain publicFilterChain(HttpSecurity http) {
+    http.securityMatcher("/public/**")
+        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+    return http.build();
+}
+```
+
+### Role Authority Prefixes
+✅ Customize resource role prefix via `GrantedAuthorityDefaults` bean | ✅ Customize row-level role prefix via `jmix.security.default-row-level-role-prefix` property | ✅ Default format: `ROLE_{roleCode}` for resource roles, `RL_{roleCode}` for row-level roles
+
+**Example:**
+```java
+@Bean
+GrantedAuthorityDefaults grantedAuthorityDefaults() {
+    return new GrantedAuthorityDefaults("CUSTOM_PREFIX_");
+}
+```
+
+### UI Component Policies (UI Constraints Add-on)
+✅ Use `@UiComponentPolicy` in resource roles to control UI component visibility/accessibility | ✅ Requires `jmix-uiconstraints` add-on | ✅ Policies are "denying" - can only restrict, not grant | ✅ Applied after view initialization (after ReadyEvent) | ✅ Any component with ID can be controlled
+
+**Example:**
+```java
+@ResourceRole(name = "Limited Access", code = "limited")
+public interface LimitedAccessRole {
+    @UiComponentPolicy(viewId = "Order.detail", 
+        componentId = "deleteButton", 
+        action = UiComponentPolicyAction.ENABLED, 
+        effect = PolicyEffect.DENY)
+    void restrictDelete();
+    
+    @UiComponentPolicy(viewId = "Order.list", 
+        componentId = "ordersDataGrid", 
+        action = UiComponentPolicyAction.VISIBLE, 
+        effect = PolicyEffect.DENY)
+    void hideGrid();
+}
+```
+
+**Note**: UI Constraints add-on is optional. Install via `jmix-uiconstraints` dependency.
+
+### Session Management
+✅ Use `SessionData` bean to store session-scoped data | ✅ Use `UserSessions` bean (Audit add-on) to manage active sessions | ✅ Session attributes shared across requests within same user session | ✅ Session invalidation available via Audit add-on UI
+
+**Example:**
+```java
+@Autowired
+SessionData sessionData;
+
+// Store in session
+sessionData.setAttribute("currentFilter", filterValue);
+
+// Retrieve from session
+String filter = sessionData.getAttribute("currentFilter");
+```
+
+**Remember Me**: Use `AuthDetails.withRememberMe(true)` in login | Persists authentication across browser sessions | Configure via Spring Security properties
+
+### Security Testing
+✅ Use `@ExtendWith(AuthenticatedAsAdmin.class)` for system authentication in tests | ✅ Use `SystemAuthenticator.begin(username)` / `end()` for manual authentication | ✅ Use `UserRepository.loadUserByUsername()` to test user loading | ✅ Test security policies via DataManager operations (access denied exceptions)
+
+**Example:**
+```java
+@SpringBootTest
+@ExtendWith(AuthenticatedAsAdmin.class)
+class UserTest {
+    @Autowired
+    SystemAuthenticator systemAuthenticator;
+    
+    @Test
+    void testWithSystemAuth() {
+        // Already authenticated as admin via extension
+    }
+    
+    @Test
+    void testWithCustomUser() {
+        systemAuthenticator.begin("testuser");
+        try {
+            // Test as testuser
+        } finally {
+            systemAuthenticator.end();
+        }
+    }
+}
+```
+
+### External Authentication (OIDC/LDAP)
+✅ Optional: Use OIDC add-on for OpenID Connect authentication | ✅ Optional: Use LDAP add-on for LDAP/Active Directory authentication | ✅ External IAM manages users and roles | ✅ Application maps external roles to internal Jmix roles | ✅ Configure via add-on properties
+
+**Note**: External authentication is optional. Standard database authentication is default.
 
 ## ANTIPATTERNS
 ❌ new Entity() | ❌ @Autowired fields | ❌ @Transactional in views | ❌ Native SQL without params | ❌ Missing @Version | ❌ Missing @JmixGeneratedValue | ❌ Lazy collections outside transaction | ❌ N+1 queries (use FetchPlan)
 
-## PERFORMANCE
-FetchPlan: `fetchPlans.builder(Order.class).add("customer").build()` | Lazy loading: default for @OneToMany/@ManyToMany | ⚠️ Outside transaction = LazyInitializationException
+## FETCHING DATA (FetchPlan)
+**FetchPlan**: Control which entity attributes and relationships are loaded | Prevents N+1 queries | Used for eager loading of lazy relationships
+
+**Basic Usage**:
+```java
+FetchPlan fetchPlan = fetchPlans.builder(Order.class)
+    .add("customer")  // Load customer relationship
+    .add("items")    // Load items collection
+    .add("customer.name")  // Load nested attribute
+    .build();
+
+Order order = dataManager.load(Order.class)
+    .id(orderId)
+    .fetchPlan(fetchPlan)
+    .one();
+```
+
+**FetchPlan Features**:
+- `add("field")` - add attribute or relationship
+- `add("field", FetchPlan.BASE)` - add with base FetchPlan
+- `addAll()` - add all attributes
+- `addFetchPlan()` - add nested FetchPlan
+- `partial(true)` - partial entity (only loaded attributes accessible)
+
+**System FetchPlan**: `FetchPlan.LOCAL` (only direct attributes), `FetchPlan.BASE` (default), `FetchPlan.INSTANCE_NAME` (for @InstanceName)
+
+**Best Practices**:
+- ✅ Always use FetchPlan for @OneToMany/@ManyToMany relationships
+- ✅ Use partial FetchPlan for read-only operations
+- ✅ Load nested relationships explicitly: `add("customer.address")`
+- ⚠️ Outside transaction = LazyInitializationException (use FetchPlan or @Transactional)
+
+## ENTITY EVENTS
+**Entity Event Listeners**: React to entity lifecycle events | Use `@EntityEventListener` on service methods
+
+**Event Types**:
+- `BeforeEntityChangedEvent<T>` - before save (create/update)
+- `EntityChangedEvent<T>` - after save (create/update)
+- `BeforeEntityDeletedEvent<T>` - before delete
+- `EntityDeletedEvent<T>` - after delete
+
+**Usage**:
+```java
+@Service
+public class OrderService {
+    @EventListener
+    public void onOrderChanged(EntityChangedEvent<Order> event) {
+        Order order = event.getEntity();
+        // Handle order change
+    }
+    
+    @EventListener
+    public void onOrderDeleted(EntityDeletedEvent<Order> event) {
+        UUID orderId = event.getEntityId();
+        // Handle order deletion
+    }
+}
+```
+
+**JPA Entity Callbacks** (alternative):
+- `@PrePersist` - before create
+- `@PostPersist` - after create
+- `@PreUpdate` - before update
+- `@PostUpdate` - after update
+- `@PostLoad` - after load
+- `@PreRemove` - before delete
+- `@PostRemove` - after delete
+
+**Note**: Entity events work with DataManager. JPA callbacks work with EntityManager but may bypass Jmix features.
+
+## CACHING
+**Entity Cache**: Second-level cache for entities | Configured via `jmix.core.entity-cache.*` properties
+
+**Query Cache**: Cache query results | Use `cacheable(true)` on queries
+
+**Usage**:
+```java
+// Cacheable query
+List<Order> orders = dataManager.load(Order.class)
+    .query("SELECT o FROM Order o WHERE o.status = :status")
+    .parameter("status", OrderStatus.PENDING)
+    .cacheable(true)
+    .list();
+
+// Cache configuration
+// jmix.core.entity-cache.enabled=true
+// jmix.core.entity-cache.max-size=10000
+```
+
+**Cache Invalidation**: Automatic on entity save/delete | Manual: `entityCache.evict(entityClass, id)`
+
+**Best Practices**:
+- ✅ Use query cache for frequently accessed, rarely changed data
+- ✅ Use entity cache for read-heavy entities
+- ⚠️ Cache invalidation happens automatically, but be aware of stale data in long transactions
+
+## DATA REPOSITORIES (Spring Data)
+**JmixDataRepository**: Extend for custom repository methods | Combines Spring Data with Jmix features
+
+**Usage**:
+```java
+@JmixRepository
+public interface OrderRepository extends JmixDataRepository<Order, UUID> {
+    List<Order> findByStatus(OrderStatus status);
+    
+    @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId")
+    List<Order> findByCustomerId(@Param("customerId") UUID customerId);
+}
+```
+
+**Features**:
+- ✅ Spring Data query methods
+- ✅ Custom JPQL queries via @Query
+- ✅ Jmix security and FetchPlan support
+- ✅ Use in services: `@Autowired OrderRepository orderRepository;`
+
+**Note**: Prefer DataManager for most operations. Use repositories for custom query methods.
+
+## JDBC ACCESS
+**JdbcTemplate**: Use for complex SQL, batch operations, stored procedures | Spring JDBC wrapper
+
+**Usage**:
+```java
+@Autowired
+JdbcTemplate jdbcTemplate;
+
+// Query
+List<Map<String, Object>> results = jdbcTemplate.queryForList(
+    "SELECT * FROM ORDER_ WHERE STATUS = ?", 
+    OrderStatus.PENDING.name()
+);
+
+// Update
+jdbcTemplate.update(
+    "UPDATE ORDER_ SET STATUS = ? WHERE ID = ?",
+    OrderStatus.COMPLETED.name(),
+    orderId
+);
+
+// Batch update
+jdbcTemplate.batchUpdate(
+    "UPDATE ORDER_ SET STATUS = ? WHERE ID = ?",
+    batchArgs
+);
+```
+
+**Best Practices**:
+- ✅ Use for complex SQL that JPQL can't handle
+- ✅ Use for batch operations (performance)
+- ✅ Use for stored procedures
+- ✅ ALWAYS parameterize queries (prevent SQL injection)
+- ⚠️ Bypasses Jmix security, audit, dynamic attributes
+- ⚠️ Returns raw data, not entities
+
+## TRANSACTIONS - DETAILED
+**@Transactional**: Required for write operations | Optional for read-only queries
+
+**Propagation**:
+- `REQUIRED` (default) - join existing or create new
+- `REQUIRES_NEW` - always create new (isolated)
+- `MANDATORY` - must exist, throw exception if not
+- `SUPPORTS` - join if exists, no transaction if not
+- `NOT_SUPPORTED` - suspend current transaction
+- `NEVER` - throw exception if transaction exists
+- `NESTED` - nested transaction (savepoint)
+
+**Isolation Levels**:
+- `READ_UNCOMMITTED` - dirty reads allowed
+- `READ_COMMITTED` (default) - no dirty reads
+- `REPEATABLE_READ` - no non-repeatable reads
+- `SERIALIZABLE` - highest isolation
+
+**Usage**:
+```java
+@Service
+public class OrderService {
+    @Transactional(readOnly = true)  // Read-only transaction
+    public List<Order> findOrders() {
+        return dataManager.load(Order.class).all().list();
+    }
+    
+    @Transactional  // Write transaction
+    public Order createOrder(Order order) {
+        return dataManager.save(order);
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void logOrder(Order order) {
+        // Isolated transaction for logging
+    }
+}
+```
+
+**Transaction Boundaries**:
+- ✅ Services: @Transactional
+- ❌ Views: NO @Transactional (use services)
+- ✅ REST controllers: use services
+- ✅ DataContext: auto-managed in StandardDetailView
+
+**Optimistic Locking**:
+- Handle `OptimisticLockException` on save
+- Reload entity and retry or notify user
+- `@Version` field required
+
+**Error Handling**:
+- `OptimisticLockException` - entity modified by another transaction
+- `ConstraintViolationException` - database constraint violation
+- `EntityAccessException` - security violation (no permission)
+- `NoResultException` - entity not found (use `.optional()` instead of `.one()`)
+
+**Example**:
+```java
+try {
+    order = dataManager.save(order);
+} catch (OptimisticLockException e) {
+    // Reload and retry or notify user
+    order = dataManager.load(Order.class).id(order.getId()).one();
+    throw new ConcurrentModificationException("Order was modified by another user");
+} catch (ConstraintViolationException e) {
+    // Handle constraint violation
+    throw new ValidationException("Invalid data: " + e.getMessage());
+}
+```
+
+## JPQL EXTENSIONS
+**Jmix JPQL Extensions**: Additional functions for JPQL queries
+
+**Date/Time Functions**:
+- `DATE_TRUNC('day', e.createdDate)` - truncate date
+- `DATEADD('day', 7, e.createdDate)` - add interval
+- `DATEDIFF('day', e.startDate, e.endDate)` - difference
+
+**String Functions**:
+- `CONCAT(e.firstName, ' ', e.lastName)` - concatenate
+- `LOWER(e.name)`, `UPPER(e.name)` - case conversion
+- `SUBSTRING(e.name, 1, 10)` - substring
+
+**Aggregate Functions**:
+- `COUNT(e)`, `SUM(e.amount)`, `AVG(e.amount)`, `MIN(e.date)`, `MAX(e.date)`
+
+**Usage**:
+```java
+dataManager.load(Order.class)
+    .query("SELECT o FROM Order o WHERE DATE_TRUNC('day', o.createdDate) = :date")
+    .parameter("date", LocalDate.now())
+    .list();
+```
+
+## DATA PROPERTIES
+**Configuration Properties**: Control DataManager behavior via `application.properties`
+
+**Key Properties**:
+- `jmix.data.number-id-cache-size` - UUID generation cache size
+- `jmix.data.default-fetch-plan` - default FetchPlan for entities
+- `jmix.data.entity-cache.enabled` - enable entity cache
+- `jmix.data.entity-cache.max-size` - cache max size
+- `jmix.data.query-cache.enabled` - enable query cache
+
+**Store-Specific Properties**:
+- `{storeName}.datasource.url` - database URL
+- `{storeName}.datasource.username` - username
+- `{storeName}.datasource.password` - password
+- `{storeName}.liquibase.change-log` - changelog path
+
+## PERFORMANCE OPTIMIZATION
+**Best Practices**:
+- ✅ Use FetchPlan to avoid N+1 queries
+- ✅ Use query cache for frequently accessed data
+- ✅ Use batch operations (`saveAll`, `removeAll`) for multiple entities
+- ✅ Use `readOnly = true` for query transactions
+- ✅ Use partial FetchPlan for read-only operations
+- ✅ Index foreign keys and frequently queried columns
+- ⚠️ Avoid loading large collections without pagination
+- ⚠️ Use lazy loading by default, eager only when needed
 
 ## VIEW ANNOTATIONS
 **@ViewController**: Marks view class | **@ViewDescriptor**: XML layout path | **@LookupComponent**: Component for lookup dialogs | **@EditedEntityContainer**: Data container for detail views | **@DialogMode**: Dialog size configuration
@@ -53,11 +611,836 @@ FetchPlan: `fetchPlans.builder(Order.class).add("customer").build()` | Lazy load
 ## VIEW SERVICES
 **Messages**: `messages.getMessage("key")` for i18n | **MessageBundle**: View-specific messages | **UiComponents**: Factory for creating components | **ViewNavigators**: Programmatic navigation | **Notifications**: User notifications | **EntityStates**: Check entity state (isNew, isDetached)
 
+## DECLARATIVE UI (XML VIEW DESCRIPTORS)
+
+### Data Containers
+**InstanceContainer**: Holds single entity instance | **CollectionContainer**: Holds collection of entities | Defined in `<data>` section of XML
+
+**XML Structure**:
+```xml
+<data>
+    <!-- Single entity -->
+    <instance id="userDc" class="com.example.entity.User">
+        <fetchPlan extends="_base"/>
+        <loader/>
+    </instance>
+    
+    <!-- Collection -->
+    <collection id="usersDc" class="com.example.entity.User">
+        <fetchPlan extends="_base"/>
+        <loader id="usersDl" readOnly="true">
+            <query>
+                <![CDATA[select e from User e order by e.username]]>
+            </query>
+        </loader>
+    </collection>
+</data>
+```
+
+**Binding to Components**:
+- `dataContainer="containerId"` - bind container to component (formLayout, dataGrid)
+- `property="fieldName"` - bind field to component (textField, comboBox)
+- `dataLoader="loaderId"` - bind loader to component (pagination, genericFilter)
+
+### Data Loaders
+**InstanceLoader**: Loads single entity | **CollectionLoader**: Loads collection | Defined inside `<instance>` or `<collection>`
+
+**Loader Attributes**:
+- `id` - loader identifier (optional for instance, required for collection)
+- `readOnly="true"` - read-only mode (no save)
+- `dataContext="contextId"` - custom DataContext (optional)
+
+**Query in Loader**:
+```xml
+<loader id="ordersDl">
+    <query>
+        <![CDATA[
+            select o from Order o 
+            where o.status = :status 
+            order by o.createdDate desc
+        ]]>
+    </query>
+    <queryParams>
+        <param name="status" value="PENDING"/>
+    </queryParams>
+</loader>
+```
+
+**Programmatic Loading**:
+```java
+@ViewComponent
+private CollectionLoader<Order> ordersDl;
+
+@Subscribe
+public void onInit(InitEvent event) {
+    ordersDl.load();
+}
+
+// Load with parameters
+ordersDl.setParameter("status", OrderStatus.PENDING);
+ordersDl.load();
+```
+
+### Actions
+**Actions**: Reusable UI operations | Defined in `<actions>` section | Types: `list_create`, `list_edit`, `list_remove`, `detail_saveClose`, `detail_close`, `lookup_select`, `lookup_discard`
+
+**XML Definition**:
+```xml
+<actions>
+    <action id="saveCloseAction" type="detail_saveClose"/>
+    <action id="closeAction" type="detail_close"/>
+    <action id="createAction" type="list_create"/>
+    <action id="editAction" type="list_edit"/>
+    <action id="removeAction" type="list_remove"/>
+</actions>
+```
+
+**Binding Actions**:
+- `action="actionId"` - bind to button/component
+- `ref="component.actionId"` - reference component action (e.g., `usersDataGrid.createAction`)
+
+**Component Actions**:
+```xml
+<dataGrid id="usersDataGrid" dataContainer="usersDc">
+    <actions>
+        <action id="createAction" type="list_create"/>
+        <action id="editAction" type="list_edit"/>
+        <action id="removeAction" type="list_remove"/>
+    </actions>
+</dataGrid>
+
+<!-- Use in button -->
+<button id="createButton" action="usersDataGrid.createAction"/>
+```
+
+**Custom Actions**:
+```java
+@ViewComponent
+private Button customButton;
+
+@Subscribe("customButton")
+public void onCustomButtonClick(ClickEvent<Button> event) {
+    // Custom action logic
+}
+```
+
+### Facets
+**Facets**: View-level features and behaviors | Defined in `<facets>` section
+
+**dataLoadCoordinator**: Automatic data loading
+```xml
+<facets>
+    <dataLoadCoordinator auto="true"/>
+</facets>
+```
+- `auto="true"` - automatically load data on view open
+- Loads all loaders when view is ready
+
+**urlQueryParameters**: URL synchronization
+```xml
+<facets>
+    <urlQueryParameters>
+        <genericFilter component="genericFilter"/>
+        <pagination component="pagination"/>
+    </urlQueryParameters>
+</facets>
+```
+- Syncs filter and pagination state with URL
+- Enables bookmarking and sharing filtered views
+
+### FetchPlan in XML
+**FetchPlan**: Control loaded attributes | Use `extends` to reference system FetchPlans
+
+**System FetchPlans**:
+- `_base` - base attributes (default)
+- `_instance_name` - includes @InstanceName method
+- `_local` - only direct attributes (no relationships)
+
+**XML Usage**:
+```xml
+<instance id="orderDc" class="com.example.entity.Order">
+    <fetchPlan extends="_base">
+        <property name="customer"/>
+        <property name="items"/>
+        <property name="customer.address"/>
+    </fetchPlan>
+    <loader/>
+</instance>
+```
+
+**Extending FetchPlan**:
+```xml
+<fetchPlan extends="_base">
+    <property name="customer" fetchPlan="_base">
+        <property name="address"/>
+    </property>
+</fetchPlan>
+```
+
+### Data Binding
+**Property Binding**: `property="fieldName"` binds component to entity field
+```xml
+<textField id="nameField" property="name"/>
+<comboBox id="statusField" property="status"/>
+<checkbox id="activeField" property="active"/>
+```
+
+**Container Binding**: `dataContainer="containerId"` binds container to component
+```xml
+<formLayout id="form" dataContainer="userDc">
+    <textField property="username"/>
+    <textField property="email"/>
+</formLayout>
+
+<dataGrid id="usersGrid" dataContainer="usersDc">
+    <columns>
+        <column property="username"/>
+        <column property="email"/>
+    </columns>
+</dataGrid>
+```
+
+**Loader Binding**: `dataLoader="loaderId"` binds loader to component
+```xml
+<simplePagination id="pagination" dataLoader="usersDl"/>
+<genericFilter id="filter" dataLoader="usersDl"/>
+```
+
+## LOADCONTEXT API
+**LoadContext**: Programmatic data loading | Used by loaders internally | Can be used directly in services/views
+
+**Basic Usage**:
+```java
+LoadContext<Order> loadContext = LoadContext.create(Order.class);
+loadContext.setId(orderId);
+loadContext.setFetchPlan(fetchPlan);
+Order order = dataManager.load(loadContext);
+```
+
+**With Query**:
+```java
+LoadContext<Order> loadContext = LoadContext.create(Order.class)
+    .setQuery(LoadContext.createQuery("select o from Order o where o.status = :status")
+        .setParameter("status", OrderStatus.PENDING))
+    .setFetchPlan(fetchPlan);
+List<Order> orders = dataManager.loadList(loadContext);
+```
+
+**With Condition**:
+```java
+LoadContext<Order> loadContext = LoadContext.create(Order.class)
+    .setCondition(PropertyCondition.equal("status", OrderStatus.PENDING))
+    .setFetchPlan(fetchPlan);
+List<Order> orders = dataManager.loadList(loadContext);
+```
+
+**Query Options**:
+```java
+LoadContext.Query query = LoadContext.createQuery("select o from Order o")
+    .setParameter("status", OrderStatus.PENDING)
+    .setFirstResult(0)
+    .setMaxResults(10);
+LoadContext<Order> loadContext = LoadContext.create(Order.class)
+    .setQuery(query);
+```
+
+**Note**: Prefer DataManager fluent API for most cases. LoadContext useful for complex scenarios or when reusing query definitions.
+
+## DATACONTEXT - DETAILED
+**DataContext**: UI-level data management | Tracks entity changes | Manages save operations | Auto-created in StandardDetailView
+
+### Basic Usage
+**StandardDetailView**: Automatically creates and manages DataContext
+- All entities loaded in view are registered in DataContext
+- Changes tracked automatically
+- Save operation saves all "dirty" entities
+
+**Manual DataContext**:
+```java
+@ViewComponent
+private DataContext dataContext;
+
+@Subscribe
+public void onInit(InitEvent event) {
+    dataContext = dataContextFactory.create();
+    User user = dataContext.create(User.class);
+    // ... set properties
+    dataContext.setParent(dataContext); // if needed
+}
+```
+
+### DataContext Hierarchy (Aggregates)
+**Parent-Child Contexts**: For editing aggregates | Child contexts save to parent, parent saves to database
+
+**Aggregate Example**:
+```java
+@JmixEntity
+@Entity
+public class Order {
+    @Composition
+    @OneToMany(mappedBy = "order")
+    private List<OrderLine> lines;
+}
+
+// In OrderDetailView - parent context
+// In OrderLineDetailView - child context (opened from Order)
+// Changes in OrderLine saved to Order's context
+// Final save in Order saves entire aggregate in one transaction
+```
+
+**How It Works**:
+1. OrderDetailView creates parent DataContext
+2. OrderLineDetailView (opened from Order) creates child DataContext
+3. Child context's `setParent(parentContext)` called automatically
+4. Save in OrderLine → saves to parent context (not database)
+5. Save in Order → saves entire aggregate to database in one transaction
+
+**Manual Hierarchy**:
+```java
+// In child view
+@ViewComponent
+private DataContext childDataContext;
+
+@Subscribe
+public void onInit(InitEvent event) {
+    DataContext parentContext = getParentDataContext(); // from parent view
+    childDataContext = dataContextFactory.create();
+    childDataContext.setParent(parentContext);
+}
+```
+
+### DataContext Methods
+**Save**: `dataContext.save()` - saves all dirty entities
+```java
+@Subscribe("saveButton")
+public void onSave(ClickEvent<Button> event) {
+    dataContext.save();
+}
+```
+
+**Clear**: `dataContext.clear()` - clears all entities
+```java
+@Subscribe("clearButton")
+public void onClear(ClickEvent<Button> event) {
+    dataContext.clear();
+}
+```
+
+**HasChanges**: `dataContext.hasChanges()` - check if there are unsaved changes
+```java
+if (dataContext.hasChanges()) {
+    // Show warning or save
+}
+```
+
+**Get Entity**: `dataContext.get(entity)` - get entity from context
+```java
+User user = dataContext.get(userId);
+```
+
+**Remove**: `dataContext.remove(entity)` - mark entity for deletion
+```java
+dataContext.remove(orderLine);
+```
+
+### Best Practices
+- ✅ StandardDetailView manages DataContext automatically
+- ✅ Use DataContext hierarchy for aggregates (@Composition)
+- ✅ Check `hasChanges()` before closing view
+- ✅ Save operations are transactional (all or nothing)
+- ⚠️ DataContext is view-scoped (not shared across views)
+- ⚠️ Entities in DataContext are managed (changes tracked automatically)
+
+## EDITING AGGREGATES
+**Aggregates**: Complex data structures with parent-child relationships | Root entity + composed entities | Must be saved in single transaction
+
+### @Composition Annotation
+**@Composition**: Marks composition relationship | Child entities belong to parent | Cascade delete | Saved together in one transaction
+
+**Entity Definition**:
+```java
+@JmixEntity
+@Entity
+public class Order {
+    @Composition
+    @OneToMany(mappedBy = "order")
+    private List<OrderLine> lines;
+}
+
+@JmixEntity
+@Entity
+public class OrderLine {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ORDER_ID")
+    private Order order;
+}
+```
+
+**XML Configuration**: Use Studio designer - automatically sets `COMPOSITION` type for attributes
+
+### Aggregate Editing Flow
+**Parent View (OrderDetailView)**:
+1. Creates parent DataContext
+2. Loads Order with OrderLines (via FetchPlan)
+3. User edits Order and OrderLines
+
+**Child View (OrderLineDetailView)**:
+1. Opened from Order view (via `list_edit` action on collection)
+2. Creates child DataContext
+3. Automatically sets parent context
+4. Changes saved to parent context (not database)
+
+**Save Process**:
+1. User saves OrderLine → saves to parent DataContext
+2. User saves Order → saves entire aggregate to database in one transaction
+3. All OrderLines saved together with Order
+
+### Multi-Level Aggregates
+**Nested Compositions**: Support for multi-level aggregates
+```java
+@JmixEntity
+@Entity
+public class OrderLine {
+    @Composition
+    @OneToMany(mappedBy = "orderLine")
+    private List<OrderLineNote> notes;
+}
+```
+
+**How It Works**:
+- OrderLineDetailView creates child context (parent: Order)
+- OrderLineNoteDetailView creates child context (parent: OrderLine)
+- Three-level hierarchy: Order → OrderLine → OrderLineNote
+- Final save in Order saves all levels in one transaction
+
+### Best Practices
+- ✅ Use @Composition for parent-child relationships
+- ✅ Always load aggregates with FetchPlan (include child collections)
+- ✅ Use StandardDetailView for aggregate editing (automatic context hierarchy)
+- ✅ Child views automatically inherit parent context
+- ✅ Save only in root entity view (parent)
+- ⚠️ Don't save child entities separately - save through parent
+- ⚠️ Ensure all child entities have proper @ManyToOne relationship to parent
+
+## VIEW LIFECYCLE EVENTS
+**Lifecycle Events**: React to view initialization, navigation, and component events | Use `@Subscribe` annotation
+
+### View Events
+**InitEvent**: View initialization (after constructor, before UI ready)
+```java
+@Subscribe
+public void onInit(InitEvent event) {
+    // Initialize data, setup components
+    usersDl.load();
+}
+```
+
+**BeforeShowEvent**: Before view is shown (after InitEvent, UI ready)
+```java
+@Subscribe
+public void onBeforeShow(BeforeShowEvent event) {
+    // Final setup, load data
+    // Access URL parameters: event.getRouteParameters()
+}
+```
+
+**AfterShowEvent**: After view is shown (view fully rendered)
+```java
+@Subscribe
+public void onAfterShow(AfterShowEvent event) {
+    // Post-render operations
+}
+```
+
+**ReadyEvent**: View is ready (all components initialized)
+```java
+@Subscribe
+public void onReady(ReadyEvent event) {
+    // All components available
+}
+```
+
+### Component Events
+**@Subscribe**: Subscribe to component events by component ID
+
+**Button Click**:
+```java
+@Subscribe("saveButton")
+public void onSaveClick(ClickEvent<Button> event) {
+    dataContext.save();
+}
+```
+
+**Field Value Change**:
+```java
+@Subscribe("nameField")
+public void onNameChange(ValueChangeEvent<TypedTextField<String>> event) {
+    String newValue = event.getValue();
+    // Handle change
+}
+```
+
+**Grid Selection**:
+```java
+@Subscribe("usersDataGrid")
+public void onSelectionChange(SelectionEvent<DataGrid<User>, User> event) {
+    User selected = event.getFirstSelectedItem().orElse(null);
+    // Handle selection
+}
+```
+
+**Form Validation**:
+```java
+@Subscribe("userForm")
+public void onValidation(ValidationEvent<FormLayout> event) {
+    // Custom validation
+    if (invalid) {
+        event.getErrors().add("Custom error message");
+    }
+}
+```
+
+### Event Subscription Patterns
+**By Component ID**:
+```java
+@Subscribe("componentId")
+public void onEvent(EventType event) {
+    // Handler
+}
+```
+
+**By Component Reference**:
+```java
+@ViewComponent
+private Button saveButton;
+
+@Subscribe
+public void onSaveClick(ClickEvent<Button> event) {
+    // Handler (component injected)
+}
+```
+
+**Multiple Components**:
+```java
+@Subscribe({"button1", "button2"})
+public void onButtonClick(ClickEvent<Button> event) {
+    // Handle both buttons
+}
+```
+
+### Best Practices
+- ✅ Use InitEvent for data loading and setup
+- ✅ Use BeforeShowEvent for URL parameter handling
+- ✅ Use @Subscribe for component events
+- ✅ Keep event handlers focused and simple
+- ⚠️ Avoid heavy operations in event handlers (use async if needed)
+
+## LOOKUP DIALOGS
+**Lookup Dialogs**: Select entities from list views | Use `@LookupComponent` annotation | Special view mode for selection
+
+### Lookup View Setup
+**@LookupComponent**: Mark component for lookup selection
+```java
+@ViewController(id = "User.list")
+@ViewDescriptor(path = "user-list-view.xml")
+public class UserListView extends StandardListView<User> {
+    @LookupComponent("usersDataGrid")
+    private DataGrid<User> usersDataGrid;
+}
+```
+
+**Lookup Actions**: Defined in XML
+```xml
+<actions>
+    <action id="selectAction" type="lookup_select"/>
+    <action id="discardAction" type="lookup_discard"/>
+</actions>
+
+<layout>
+    <hbox id="lookupActions" visible="false">
+        <button id="selectButton" action="selectAction"/>
+        <button id="discardButton" action="discardAction"/>
+    </hbox>
+</layout>
+```
+
+**Lookup Mode**: View automatically switches to lookup mode when opened as dialog
+- `lookupActions` section becomes visible
+- `selectAction` returns selected entity
+- `discardAction` cancels selection
+
+### Opening Lookup Dialog
+**ViewNavigators**: Programmatic navigation
+```java
+@Autowired
+private ViewNavigators viewNavigators;
+
+public void openUserLookup() {
+    viewNavigators.view(UserListView.class)
+        .withAfterCloseListener(event -> {
+            if (event.closedWith(StandardOutcome.SELECT)) {
+                User selected = event.getView().getLookupComponent().getSingleSelectedItem();
+                // Use selected user
+            }
+        })
+        .open();
+}
+```
+
+**Lookup Screen**: Use lookup screen builder
+```java
+@Autowired
+private LookupScreenFacet<User> lookupScreen;
+
+@Subscribe
+public void onInit(InitEvent event) {
+    lookupScreen.setSelectHandler(users -> {
+        User selected = users.iterator().next();
+        // Use selected user
+    });
+}
+
+@Subscribe("selectUserButton")
+public void onSelectUser(ClickEvent<Button> event) {
+    lookupScreen.show();
+}
+```
+
+### Lookup Component API
+**getSingleSelectedItem()**: Get selected entity (single selection)
+```java
+User selected = usersDataGrid.getSingleSelectedItem();
+```
+
+**getSelectedItems()**: Get selected entities (multi-selection)
+```java
+Set<User> selected = usersDataGrid.getSelectedItems();
+```
+
+**Best Practices**:
+- ✅ Use `@LookupComponent` for lookup views
+- ✅ Define lookup actions in XML
+- ✅ Handle selection in `AfterCloseEvent`
+- ✅ Use `StandardOutcome.SELECT` to check if selection occurred
+- ⚠️ Lookup mode is automatic when view opened as dialog
+
 ## ENTITY METADATA
-**@InstanceName**: Display name method | **@DependsOnProperties**: Instance name dependencies | **@Composition**: Composition relationship (cascade delete) | **@OnDelete**: Delete policy (CASCADE, DENY, DISABLE)
+**@InstanceName**: Display name method | **@DependsOnProperties**: Instance name dependencies | **@Composition**: Composition relationship (cascade delete) | **@OnDelete**: Delete policy (CASCADE, DENY, UNLINK) for soft-deleted entities | **@OnDeleteInverse**: Delete policy when referenced entity is deleted (CASCADE, DENY, UNLINK)
+
+## ENTITY ANNOTATIONS (Jmix-specific)
+**@JmixGeneratedValue**: UUID generation | **@JmixId**: ID for DTO entities (use existing unique field or add @JmixGeneratedValue) | **@JmixProperty**: Mark field/method as entity attribute (use `mandatory=true` if needed) | **@PropertyDatatype**: Specify Datatype implementation by ID | **@NumberFormat**: Format Number attributes (pattern, decimalSeparator, groupingSeparator) | **@Store**: Link entity to additional data store | **@PostConstruct**: Initialize entity instance (accepts Spring beans as parameters) | **@Secret**: Mark sensitive fields (passwords, tokens) - auto-hides in UI/logs
+
+## DATA STORES
+**Main Store**: Default store for all entities. Configured via `main.datasource.*` properties.
+
+**Additional Stores**: Multiple databases support:
+- Add store name to `jmix.core.additional-stores = locations,inmem`
+- Configure via `{storeName}.datasource.*` properties
+- Use `@Store(name = "locations")` on entity class
+- Studio auto-generates `{Store}StoreConfiguration` with DataSource, EntityManagerFactory, TransactionManager
+
+**Custom Stores**: Non-JPA stores (DTO, in-memory):
+1. Implement `DataStore` interface (prototype bean)
+2. Implement `StoreDescriptor` interface (singleton bean)
+3. Add to `jmix.core.additional-stores`
+4. Configure `jmix.core.store-descriptor_{storeName} = {descriptorBeanName}`
+5. Use `@Store(name = "inmem")` on entity
+
+**Example:**
+```java
+@Store(name = "locations")
+@JmixEntity
+@Entity
+@Table(name = "COUNTRY")
+public class Country {
+    // Stored in locations database
+}
+```
+
+## SOFT DELETION
+**@DeletedDate**: Marks deletion timestamp field | **@DeletedBy**: Marks deletion user field | Automatically set on `dataManager.remove()` | Soft-deleted entities excluded from queries by default
+
+**Usage:**
+```java
+@JmixEntity
+@Entity
+public class Document {
+    @DeletedDate
+    @Column(name = "DELETED_DATE")
+    private LocalDateTime deletedDate;
+    
+    @DeletedBy
+    @Column(name = "DELETED_BY")
+    private String deletedBy;
+}
+```
+
+**Querying soft-deleted entities**: Use `dataManager.load().condition(PropertyCondition.isSet("deletedDate"))` or `UnconstrainedDataManager` for system operations.
+
+## ENUMERATIONS
+**@Enumerated(EnumType.STRING)**: Store enum as string (preferred) | **@Enumerated(EnumType.ORDINAL)**: Store as integer (not recommended) | Always use STRING for maintainability
+
+**Example:**
+```java
+@Enumerated(EnumType.STRING)
+@Column(name = "STATUS")
+private OrderStatus status;
+
+public enum OrderStatus {
+    PENDING, PROCESSING, COMPLETED, CANCELLED
+}
+```
+
+## DATATYPE
+**@PropertyDatatype**: Specify custom Datatype by ID | **Datatype Interface**: Implement for custom type conversion | Used for UI formatting, validation, conversion
+
+**Example:**
+```java
+@PropertyDatatype("year")
+@Column(name = "YEAR_")
+private Integer productionYear;
+```
+
+**Custom Datatype**: Implement `io.jmix.core.metamodel.datatype.Datatype<T>` interface and register as Spring bean.
+
+## BEAN VALIDATION
+**Layers**: UI (Binder) → Service (business) → Entity (Bean Validation) | **Annotations**: @NotNull, @Size, @Email, @Min, @Max, @Pattern, @Past, @Future | **Groups**: Use validation groups for conditional validation
+
+**Example:**
+```java
+@NotNull
+@Size(min = 1, max = 100)
+@Column(name = "NAME", nullable = false)
+private String name;
+
+@Email
+@Column(name = "EMAIL")
+private String email;
+
+@Min(0)
+@Max(100)
+@Column(name = "DISCOUNT")
+private Integer discount;
+```
+
+**Validation Groups**: Use for conditional validation (e.g., create vs update):
+```java
+@NotNull(groups = {CreateGroup.class})
+@Size(min = 1, groups = {CreateGroup.class})
+private String password;
+```
+
+## METADATA
+**@InstanceName**: Display name method (used in UI, lookups) | **@DependsOnProperties**: Instance name dependencies | **Metadata API**: Use `Metadata` bean to access entity metadata programmatically
+
+**Example:**
+```java
+@InstanceName
+@DependsOnProperties({"firstName", "lastName", "username"})
+public String getDisplayName() {
+    return String.format("%s %s [%s]", firstName, lastName, username);
+}
+```
+
+**Metadata Usage:**
+```java
+@Autowired
+Metadata metadata;
+
+EntityClass entityClass = metadata.getClass(User.class);
+Property property = entityClass.getProperty("username");
+```
+
+## DATABASE MIGRATIONS (Liquibase)
+**Changelog Structure**: `V{version}__{description}.xml` or `{timestamp}__{description}.xml` | **Main changelog**: `main.liquibase.change-log` property | **Additional stores**: `{storeName}.liquibase.change-log` property
+
+**Rules**:
+- ✅ NEVER modify applied changelogs (only add new)
+- ✅ Use incremental changesets
+- ✅ Naming: UPPER_SNAKE_CASE (USER_ not USER)
+- ✅ Always specify indexes on foreign keys
+- ✅ Use explicit @JoinColumn names in entities
+- ✅ Versioning: @Version for optimistic locking
+
+**Example:**
+```xml
+<changeSet id="1" author="start">
+    <createTable tableName="ORDER_">
+        <column name="ID" type="${uuid.type}">
+            <constraints primaryKey="true" nullable="false"/>
+        </column>
+        <column name="VERSION" type="int">
+            <constraints nullable="false"/>
+        </column>
+        <column name="CUSTOMER_ID" type="${uuid.type}"/>
+    </createTable>
+    <createIndex indexName="IDX_ORDER__ON_CUSTOMER_ID" tableName="ORDER_">
+        <column name="CUSTOMER_ID"/>
+    </createIndex>
+</changeSet>
+```
+
+**Studio**: Use Studio designer for entity changes - auto-generates Liquibase changelogs.
+
+## @JmixGeneratedValue PARAMETERS
+**sequenceName**: Explicit sequence name (auto-created if missing) | **sequenceCache**: Enable sequence caching (only when sequenceName set) | Default: UUID generation without sequence
+
+## DELETE POLICIES
+**@OnDelete**: What happens to referenced entity when THIS entity is deleted:
+- `DeletePolicy.DENY`: Throw exception if reference not null
+- `DeletePolicy.CASCADE`: Delete referenced entities
+- `DeletePolicy.UNLINK`: Set reference to null (owning side only, with @JoinColumn)
+
+**@OnDeleteInverse**: What happens to THIS entity when referenced entity is deleted:
+- `DeletePolicy.DENY`: Throw exception when referenced entity deleted
+- `DeletePolicy.CASCADE`: Delete this entity
+- `DeletePolicy.UNLINK`: Set reference to null (owning side only)
+
+**Note**: For soft-deleted entities, @OnDelete/@OnDeleteInverse handled at runtime. For hard-deleted entities, @OnDeleteInverse handled by Liquibase (CASCADE/UNLINK only, owning side only).
 
 ## SECURITY SERVICES
 **SystemAuthenticator**: System-level authentication for background tasks | **CurrentUserSubstitution**: User substitution (impersonation) | **JmixUserDetails**: User details interface | **HasTimeZone**: Time zone support interface
+
+### SystemAuthenticator
+✅ Use `SystemAuthenticator.begin(username)` for system operations | ✅ Always call `SystemAuthenticator.end()` in finally block | ✅ Use in background tasks, scheduled jobs, async operations | ✅ Use in tests via `@ExtendWith(AuthenticatedAsAdmin.class)`
+
+**Example:**
+```java
+@Autowired
+SystemAuthenticator systemAuthenticator;
+
+public void processInBackground() {
+    systemAuthenticator.begin("system");
+    try {
+        // System-level operations
+    } finally {
+        systemAuthenticator.end();
+    }
+}
+```
+
+### CurrentUserSubstitution (Impersonation)
+✅ Use `CurrentUserSubstitution.setSubstitutedUser(username)` for impersonation | ✅ Use `CurrentUserSubstitution.clearSubstitution()` to restore original user | ✅ Requires proper permissions | ✅ Use for support/debugging scenarios
+
+**Example:**
+```java
+@Autowired
+CurrentUserSubstitution currentUserSubstitution;
+
+public void impersonateUser(String username) {
+    currentUserSubstitution.setSubstitutedUser(username);
+    try {
+        // Operations as substituted user
+    } finally {
+        currentUserSubstitution.clearSubstitution();
+    }
+}
+```
+
+### Runtime/Database Roles
+✅ Roles can be defined at runtime and stored in database | ✅ Use `SEC_ROLE` table for role definitions | ✅ Use `SEC_ROLE_ASSIGNMENT` table for user-role assignments | ✅ Runtime roles complement annotation-based roles | ✅ UI available for managing runtime roles
+
+**Note**: Annotation-based roles (interfaces) are loaded first, then runtime roles from database are merged.
 
 ## EXAMPLES
 
@@ -87,3 +1470,292 @@ public class User {
     }
 }
 ```
+
+### Entity with @PostConstruct
+```java
+@JmixEntity
+@Entity
+public class Order {
+    @PostConstruct
+    void init(TimeSource timeSource) {
+        if (createdDate == null) {
+            createdDate = timeSource.now().toLocalDate();
+        }
+    }
+}
+```
+
+### Entity with @NumberFormat
+```java
+@JmixEntity
+@Entity
+public class Product {
+    @NumberFormat(pattern = "0.0000")
+    @Column(precision = 19, scale = 4)
+    private BigDecimal price;
+    
+    @NumberFormat(pattern = "#%")
+    @Column(precision = 19, scale = 4)
+    private BigDecimal discount;
+}
+```
+
+### Entity with @OnDelete
+```java
+@JmixEntity
+@Entity
+public class Order {
+    @OnDelete(DeletePolicy.CASCADE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CUSTOMER_ID")
+    private Customer customer;
+}
+```
+
+### DataManager with FetchPlan
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    private final DataManager dataManager;
+    private final FetchPlans fetchPlans;
+    
+    public Order loadOrderWithCustomer(UUID orderId) {
+        FetchPlan fetchPlan = fetchPlans.builder(Order.class)
+            .add("customer")
+            .add("items")
+            .add("customer.address")
+            .build();
+            
+        return dataManager.load(Order.class)
+            .id(orderId)
+            .fetchPlan(fetchPlan)
+            .one();
+    }
+}
+```
+
+### DataManager with PropertyConditions
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    private final DataManager dataManager;
+    
+    public List<Order> findPendingOrders(LocalDate fromDate) {
+        return dataManager.load(Order.class)
+            .condition(PropertyCondition.and(
+                PropertyCondition.equal("status", OrderStatus.PENDING),
+                PropertyCondition.greaterThan("createdDate", fromDate)
+            ))
+            .list();
+    }
+}
+```
+
+### Entity Event Listener
+```java
+@Service
+@Slf4j
+public class OrderEventListener {
+    @EventListener
+    public void onOrderChanged(EntityChangedEvent<Order> event) {
+        Order order = event.getEntity();
+        log.info("Order changed: id={}, status={}", order.getId(), order.getStatus());
+    }
+    
+    @EventListener
+    public void onOrderDeleted(EntityDeletedEvent<Order> event) {
+        UUID orderId = event.getEntityId();
+        log.info("Order deleted: id={}", orderId);
+    }
+}
+```
+
+### DataRepository Usage
+```java
+@JmixRepository
+public interface OrderRepository extends JmixDataRepository<Order, UUID> {
+    List<Order> findByStatus(OrderStatus status);
+    
+    @Query("SELECT o FROM Order o WHERE o.customer.id = :customerId")
+    List<Order> findByCustomerId(@Param("customerId") UUID customerId);
+}
+
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    private final OrderRepository orderRepository;
+    
+    public List<Order> getCustomerOrders(UUID customerId) {
+        return orderRepository.findByCustomerId(customerId);
+    }
+}
+```
+
+### JDBC Usage
+```java
+@Service
+@RequiredArgsConstructor
+public class ReportService {
+    private final JdbcTemplate jdbcTemplate;
+    
+    public List<Map<String, Object>> getOrderStatistics(LocalDate fromDate) {
+        return jdbcTemplate.queryForList(
+            "SELECT STATUS, COUNT(*) as COUNT, SUM(AMOUNT) as TOTAL " +
+            "FROM ORDER_ WHERE CREATED_DATE >= ? " +
+            "GROUP BY STATUS",
+            fromDate
+        );
+    }
+}
+```
+
+### DataManager with Pagination and Sorting
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    private final DataManager dataManager;
+    
+    public List<Order> findOrders(int page, int size, String sortBy) {
+        return dataManager.load(Order.class)
+            .query("SELECT o FROM Order o")
+            .sort(sortBy, Sort.Direction.DESC)
+            .firstResult(page * size)
+            .maxResults(size)
+            .list();
+    }
+}
+```
+
+### DataManager with Complex Conditions
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    private final DataManager dataManager;
+    
+    public List<Order> findOrdersByStatusAndDate(
+            OrderStatus status, 
+            LocalDate fromDate, 
+            LocalDate toDate) {
+        return dataManager.load(Order.class)
+            .condition(PropertyCondition.and(
+                PropertyCondition.equal("status", status),
+                PropertyCondition.greaterThan("createdDate", fromDate),
+                PropertyCondition.lessThan("createdDate", toDate)
+            ))
+            .list();
+    }
+}
+```
+
+### Optional Result Handling
+```java
+@Service
+@RequiredArgsConstructor
+public class OrderService {
+    private final DataManager dataManager;
+    
+    public Optional<Order> findOrderById(UUID orderId) {
+        return dataManager.load(Order.class)
+            .id(orderId)
+            .optional();  // Returns Optional instead of throwing NoResultException
+    }
+}
+```
+
+## LOGGING IN JMIX
+**Structured Logging**: Use SLF4J with structured format | Include context (requestId, userId via MDC) | Never log passwords/tokens
+
+### Jmix Loggers
+**Access Logger**: `io.jmix.core.AccessLogger` - logs data access operations (DEBUG level)
+**DataStore Logger**: `io.jmix.core.datastore` - logs SQL queries and data operations
+**Security Logger**: `org.springframework.security` - authentication and authorization events
+
+### Logging Configuration
+**Separate Log Files**:
+- `application.log` - main application logs
+- `sql.log` - SQL queries (EclipseLink, Jmix DataStore)
+- `security.log` - security events (authentication, authorization)
+- `audit.log` - audit trail (business events, data changes)
+- `errors.log` - errors only
+- `warnings.log` - warnings only
+
+**Log Levels**:
+- `DEBUG` - technical details (AccessLogger, development)
+- `INFO` - business events, important operations
+- `WARN` - recoverable issues, deprecated usage
+- `ERROR` - failures, exceptions
+
+**Production Settings**:
+- Reduce SQL logging to WARN (security + performance)
+- Reduce Spring/Jmix logs to WARN
+- Keep audit and security logs at INFO
+- Use async appenders for performance
+
+### Best Practices
+- ✅ Use structured logging: `log.info("Order created: id={}, customer={}", orderId, customerId)`
+- ✅ Never concatenate strings: ❌ `log.info("Order: " + orderId)` → ✅ `log.info("Order: id={}", orderId)`
+- ✅ Never log passwords, tokens, or secrets
+- ✅ Use MDC for requestId and userId (automatic in Jmix)
+- ✅ Use separate audit logger for business events
+- ✅ Use appropriate log levels (DEBUG for dev, INFO/WARN for prod)
+
+### Example
+```java
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class OrderService {
+    private final DataManager dataManager;
+    
+    @Transactional
+    public Order createOrder(Order order) {
+        log.info("Creating order: customer={}, amount={}", 
+            order.getCustomer().getId(), order.getAmount());
+        
+        Order saved = dataManager.save(order);
+        
+        log.info("Order created: id={}, customer={}", 
+            saved.getId(), saved.getCustomer().getId());
+        
+        return saved;
+    }
+}
+```
+
+## TESTING
+**See `testing-policy.mdc` for complete testing guidelines**
+
+**Quick Reference**:
+- **Unit Tests**: `@Test` only, no Spring context
+- **Integration Tests**: `@SpringBootTest` + `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})`
+- **UI Tests**: `@UiTest` + `@SpringBootTest(classes = {Application.class, FlowuiTestAssistConfiguration.class})`
+- **@Autowired** fields allowed in tests (Spring Boot standard)
+- **Cleanup**: Use `@AfterEach` with `dataManager.remove()`
+- **Never delete failing tests** - fix root cause
+
+## DOCUMENTATION REFERENCES
+
+### Official Documentation
+- **Russian**: https://docs.jmix.ru/jmix/
+- **English**: https://docs.jmix.io/jmix/
+- **Context7 MCP**: Use `context7 MCP docs` for accessing Jmix documentation programmatically
+
+### Important Guides
+- **Business Logic**: https://docs.jmix.ru/jmix/business-logic-guide/index.html
+- **Entity Inheritance**: https://docs.jmix.ru/jmix/data-modeling-entity-inheritance-guide/index.html
+- **Initial Entity Values**: https://docs.jmix.ru/jmix/initial-entity-values-guide/index.html
+- **Many-to-Many Associations**: https://docs.jmix.ru/jmix/data-modeling-many-to-many-guide/index.html
+- **Composition**: https://docs.jmix.ru/jmix/data-modeling-composition-guide/index.html
+- **Application Events**: https://docs.jmix.ru/jmix/application-events-guide/index.html
+- **Application Logging**: https://docs.jmix.ru/jmix/application-logging-guide/index.html
+- **Reports**: https://docs.jmix.ru/jmix/reports-guide/index.html
+
+### Additional Resources
+- **Tutorial**: https://docs.jmix.ru/jmix/tutorial/index.html
+- **Data Access**: https://docs.jmix.ru/jmix/data-access/index.html
+- **Security**: https://docs.jmix.ru/jmix/security/index.html
+- **UI Components**: https://docs.jmix.ru/jmix/ui-components/index.html

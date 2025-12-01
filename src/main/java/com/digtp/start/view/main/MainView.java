@@ -22,9 +22,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ViewController(id = "MainView")
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
-@SuppressWarnings("java:S1948") // Framework pattern: Vaadin views contain non-serializable deps
-// Suppressed globally in sonar-project.properties (e7),
-// but required for Gradle SonarLint plugin
+@SuppressWarnings(
+        "java:S1948") // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint
+// plugin.
 public class MainView extends StandardMainView {
 
     private final Messages messages;

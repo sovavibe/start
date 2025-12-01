@@ -35,7 +35,7 @@ Lifecycle: @Route Constructor → beforeEnter → afterNavigation → onDetach |
 SOLID + Clean Architecture | DRY + KISS | Final fields, immutable | Constructor injection | Records (5+ params → Builder) | @Nullable/@NonNull | Validation: @Email, @NotNull, @Size | See code-quality.mdc for details
 
 ## SECURITY
-@Secret passwords | Parameterized queries (JPQL) | XSS: Vaadin auto-escaping | Jmix security (row-level) | @Value("${key}") not System.getenv() | NO secrets in code
+@Secret passwords | PasswordEncoder.encode() for password hashing | Parameterized queries (JPQL) | XSS: Vaadin auto-escaping | Jmix security: @ResourceRole, @RowLevelRole, @EntityPolicy, @ViewPolicy | DatabaseUserRepository for user management | SecurityFilterChain for custom endpoints | @Value("${key}") not System.getenv() | NO secrets in code | NO plain text passwords
 
 ## DATABASE - CRITICAL
 **DataManager (MANDATORY)**: ALWAYS use `DataManager` for ALL database operations:

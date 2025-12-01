@@ -1,0 +1,47 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: start-postgres
+    environment:
+      POSTGRES_DB: start
+      POSTGRES_USER: start
+      POSTGRES_PASSWORD: start
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U start -d start']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - start-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: start-app
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      MAIN_DATASOURCE_URL: jdbc:postgresql://postgres:5432/start
+      MAIN_DATASOURCE_USERNAME: start
+      MAIN_DATASOURCE_PASSWORD: start
+      SERVER_PORT: 8080
+    ports:
+      - '8080:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - start-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  start-network:
+    driver: bridge
+    external: false

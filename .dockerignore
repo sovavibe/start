@@ -1,0 +1,68 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+.archive/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Build artifacts (will be built in Docker)
+build/
+.gradle/
+.gradle-cache/
+.gradle-build-cache/
+
+# Jmix
+.jmix/
+src/main/bundles/
+
+# Vaadin
+node_modules/
+src/main/frontend/generated/
+pnpmfile.js
+vite.generated.ts
+webpack.generated.js
+
+# Testcontainers
+.testcontainers/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Coverage
+.nyc_output/
+coverage/
+*.lcov
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Cursor
+.cursor/
+
+# Temporary files
+*.tmp
+*.temp
+

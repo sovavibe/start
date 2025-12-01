@@ -1,0 +1,46 @@
+version: 2
+updates:
+  # Gradle dependencies
+  - package-ecosystem: 'gradle'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'sovavibe'
+    labels:
+      - 'dependencies'
+      - 'gradle'
+    commit-message:
+      prefix: 'build'
+      include: 'scope'
+
+  # GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'sovavibe'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+    commit-message:
+      prefix: 'ci'
+      include: 'scope'
+
+  # Docker
+  - package-ecosystem: 'docker'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 5
+    reviewers:
+      - 'sovavibe'
+    labels:
+      - 'dependencies'
+      - 'docker'
+    commit-message:
+      prefix: 'build'
+      include: 'scope'
