@@ -8,7 +8,10 @@ version: "8.0.0"
 Java 21 | Jmix 2.7.1 | Vaadin 24+ | Spring Boot 3.x | PostgreSQL | Liquibase
 
 ## TECH STACK
-Java 21 (virtual threads, pattern matching, records) | Jmix 2.7.1 | Vaadin FlowUI 24+ | Spring Boot 3.x | EclipseLink | Liquibase | Gradle | Quality: Spotless, Checkstyle, PMD, SpotBugs, SonarLint | Frontend: stylelint, prettier
+Java 21 (virtual threads, pattern matching, records) | Jmix 2.7.1 | Vaadin FlowUI 24+ | Spring Boot 3.x | EclipseLink | Liquibase | Gradle 8.12.x | Quality: Spotless, Checkstyle, PMD, SpotBugs, SonarLint | Frontend: stylelint, prettier
+
+## GRADLE VERSION CONSTRAINT
+**Gradle 8.12.x (max 8.x)**: Jmix 2.7.1 несовместим с Gradle 9+ | Gradle 9 удалил `groovy.util.XmlParser`, который использует Jmix плагин | ❌ Не обновлять до Gradle 9.x до обновления Jmix | ✅ Использовать Gradle 8.12.x или ниже | Проверять совместимость при обновлении Jmix
 
 ## METRICS & QUALITY
 **Limits**: 250 lines/file, 10 cyclomatic, 10 cognitive complexity | **Standards**: SOLID, Clean Architecture, DRY, KISS | **Refactor** if exceeded: extract methods, split files | See code-quality.mdc
