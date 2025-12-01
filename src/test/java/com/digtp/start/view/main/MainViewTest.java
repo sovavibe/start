@@ -9,7 +9,6 @@ import com.digtp.start.test_support.AuthenticatedAsAdmin;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.html.Div;
-import io.jmix.core.Messages;
 import io.jmix.core.usersubstitution.CurrentUserSubstitution;
 import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
@@ -27,15 +26,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @UiTest
 @SpringBootTest(classes = {com.digtp.start.StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
-@SuppressWarnings({"java:S5738", "java:S5976", "java:S5853"
+@SuppressWarnings({"java:S5738", "java:S5976", "java:S5853", "removal"
 }) // @MockBean deprecated but still standard for Spring Boot tests
 class MainViewTest {
 
     @Autowired
     private ViewNavigators viewNavigators;
-
-    @MockBean
-    private Messages messages;
 
     @MockBean
     private CurrentUserSubstitution currentUserSubstitution;
