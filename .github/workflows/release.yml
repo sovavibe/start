@@ -50,7 +50,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.DOCKER_HUB_USERNAME }}/start:buildcache,mode=max
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ steps.tag.outputs.VERSION }}
           draft: false
