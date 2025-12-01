@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Jmix/Vaadin application
 # Stage 1: Build
-FROM gradle:8.12-jdk21-alpine AS build
+FROM gradle:8.14-jdk21-alpine AS build
 
 WORKDIR /app
 
