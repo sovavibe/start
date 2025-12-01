@@ -15,6 +15,9 @@ plugins {
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
 
     // Code quality plugins
+    // Note: Spotless 8.1.0 and SonarLint 7.0.0 use deprecated Gradle APIs internally
+    // causing warnings: "Task.project at execution time" and "Project.javaexec(Action)"
+    // These are plugin implementation issues, not our code. Waiting for plugin updates.
     id 'com.diffplug.spotless' version '8.1.0'
     id 'name.remal.sonarlint' version '7.0.0'
     id 'checkstyle'
@@ -303,8 +306,12 @@ tasks.withType(JavaCompile).configureEach {
             "-Xlint:all,-serial,-processing"
     ])
     dependsOn("spotlessApply")
-    // Note: Spotless plugin may access project at execution time, causing configuration cache warnings
-    // This is a known limitation of the Spotless plugin and doesn't affect functionality
+    // Note: Gradle deprecation warnings during compileJava/compileTestJava:
+    // - "Task.project at execution time" - caused by Spotless/SonarLint plugins using deprecated API
+    // - "Project.javaexec(Action)" - caused by plugins using deprecated API
+    // These are known limitations in plugin implementations, not our code.
+    // Warnings will become errors in Gradle 10.0 (Task.project) and Gradle 9.0 (javaexec).
+    // Waiting for plugin updates to fix these issues. Doesn't affect current functionality.
 }
 
 // JavaDoc configuration
