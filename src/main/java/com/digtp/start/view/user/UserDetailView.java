@@ -14,13 +14,23 @@ import io.jmix.flowui.view.*;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Route(value = "users/:id", layout = MainView.class)
 @ViewController(id = "User.detail")
 @ViewDescriptor(path = "user-detail-view.xml")
 @EditedEntityContainer("userDc")
+@Slf4j
+@RequiredArgsConstructor
+@SuppressWarnings({
+    "java:S1948", // Framework pattern: Vaadin views contain non-serializable deps
+    "java:S110", // Framework pattern: Jmix views extend multiple framework classes
+    "java:S2177" // Framework pattern: Jmix/Vaadin lifecycle methods may have same names
+})
+// Suppressed globally in sonar-project.properties (e7, e8, e9),
+// but required for Gradle SonarLint plugin
 public class UserDetailView extends StandardDetailView<User> {
 
     @ViewComponent
@@ -38,14 +48,9 @@ public class UserDetailView extends StandardDetailView<User> {
     @ViewComponent
     private MessageBundle messageBundle;
 
-    @Autowired
-    private Notifications notifications;
-
-    @Autowired
-    private EntityStates entityStates;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final Notifications notifications;
+    private final EntityStates entityStates;
+    private final PasswordEncoder passwordEncoder;
 
     private boolean newEntity;
 
@@ -78,16 +83,21 @@ public class UserDetailView extends StandardDetailView<User> {
 
     @Subscribe
     public void onBeforeSave(final BeforeSaveEvent event) {
-        if (entityStates.isNew(getEditedEntity())) {
+        final User user = getEditedEntity();
+        if (entityStates.isNew(user)) {
             getEditedEntity().setPassword(passwordEncoder.encode(passwordField.getValue()));
-
+            log.info("Creating new user: username={}", user.getUsername());
             newEntity = true;
+        } else {
+            log.info("Updating user: id={}, username={}", user.getId(), user.getUsername());
         }
     }
 
     @Subscribe
     public void onAfterSave(final AfterSaveEvent event) {
+        final User user = getEditedEntity();
         if (newEntity) {
+            log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
             notifications
                     .create(messageBundle.getMessage("noAssignedRolesNotification"))
                     .withThemeVariant(NotificationVariant.LUMO_WARNING)
@@ -95,6 +105,8 @@ public class UserDetailView extends StandardDetailView<User> {
                     .show();
 
             newEntity = false;
+        } else {
+            log.info("User updated successfully: id={}, username={}", user.getId(), user.getUsername());
         }
     }
 }

@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  */
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
-public class UserUiTest {
+class UserUiTest {
 
     @Autowired
     DataManager dataManager;
@@ -34,41 +34,41 @@ public class UserUiTest {
     ViewNavigators viewNavigators;
 
     @Test
-    void test_createUser() {
+    void testCreateUser() {
         // Navigate to user list view
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
 
         UserListView userListView = UiTestUtils.getCurrentView();
 
         // click "Create" button
-        JmixButton createBtn = UiTestUtils.getComponent(userListView, "createButton");
+        final JmixButton createBtn = UiTestUtils.getComponent(userListView, "createButton");
         createBtn.click();
 
         // Get detail view
-        UserDetailView userDetailView = UiTestUtils.getCurrentView();
+        final UserDetailView userDetailView = UiTestUtils.getCurrentView();
 
         // Set username and password in the fields
-        TypedTextField<String> usernameField = UiTestUtils.getComponent(userDetailView, "usernameField");
-        String username = "test-user-" + System.currentTimeMillis();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(userDetailView, "usernameField");
+        final String username = "test-user-" + System.currentTimeMillis();
         usernameField.setValue(username);
 
-        JmixPasswordField passwordField = UiTestUtils.getComponent(userDetailView, "passwordField");
+        final JmixPasswordField passwordField = UiTestUtils.getComponent(userDetailView, "passwordField");
         passwordField.setValue("test-passwd");
 
-        JmixPasswordField confirmPasswordField = UiTestUtils.getComponent(userDetailView, "confirmPasswordField");
+        final JmixPasswordField confirmPasswordField = UiTestUtils.getComponent(userDetailView, "confirmPasswordField");
         confirmPasswordField.setValue("test-passwd");
 
         // Click "OK"
-        JmixButton commitAndCloseBtn = UiTestUtils.getComponent(userDetailView, "saveAndCloseButton");
+        final JmixButton commitAndCloseBtn = UiTestUtils.getComponent(userDetailView, "saveAndCloseButton");
         commitAndCloseBtn.click();
 
         // Get navigated user list view
         userListView = UiTestUtils.getCurrentView();
 
         // Check the created user is shown in the table
-        DataGrid<User> usersDataGrid = UiTestUtils.getComponent(userListView, "usersDataGrid");
+        final DataGrid<User> usersDataGrid = UiTestUtils.getComponent(userListView, "usersDataGrid");
 
-        DataGridItems<User> usersDataGridItems = usersDataGrid.getItems();
+        final DataGridItems<User> usersDataGridItems = usersDataGrid.getItems();
         Assertions.assertNotNull(usersDataGridItems);
 
         usersDataGridItems.getItems().stream()
@@ -83,6 +83,6 @@ public class UserUiTest {
                 .load(User.class)
                 .query("e.username like ?1", "test-user-%")
                 .list()
-                .forEach(u -> dataManager.remove(u));
+                .forEach(dataManager::remove);
     }
 }

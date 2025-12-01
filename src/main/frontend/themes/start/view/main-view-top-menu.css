@@ -21,7 +21,7 @@ vaadin-app-layout.jmix-main-view-top-menu-app-layout::part(navbar) {
   display: flex;
   align-items: center;
   width: 100%;
-  border-bottom: 1px solid var(--lumo-contrast-10pct)
+  border-bottom: 1px solid var(--lumo-contrast-10pct);
 }
 
 .jmix-main-view-top-menu-logo-container {

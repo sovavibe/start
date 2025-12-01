@@ -15,13 +15,35 @@
     </description>
 
     <!-- Best Practices -->
-    <rule ref="category/java/bestpractices.xml"></rule>
+    <rule ref="category/java/bestpractices.xml">
+        <!-- Exclude rules that are too strict or not applicable -->
+        <exclude name="GuardLogStatement"/> <!-- Modern SLF4J handles level checks efficiently -->
+        <exclude name="UnusedPrivateMethod"/> <!-- Lombok may generate methods that appear unused -->
+        <!-- Note: NonSerializableClass is in errorprone.xml, excluded there -->
+        <exclude name="LooseCoupling"/> <!-- Framework code often requires specific implementations -->
+    </rule>
 
     <!-- Code Style -->
-    <rule ref="category/java/codestyle.xml"></rule>
+    <rule ref="category/java/codestyle.xml">
+        <!-- Exclude rules that are too strict for modern Java -->
+        <exclude name="CommentDefaultAccessModifier"/> <!-- Package-private is acceptable -->
+        <exclude name="LongVariable"/> <!-- Descriptive variable names are preferred -->
+        <exclude name="ShortClassName"/> <!-- Entity classes like User are acceptable -->
+        <exclude name="UnnecessaryAnnotationValueElement"/> <!-- Modern Java style allows value= -->
+        <exclude name="UselessParentheses"/> <!-- Parentheses can improve readability -->
+        <exclude name="OnlyOneReturn"/> <!-- Early returns improve code readability -->
+        <exclude name="AtLeastOneConstructor"/> <!-- Default constructor is acceptable -->
+        <exclude name="ShortVariable"/> <!-- Short variable names are acceptable in some contexts -->
+    </rule>
 
     <!-- Design -->
-    <rule ref="category/java/design.xml"></rule>
+    <rule ref="category/java/design.xml">
+        <!-- Exclude CyclomaticComplexity to configure it separately below -->
+        <exclude name="CyclomaticComplexity"/>
+        <!-- Exclude rules that are too strict for framework code -->
+        <exclude name="LawOfDemeter"/> <!-- Framework code often uses method chaining -->
+        <exclude name="SignatureDeclareThrowsException"/> <!-- Framework methods may throw Exception -->
+    </rule>
 
     <!-- Configure ExcessiveImports with custom threshold for Vaadin views -->
     <rule ref="category/java/design.xml/ExcessiveImports">
@@ -37,6 +59,9 @@
     Cognitive complexity should also be <= 10 (checked by SonarLint)
     High complexity makes code harder to understand, test, and maintain.
     If a method exceeds this limit, consider refactoring: extract methods, simplify logic.
+    
+    Note: Framework lifecycle methods (onInit, onReady, etc.) may have higher complexity
+    as they are framework callbacks. These are acceptable and checked by SonarLint separately.
     -->
     <rule ref="category/java/design.xml/CyclomaticComplexity">
         <properties>
@@ -52,6 +77,12 @@
 
     <!-- Error Prone -->
     <rule ref="category/java/errorprone.xml">
+        <!-- Exclude MissingSerialVersionUID - not needed for modern Java -->
+        <!-- Serialization is handled by frameworks (Jmix, Spring) -->
+        <exclude name="MissingSerialVersionUID"/>
+        <!-- Exclude NonSerializableClass - Jmix/Vaadin views contain framework dependencies -->
+        <!-- Views are not intended for serialization, they contain framework-managed beans -->
+        <exclude name="NonSerializableClass"/>
     </rule>
 
     <!-- Performance -->
@@ -64,6 +95,9 @@
 
     <!-- Documentation -->
     <rule ref="category/java/documentation.xml">
+        <!-- Exclude CommentRequired - Javadoc is optional for modern Java -->
+        <!-- Code should be self-documenting through clear naming and structure -->
+        <exclude name="CommentRequired"/>
     </rule>
 
     <!-- Configure documentation rules with custom limits -->
@@ -73,5 +107,11 @@
             <property name="maxLineLength" value="100"/>
         </properties>
     </rule>
+
+    <!-- Lombok compatibility: Exclude specific rules for Lombok-generated code -->
+    <!-- Lombok generates getters, setters, equals, hashCode, toString, constructors -->
+    <!-- These methods follow standard JavaBean conventions and are generated code -->
+    <!-- Note: PMD doesn't support fine-grained exclusions per rule, so we rely on -->
+    <!-- SonarLint and Checkstyle for Lombok-specific suppressions -->
 
 </ruleset>

@@ -1,13 +1,13 @@
 package com.digtp.start;
 
-import com.google.common.base.Strings;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
+import java.util.Objects;
 import javax.sql.DataSource;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -19,15 +19,19 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
 @Push
-@Theme(value = "start")
+@Theme("start")
 @PWA(name = "Start", shortName = "Start", offline = false)
 @SpringBootApplication
+@Slf4j
+@RequiredArgsConstructor
+@SuppressWarnings("java:S1948") // Framework pattern: Spring Boot app contains non-serializable deps
+// Suppressed globally in sonar-project.properties (e7),
+// but required for Gradle SonarLint plugin
 public class StartApplication implements AppShellConfigurator {
 
-    @Autowired
-    private Environment environment;
+    private final Environment environment;
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         SpringApplication.run(StartApplication.class, args);
     }
 
@@ -47,10 +51,17 @@ public class StartApplication implements AppShellConfigurator {
 
     @EventListener
     public void printApplicationUrl(final ApplicationStartedEvent event) {
-        LoggerFactory.getLogger(StartApplication.class)
-                .info("Application started at "
-                        + "http://localhost:"
-                        + environment.getProperty("local.server.port")
-                        + Strings.nullToEmpty(environment.getProperty("server.servlet.context-path")));
+        final String port = environment.getProperty("local.server.port", "8080");
+        final String contextPathProperty = environment.getProperty("server.servlet.context-path");
+        final String contextPath = Objects.requireNonNullElse(contextPathProperty, "");
+        final String activeProfiles = String.join(
+                ", ",
+                environment.getActiveProfiles().length > 0
+                        ? environment.getActiveProfiles()
+                        : new String[] {"default"});
+        log.info("Application started successfully");
+        log.info("URL: http://localhost:{}{}", port, contextPath);
+        log.info("Active profiles: {}", activeProfiles);
+        log.debug("Application context initialized, ready to serve requests");
     }
 }
