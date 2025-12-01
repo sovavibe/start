@@ -27,9 +27,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 // plugin.
 public class MainView extends StandardMainView {
 
-    private final Messages messages;
-    private final UiComponents uiComponents;
-    private final CurrentUserSubstitution currentUserSubstitution;
+    private final transient Messages messages;
+    private final transient UiComponents uiComponents;
+    private final transient CurrentUserSubstitution currentUserSubstitution;
 
     @Install(to = "userMenu", subject = "buttonRenderer")
     private Component userMenuButtonRenderer(final UserDetails userDetails) {

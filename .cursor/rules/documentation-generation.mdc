@@ -1,39 +1,9 @@
-# DOCUMENTATION GENERATION - STRICT RULES
+# DOCUMENTATION GENERATION
 
-## ❌ CRITICAL PROHIBITIONS
-- ❌ NEVER proactively create documentation files (*.md, README, etc.)
-- ❌ NEVER generate documentation unless EXPLICITLY requested in user query
-- ❌ NEVER create "completion summaries" as documentation
-- ❌ NEVER create multiple documentation files for same topic
-- ❌ NEVER create documentation "for future reference"
-- ❌ NEVER create documentation as "best practices guide" without request
-- ❌ NEVER generate documentation to "explain what was done"
-- ❌ NEVER create documentation to "help with future work"
+See ai-rules.mdc for main rules. This file: specific guidance only.
 
-## ✅ STRICT RULES
-- ✅ ONLY create documentation when user EXPLICITLY asks: "create docs", "document this", "write README"
-- ✅ Focus on code implementation, NOT documentation
-- ✅ Place instructions, guides, setup docs in `docs/` directory (NOT in `.archive/`)
-- ❌ NEVER place useful documentation in `.archive/` (only temporary/research materials go there)
+## WHEN TO CREATE
+✅ ONLY when user EXPLICITLY asks: "create docs", "document this", "write README" | ✅ Place in `docs/` (not `.archive/`) | ✅ ONE concise file (< 200 lines) | ❌ NO automatic generation, summaries, plans, duplicates
 
-## PROHIBITIONS - TOKEN CONSERVATION
-- ❌ NO automatic README generation
-- ❌ NO automatic API documentation
-- ❌ NO automatic architecture diagrams
-- ❌ NO automatic code comments documentation
-- ❌ NO "helpful" documentation suggestions
-- ❌ NO "completion reports" as documentation
-- ❌ NO multiple files for same feature
-- ❌ NO long documentation files (> 200 lines)
-
-## EXCEPTIONS - ONLY THESE
-- User EXPLICITLY requests: "create documentation"
-- User EXPLICITLY asks: "document this feature"
-- User EXPLICITLY requests: "write README"
-- User EXPLICITLY asks: "create guide for X"
-
-## TOKEN OPTIMIZATION
-- ✅ If documentation needed, create ONE concise file (< 200 lines)
-- ✅ Focus on essential information only
-- ✅ No redundant information
-- ✅ No "summary of what was done" sections
+## PROHIBITIONS
+❌ Automatic README/API/architecture docs | ❌ "Completion reports" | ❌ Multiple files for same topic | ❌ Long files (> 200 lines) | ❌ "For future reference" | Focus on code, not docs

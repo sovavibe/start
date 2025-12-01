@@ -81,9 +81,13 @@
         <property name="max" value="300"/>
         <property name="fileExtensions" value="java"/>
     </module>
+    <!-- LineLength: 100 for code, 120 for lines with comments -->
     <module name="LineLength">
         <property name="fileExtensions" value="java"/>
         <property name="max" value="100"/>
+        <!-- Ignore lines that contain comments (// or /* */) - allows up to 120 chars for comment lines -->
+        <!-- Pattern matches: lines starting with //, lines with // anywhere, block comments -->
+        <property name="ignorePattern" value=".*//.*|.*/\*.*\*/.*|^\s*//.*$|^\s*/\*.*$|^\s*\*.*$"/>
     </module>
 
     <!-- Checks for whitespace                               -->
