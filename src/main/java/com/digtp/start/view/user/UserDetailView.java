@@ -10,7 +10,13 @@ import com.vaadin.flow.router.Route;
 import io.jmix.core.EntityStates;
 import io.jmix.flowui.Notifications;
 import io.jmix.flowui.component.textfield.TypedTextField;
-import io.jmix.flowui.view.*;
+import io.jmix.flowui.view.EditedEntityContainer;
+import io.jmix.flowui.view.MessageBundle;
+import io.jmix.flowui.view.StandardDetailView;
+import io.jmix.flowui.view.Subscribe;
+import io.jmix.flowui.view.ViewComponent;
+import io.jmix.flowui.view.ViewController;
+import io.jmix.flowui.view.ViewDescriptor;
 import java.util.List;
 import java.util.Objects;
 import java.util.TimeZone;
@@ -24,13 +30,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({
-    "java:S1948", // Framework pattern: Vaadin views contain non-serializable deps
-    "java:S110", // Framework pattern: Jmix views extend multiple framework classes
-    "java:S2177" // Framework pattern: Jmix/Vaadin lifecycle methods may have same names
-})
-// Suppressed globally in sonar-project.properties (e7, e8, e9),
-// but required for Gradle SonarLint plugin
+@SuppressWarnings({"java:S1948", "java:S110", "java:S2177"
+}) // Framework patterns: Vaadin views. Required for Gradle SonarLint plugin.
 public class UserDetailView extends StandardDetailView<User> {
 
     @ViewComponent

@@ -16,9 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 @LookupComponent("usersDataGrid")
 @DialogMode(width = "64em")
 @Slf4j
-@SuppressWarnings("java:S110") // Framework pattern: Jmix views extend multiple framework classes
-// Suppressed globally in sonar-project.properties (e8),
-// but required for Gradle SonarLint plugin
+@SuppressWarnings(
+        "java:S110") // Framework pattern: Jmix views extend multiple classes. Required for Gradle SonarLint plugin.
 public class UserListView extends StandardListView<User> {
     // User deletion is handled by Jmix framework through DataManager.remove()
     // Logging is done at DataManager level or through entity lifecycle callbacks

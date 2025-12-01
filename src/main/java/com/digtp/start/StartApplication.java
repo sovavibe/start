@@ -24,9 +24,9 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("java:S1948") // Framework pattern: Spring Boot app contains non-serializable deps
-// Suppressed globally in sonar-project.properties (e7),
-// but required for Gradle SonarLint plugin
+@SuppressWarnings(
+        "java:S1948") // Framework pattern: Spring Boot app contains non-serializable deps. Required for Gradle
+// SonarLint plugin.
 public class StartApplication implements AppShellConfigurator {
 
     private final Environment environment;

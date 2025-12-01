@@ -321,3 +321,41 @@ compile-test: ## Compile test code
 	@echo "$(GREEN)Compiling test code...$(RESET)"
 	./gradlew compileTestJava
 
+##@ DevOps
+
+docker-up: ## Start Docker Compose (app + PostgreSQL)
+	@echo "$(GREEN)Starting Docker Compose...$(RESET)"
+	docker-compose up -d
+
+docker-down: ## Stop Docker Compose
+	@echo "$(GREEN)Stopping Docker Compose...$(RESET)"
+	docker-compose down
+
+docker-logs: ## View application logs
+	@echo "$(GREEN)Viewing application logs...$(RESET)"
+	docker-compose logs -f app
+
+docker-ps: ## List running containers
+	@echo "$(GREEN)Running containers:$(RESET)"
+	docker-compose ps
+
+observability-up: ## Start observability stack (Grafana + Loki + OpenTelemetry)
+	@echo "$(GREEN)Starting observability stack...$(RESET)"
+	docker-compose -f docker-compose.observability.yml up -d
+
+observability-down: ## Stop observability stack
+	@echo "$(GREEN)Stopping observability stack...$(RESET)"
+	docker-compose -f docker-compose.observability.yml down
+
+check-devops: ## Check DevOps infrastructure status
+	@echo "$(GREEN)Checking DevOps infrastructure...$(RESET)"
+	@./scripts/check-devops.sh
+
+health: ## Check application health
+	@echo "$(GREEN)Checking application health...$(RESET)"
+	@curl -sf http://localhost:8080/actuator/health | jq . || echo "$(YELLOW)Application not responding$(RESET)"
+
+test-observability: ## Test observability stack (Grafana + Loki + OpenTelemetry)
+	@echo "$(GREEN)Testing observability stack...$(RESET)"
+	@./scripts/test-observability.sh
+

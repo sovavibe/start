@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: start-config
+  namespace: start
+data:
+  SPRING_PROFILES_ACTIVE: "kubernetes"
+  MAIN_DATASOURCE_URL: "jdbc:postgresql://start-postgres:5432/start"
+  MAIN_DATASOURCE_USERNAME: "start"
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "health,info,metrics,prometheus"
+  MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: "when-authorized"
+  MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
+  MANAGEMENT_OTLP_LOGGING_ENDPOINT: "http://otel-collector:4318/v1/logs"
+  LOGGING_LEVEL_ROOT: "INFO"
+  LOGGING_LEVEL_COM_DIGTP_START: "INFO"
+

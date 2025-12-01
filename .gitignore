@@ -57,3 +57,8 @@ logs/
 
 # Application properties (local/dev with secrets)
 .env
+.env.local
+.env.*.local
+
+# Docker Compose override files
+docker-compose.override.yml

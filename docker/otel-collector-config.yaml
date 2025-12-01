@@ -1,0 +1,37 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+    timeout: 1s
+    send_batch_size: 1024
+  resource:
+    attributes:
+      - key: service.name
+        value: start
+        action: upsert
+
+exporters:
+  loki:
+    endpoint: http://loki:3100/loki/api/v1/push
+    labels:
+      resource:
+        service.name: 'service_name'
+      attributes:
+        logback.ownerId: 'owner_id'
+        logback.jmixUser: 'jmix_user'
+
+  logging:
+    loglevel: info
+
+service:
+  pipelines:
+    logs:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [loki, logging]

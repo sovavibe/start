@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: start-otel-collector
+    command: ['--config=/etc/otel-collector-config.yaml']
+    volumes:
+      - ./docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - '4317:4317' # OTLP gRPC receiver
+      - '4318:4318' # OTLP HTTP receiver
+      - '8888:8888' # Prometheus metrics
+    networks:
+      - start-network
+    depends_on:
+      - loki
+
+  # Grafana Loki for log storage
+  loki:
+    image: grafana/loki:latest
+    container_name: start-loki
+    ports:
+      - '3100:3100'
+    volumes:
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - start-network
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: start-grafana
+    ports:
+      - '3000:3000'
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning
+      - ./docker/grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - start-network
+    depends_on:
+      - loki
+      - otel-collector
+
+volumes:
+  loki_data:
+  grafana_data:
+
+networks:
+  start-network:
+    driver: bridge
+    external: true
