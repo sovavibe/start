@@ -39,7 +39,7 @@ class MainViewTest {
     private CurrentUserSubstitution currentUserSubstitution;
 
     @Test
-    void testGenerateUserNameWithFirstNameAndLastName() throws Exception {
+    void testGenerateUserNameWithFirstNameAndLastName() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
@@ -50,7 +50,7 @@ class MainViewTest {
     }
 
     @Test
-    void testGenerateUserNameWithOnlyFirstName() throws Exception {
+    void testGenerateUserNameWithOnlyFirstName() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", null);
@@ -61,7 +61,7 @@ class MainViewTest {
     }
 
     @Test
-    void testGenerateUserNameWithOnlyLastName() throws Exception {
+    void testGenerateUserNameWithOnlyLastName() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", null, "Doe");
@@ -72,7 +72,7 @@ class MainViewTest {
     }
 
     @Test
-    void testGenerateUserNameWithoutNames() throws Exception {
+    void testGenerateUserNameWithoutNames() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", null, null);
@@ -83,7 +83,7 @@ class MainViewTest {
     }
 
     @Test
-    void testIsSubstitutedWhenUserIsSubstituted() throws Exception {
+    void testIsSubstitutedWhenUserIsSubstituted() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
@@ -97,7 +97,7 @@ class MainViewTest {
     }
 
     @Test
-    void testIsSubstitutedWhenUserIsNotSubstituted() throws Exception {
+    void testIsSubstitutedWhenUserIsNotSubstituted() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
@@ -110,7 +110,7 @@ class MainViewTest {
     }
 
     @Test
-    void testIsSubstitutedWhenUserIsNull() throws Exception {
+    void testIsSubstitutedWhenUserIsNull() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User authenticatedUser = createTestUser("admin", "Admin", "User");
@@ -123,7 +123,7 @@ class MainViewTest {
     }
 
     @Test
-    void testCreateAvatar() throws Exception {
+    void testCreateAvatar() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
 
@@ -134,7 +134,7 @@ class MainViewTest {
     }
 
     @Test
-    void testUserMenuButtonRendererWithUser() throws Exception {
+    void testUserMenuButtonRendererWithUser() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
@@ -149,7 +149,7 @@ class MainViewTest {
     }
 
     @Test
-    void testUserMenuButtonRendererWithNonUser() throws Exception {
+    void testUserMenuButtonRendererWithNonUser() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final UserDetails nonUser = mock(UserDetails.class);
@@ -160,7 +160,7 @@ class MainViewTest {
     }
 
     @Test
-    void testUserMenuHeaderRendererWithUser() throws Exception {
+    void testUserMenuHeaderRendererWithUser() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", "John", "Doe");
@@ -175,7 +175,7 @@ class MainViewTest {
     }
 
     @Test
-    void testUserMenuHeaderRendererWhenNameEqualsUsername() throws Exception {
+    void testUserMenuHeaderRendererWhenNameEqualsUsername() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
         final User user = createTestUser("john.doe", null, null);
@@ -189,7 +189,8 @@ class MainViewTest {
 
     @SuppressWarnings("unchecked")
     private <T> T invokePrivateMethod(
-            final Object target, final String methodName, final Class<?> paramType, final Object arg) throws Exception {
+            final Object target, final String methodName, final Class<?> paramType, final Object arg)
+            throws NoSuchMethodException, IllegalAccessException, java.lang.reflect.InvocationTargetException {
         final Method method = target.getClass().getDeclaredMethod(methodName, paramType);
         method.setAccessible(true);
         return (T) method.invoke(target, arg);
