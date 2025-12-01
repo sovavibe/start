@@ -29,3 +29,6 @@ src/main/bundles/
 # OS
 .DS_Store
 Thumbs.db
+
+# Helm templates (contain template syntax that prettier cannot parse)
+helm/

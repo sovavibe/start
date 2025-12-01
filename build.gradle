@@ -306,6 +306,16 @@ tasks.named("jacocoTestReport") {
     finalizedBy(tasks.named("jacocoTestCoverageVerification"))
 }
 
+tasks.named("jacocoTestCoverageVerification") {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.70 // 70% minimum instruction coverage (current: 81.11%)
+            }
+        }
+    }
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     options.compilerArgs.addAll([
