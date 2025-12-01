@@ -161,6 +161,7 @@ build: ## Build the project
 	./gradlew build
 
 clean: ## Clean build artifacts and kill process on port 8080
+	@clear
 	@echo "$(GREEN)Cleaning build artifacts...$(RESET)"
 	@$(MAKE) kill-port PORT=8080
 	./gradlew clean
