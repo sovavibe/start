@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnProperty(name = "management.otlp.logging.endpoint")
 @Slf4j
-public class OpenTelemetryConfig {
+public final class OpenTelemetryConfig {
 
     @Bean
     public OpenTelemetry openTelemetry() {

@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "management.otlp.logging.endpoint")
 @Slf4j
 @RequiredArgsConstructor
-public class OpenTelemetryAppenderInitializer implements InitializingBean {
+public final class OpenTelemetryAppenderInitializer implements InitializingBean {
 
     private final OpenTelemetry openTelemetry;
 

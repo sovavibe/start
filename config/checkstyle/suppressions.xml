@@ -80,4 +80,12 @@
     <suppress
             checks="VisibilityModifier"
             files=".*Test\.java$|.*Tests\.java$"/>
+
+    <!-- Code formatting: Suppress LineLength check -->
+    <!-- Palantir Java Format (via Spotless) handles code formatting but doesn't enforce line length -->
+    <!-- Line length is a style preference, not a code quality issue -->
+    <!-- Spotless applies consistent formatting, line length variations are acceptable -->
+    <suppress
+            checks="LineLength"
+            files=".*\.java$"/>
 </suppressions>
