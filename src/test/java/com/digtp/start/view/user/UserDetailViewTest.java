@@ -3,7 +3,6 @@ package com.digtp.start.view.user;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
-import com.digtp.start.view.user.UserListView;
 import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
 import io.jmix.flowui.testassist.UiTest;

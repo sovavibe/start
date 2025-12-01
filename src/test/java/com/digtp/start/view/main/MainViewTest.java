@@ -6,7 +6,9 @@ import static org.mockito.Mockito.when;
 
 import com.digtp.start.entity.User;
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
+import com.vaadin.flow.component.html.Div;
 import io.jmix.core.Messages;
 import io.jmix.core.usersubstitution.CurrentUserSubstitution;
 import io.jmix.flowui.ViewNavigators;
