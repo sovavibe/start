@@ -84,7 +84,7 @@ dependencies {
 
     // OpenTelemetry
     implementation 'io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.5.0-alpha'
-    implementation 'io.opentelemetry:opentelemetry-api:1.49.0'
+    implementation 'io.opentelemetry:opentelemetry-api:1.56.0'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
