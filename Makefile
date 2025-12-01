@@ -134,7 +134,7 @@ check-setup: ## Check if project is set up correctly
 		exit 1; \
 	fi
 
-run: ## Run the application (requires PostgreSQL and .env file)
+run: ## Run the application (auto-starts PostgreSQL if needed)
 	@SETUP_NEEDED=0; \
 	if ! command -v java >/dev/null 2>&1; then \
 		SETUP_NEEDED=1; \
@@ -155,28 +155,64 @@ run: ## Run the application (requires PostgreSQL and .env file)
 		}; \
 		echo ""; \
 	fi
-	@# Check if .env file exists
+	@# Check if .env file exists and create if needed
 	@if [ ! -f ".env" ]; then \
-		echo "$(YELLOW)⚠️  .env file not found$(RESET)"; \
-		echo "$(YELLOW)   Creating .env from .env.example...$(RESET)"; \
+		echo "$(YELLOW)⚠️  .env file not found. Creating from .env.example...$(RESET)"; \
 		if [ -f ".env.example" ]; then \
 			cp .env.example .env; \
-			echo "$(GREEN)✅ Created .env file. Please update it with your database credentials$(RESET)"; \
+			echo "$(GREEN)✅ Created .env file$(RESET)"; \
 		else \
-			echo "$(YELLOW)⚠️  .env.example not found. Please create .env file manually$(RESET)"; \
-			echo "$(YELLOW)   See README-DEVOPS.md for required environment variables$(RESET)"; \
+			echo "$(YELLOW)⚠️  .env.example not found. Creating basic .env file...$(RESET)"; \
+			echo "# PostgreSQL database configuration" > .env; \
+			echo "MAIN_DATASOURCE_URL=jdbc:postgresql://localhost:5432/start" >> .env; \
+			echo "MAIN_DATASOURCE_USERNAME=start" >> .env; \
+			echo "MAIN_DATASOURCE_PASSWORD=start" >> .env; \
+			echo "$(GREEN)✅ Created basic .env file$(RESET)"; \
 		fi; \
 		echo ""; \
 	fi
-	@# Check PostgreSQL connection (optional, just a warning)
-	@if command -v psql >/dev/null 2>&1; then \
-		PGHOST=$$(grep MAIN_DATASOURCE_URL .env 2>/dev/null | cut -d'/' -f3 | cut -d':' -f1 || echo "localhost"); \
-		PGPORT=$$(grep MAIN_DATASOURCE_URL .env 2>/dev/null | cut -d':' -f3 | cut -d'/' -f1 || echo "5432"); \
-		if ! pg_isready -h "$$PGHOST" -p "$$PGPORT" >/dev/null 2>&1; then \
-			echo "$(YELLOW)⚠️  PostgreSQL not responding at $$PGHOST:$$PGPORT$(RESET)"; \
-			echo "$(YELLOW)   Start PostgreSQL with: $(YELLOW)make postgres-up$(RESET) or $(YELLOW)make docker-up$(RESET)"; \
-			echo ""; \
+	@# Check PostgreSQL and start if needed
+	@PGHOST=$$(grep MAIN_DATASOURCE_URL .env 2>/dev/null | cut -d'/' -f3 | cut -d':' -f1 | head -1 || echo "localhost"); \
+	PGPORT=$$(grep MAIN_DATASOURCE_URL .env 2>/dev/null | cut -d':' -f3 | cut -d'/' -f1 | head -1 || echo "5432"); \
+	POSTGRES_RUNNING=0; \
+	if command -v pg_isready >/dev/null 2>&1; then \
+		if pg_isready -h "$$PGHOST" -p "$$PGPORT" >/dev/null 2>&1; then \
+			POSTGRES_RUNNING=1; \
 		fi; \
+	elif docker ps --format '{{.Names}}' 2>/dev/null | grep -qE "postgres|start-postgres"; then \
+		POSTGRES_RUNNING=1; \
+	elif lsof -ti:$$PGPORT >/dev/null 2>&1; then \
+		POSTGRES_RUNNING=1; \
+	fi; \
+	if [ "$$POSTGRES_RUNNING" -eq 0 ]; then \
+		echo "$(YELLOW)⚠️  PostgreSQL not running at $$PGHOST:$$PGPORT$(RESET)"; \
+		echo "$(YELLOW)   Starting PostgreSQL automatically...$(RESET)"; \
+		echo ""; \
+		$(MAKE) postgres-up >/dev/null 2>&1 || { \
+			echo "$(YELLOW)⚠️  Failed to start PostgreSQL automatically$(RESET)"; \
+			echo "$(YELLOW)   Please start PostgreSQL manually: $(YELLOW)make postgres-up$(RESET)"; \
+			echo ""; \
+		}; \
+		echo "$(YELLOW)   Waiting for PostgreSQL to be ready...$(RESET)"; \
+		sleep 5; \
+		if command -v pg_isready >/dev/null 2>&1; then \
+			for i in 1 2 3 4 5; do \
+				if pg_isready -h "$$PGHOST" -p "$$PGPORT" >/dev/null 2>&1; then \
+					echo "$(GREEN)✅ PostgreSQL is ready$(RESET)"; \
+					break; \
+				fi; \
+				if [ $$i -eq 5 ]; then \
+					echo "$(YELLOW)⚠️  PostgreSQL may still be starting. Continuing anyway...$(RESET)"; \
+				else \
+					sleep 2; \
+				fi; \
+			done; \
+		else \
+			echo "$(YELLOW)⚠️  pg_isready not found, skipping readiness check$(RESET)"; \
+		fi; \
+		echo ""; \
+	else \
+		echo "$(GREEN)✅ PostgreSQL is running$(RESET)"; \
 	fi
 	@echo "$(GREEN)Starting application...$(RESET)"
 	./gradlew bootRun
