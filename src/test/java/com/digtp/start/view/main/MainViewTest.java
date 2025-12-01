@@ -3,7 +3,9 @@ package com.digtp.start.view.main;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.digtp.start.StartApplication;
 import com.digtp.start.entity.User;
+import com.digtp.start.test_support.AbstractIntegrationTest;
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -19,13 +21,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @UiTest
-@SpringBootTest(classes = {com.digtp.start.StartApplication.class, FlowuiTestAssistConfiguration.class})
+@SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
+@ActiveProfiles("test")
 @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
 @SuppressWarnings("java:S5976") // Separate test methods are clearer than parameterized for these scenarios
-class MainViewTest {
+class MainViewTest extends AbstractIntegrationTest {
 
     @Autowired
     private ViewNavigators viewNavigators;

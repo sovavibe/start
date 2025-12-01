@@ -2,6 +2,8 @@ package com.digtp.start.view.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.digtp.start.StartApplication;
+import com.digtp.start.test_support.AbstractIntegrationTest;
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
 import com.vaadin.flow.component.combobox.ComboBox;
 import io.jmix.flowui.ViewNavigators;
@@ -13,12 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @UiTest
-@SpringBootTest(classes = {com.digtp.start.StartApplication.class, FlowuiTestAssistConfiguration.class})
+@SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
+@ActiveProfiles("test")
 @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
-class UserDetailViewTest {
+class UserDetailViewTest extends AbstractIntegrationTest {
 
     @Autowired
     private ViewNavigators viewNavigators;
