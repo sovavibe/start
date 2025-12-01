@@ -10,21 +10,34 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 /**
  * JUnit extension for providing system authentication in integration tests.
  * Should be used in {@code @ExtendWith} annotation on the test class.
+ *
+ * <p>This class is not intended for extension. It implements JUnit extension callbacks
+ * and should be used as-is via {@code @ExtendWith} annotation.
  */
-public class AuthenticatedAsAdmin implements BeforeEachCallback, AfterEachCallback {
+public final class AuthenticatedAsAdmin implements BeforeEachCallback, AfterEachCallback {
 
+    /**
+     * Begins system authentication as admin before each test.
+     *
+     * @param context JUnit extension context
+     */
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeEach(final ExtensionContext context) {
         getSystemAuthenticator(context).begin("admin");
     }
 
+    /**
+     * Ends system authentication after each test.
+     *
+     * @param context JUnit extension context
+     */
     @Override
-    public void afterEach(ExtensionContext context) {
+    public void afterEach(final ExtensionContext context) {
         getSystemAuthenticator(context).end();
     }
 
-    private SystemAuthenticator getSystemAuthenticator(ExtensionContext context) {
-        ApplicationContext applicationContext = SpringExtension.getApplicationContext(context);
+    private SystemAuthenticator getSystemAuthenticator(final ExtensionContext context) {
+        final ApplicationContext applicationContext = SpringExtension.getApplicationContext(context);
         return applicationContext.getBean(SystemAuthenticator.class);
     }
 }

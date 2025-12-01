@@ -20,10 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -32,18 +31,16 @@ import org.springframework.security.authentication.LockedException;
 @Route(value = "login")
 @ViewController(id = "LoginView")
 @ViewDescriptor(path = "login-view.xml")
+@Slf4j
+@RequiredArgsConstructor
+@SuppressWarnings("java:S1948") // Framework pattern: Vaadin views contain non-serializable deps
+// Suppressed globally in sonar-project.properties (e7),
+// but required for Gradle SonarLint plugin
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
-    private static final Logger log = LoggerFactory.getLogger(LoginView.class);
-
-    @Autowired
-    private CoreProperties coreProperties;
-
-    @Autowired
-    private LoginViewSupport loginViewSupport;
-
-    @Autowired
-    private MessageTools messageTools;
+    private final CoreProperties coreProperties;
+    private final LoginViewSupport loginViewSupport;
+    private final MessageTools messageTools;
 
     @ViewComponent
     private JmixLoginForm login;
@@ -64,7 +61,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     }
 
     private void initLocales() {
-        LinkedHashMap<Locale, String> locales = coreProperties.getAvailableLocales().stream()
+        final LinkedHashMap<Locale, String> locales = coreProperties.getAvailableLocales().stream()
                 .collect(Collectors.toMap(
                         Function.identity(), messageTools::getLocaleDisplayName, (s1, s2) -> s1, LinkedHashMap::new));
 
@@ -89,10 +86,26 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
             loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
                     .withLocale(login.getSelectedLocale())
                     .withRememberMe(login.isRememberMe()));
+            log.info("User '{}' successfully logged in", event.getUsername());
         } catch (final BadCredentialsException | DisabledException | LockedException | AccessDeniedException e) {
-            log.warn("Login failed for user '{}': {}", event.getUsername(), e.toString());
-            event.getSource().setError(true);
+            handleLoginFailure(event, e);
         }
+    }
+
+    private void handleLoginFailure(final LoginEvent event, final Exception e) {
+        final String reason = getLoginFailureReason(e);
+        log.warn("Login failed for user '{}': {}", event.getUsername(), reason);
+        event.getSource().setError(true);
+    }
+
+    private String getLoginFailureReason(final Exception e) {
+        return switch (e) {
+            case BadCredentialsException ignored -> "invalid credentials";
+            case DisabledException ignored -> "account disabled";
+            case LockedException ignored -> "account locked";
+            case AccessDeniedException ignored -> "access denied";
+            default -> "unknown error";
+        };
     }
 
     @Override

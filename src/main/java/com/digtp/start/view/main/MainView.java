@@ -1,7 +1,6 @@
 package com.digtp.start.view.main;
 
 import com.digtp.start.entity.User;
-import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.avatar.AvatarVariant;
@@ -15,22 +14,22 @@ import io.jmix.flowui.app.main.StandardMainView;
 import io.jmix.flowui.view.Install;
 import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Route("")
 @ViewController(id = "MainView")
 @ViewDescriptor(path = "main-view.xml")
+@RequiredArgsConstructor
+@SuppressWarnings("java:S1948") // Framework pattern: Vaadin views contain non-serializable deps
+// Suppressed globally in sonar-project.properties (e7),
+// but required for Gradle SonarLint plugin
 public class MainView extends StandardMainView {
 
-    @Autowired
-    private Messages messages;
-
-    @Autowired
-    private UiComponents uiComponents;
-
-    @Autowired
-    private CurrentUserSubstitution currentUserSubstitution;
+    private final Messages messages;
+    private final UiComponents uiComponents;
+    private final CurrentUserSubstitution currentUserSubstitution;
 
     @Install(to = "userMenu", subject = "buttonRenderer")
     private Component userMenuButtonRenderer(final UserDetails userDetails) {
@@ -38,21 +37,21 @@ public class MainView extends StandardMainView {
             return null;
         }
 
-        String userName = generateUserName(user);
+        final String userName = generateUserName(user);
 
-        Div content = uiComponents.create(Div.class);
+        final Div content = uiComponents.create(Div.class);
         content.setClassName("user-menu-button-content");
 
-        Avatar avatar = createAvatar(userName);
+        final Avatar avatar = createAvatar(userName);
 
-        Span name = uiComponents.create(Span.class);
+        final Span name = uiComponents.create(Span.class);
         name.setText(userName);
         name.setClassName("user-menu-text");
 
         content.add(avatar, name);
 
         if (isSubstituted(user)) {
-            Span subtext = uiComponents.create(Span.class);
+            final Span subtext = uiComponents.create(Span.class);
             subtext.setText(messages.getMessage("userMenu.substituted"));
             subtext.setClassName("user-menu-subtext");
 
@@ -68,15 +67,15 @@ public class MainView extends StandardMainView {
             return null;
         }
 
-        Div content = uiComponents.create(Div.class);
+        final Div content = uiComponents.create(Div.class);
         content.setClassName("user-menu-header-content");
 
-        String name = generateUserName(user);
+        final String name = generateUserName(user);
 
-        Avatar avatar = createAvatar(name);
+        final Avatar avatar = createAvatar(name);
         avatar.addThemeVariants(AvatarVariant.LUMO_LARGE);
 
-        Span text = uiComponents.create(Span.class);
+        final Span text = uiComponents.create(Span.class);
         text.setText(name);
         text.setClassName("user-menu-text");
 
@@ -85,7 +84,7 @@ public class MainView extends StandardMainView {
         if (name.equals(user.getUsername())) {
             text.addClassNames("user-menu-text-subtext");
         } else {
-            Span subtext = uiComponents.create(Span.class);
+            final Span subtext = uiComponents.create(Span.class);
             subtext.setText(user.getUsername());
             subtext.setClassName("user-menu-subtext");
 
@@ -95,8 +94,8 @@ public class MainView extends StandardMainView {
         return content;
     }
 
-    private Avatar createAvatar(String fullName) {
-        Avatar avatar = uiComponents.create(Avatar.class);
+    private Avatar createAvatar(final String fullName) {
+        final Avatar avatar = uiComponents.create(Avatar.class);
         avatar.setName(fullName);
         avatar.getElement().setAttribute("tabindex", "-1");
         avatar.setClassName("user-menu-avatar");
@@ -104,16 +103,16 @@ public class MainView extends StandardMainView {
         return avatar;
     }
 
-    private String generateUserName(User user) {
-        String userName = String.format(
-                        "%s %s", Strings.nullToEmpty(user.getFirstName()), Strings.nullToEmpty(user.getLastName()))
-                .trim();
+    private String generateUserName(final User user) {
+        final String firstName = Objects.requireNonNullElse(user.getFirstName(), "");
+        final String lastName = Objects.requireNonNullElse(user.getLastName(), "");
+        final String userName = String.format("%s %s", firstName, lastName).trim();
 
         return userName.isEmpty() ? user.getUsername() : userName;
     }
 
-    private boolean isSubstituted(User user) {
-        UserDetails authenticatedUser = currentUserSubstitution.getAuthenticatedUser();
+    private boolean isSubstituted(final User user) {
+        final UserDetails authenticatedUser = currentUserSubstitution.getAuthenticatedUser();
         return user != null && !authenticatedUser.getUsername().equals(user.getUsername());
     }
 }

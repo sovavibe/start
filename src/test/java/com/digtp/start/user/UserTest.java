@@ -19,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 @SpringBootTest
 @ExtendWith(AuthenticatedAsAdmin.class)
-public class UserTest {
+class UserTest {
 
     @Autowired
     DataManager dataManager;
@@ -33,24 +33,26 @@ public class UserTest {
     User savedUser;
 
     @Test
-    void test_saveAndLoad() {
+    void testSaveAndLoad() {
         // Create and save a new User
-        User user = dataManager.create(User.class);
+        final User user = dataManager.create(User.class);
         user.setUsername("test-user-" + System.currentTimeMillis());
         user.setPassword(passwordEncoder.encode("test-passwd"));
         savedUser = dataManager.save(user);
 
         // Check the new user can be loaded
-        User loadedUser = dataManager.load(User.class).id(user.getId()).one();
+        final User loadedUser = dataManager.load(User.class).id(user.getId()).one();
         assertThat(loadedUser).isEqualTo(user);
 
         // Check the new user is available through UserRepository
-        UserDetails userDetails = userRepository.loadUserByUsername(user.getUsername());
+        final UserDetails userDetails = userRepository.loadUserByUsername(user.getUsername());
         assertThat(userDetails).isEqualTo(user);
     }
 
     @AfterEach
     void tearDown() {
-        if (savedUser != null) dataManager.remove(savedUser);
+        if (savedUser != null) {
+            dataManager.remove(savedUser);
+        }
     }
 }
