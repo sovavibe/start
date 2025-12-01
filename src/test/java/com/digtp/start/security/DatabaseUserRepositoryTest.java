@@ -32,7 +32,7 @@ class DatabaseUserRepositoryTest {
 
     @Test
     void testGetSystemUser() {
-        systemAuthenticator.begin("system");
+        systemAuthenticator.begin();
 
         try {
             final User systemUser = userRepository.getSystemUser();
