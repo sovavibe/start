@@ -22,7 +22,7 @@ plugins {
     id 'name.remal.sonarlint' version '7.0.0'
     id 'checkstyle'
     id 'pmd'
-    id 'com.github.spotbugs' version '6.4.6'
+    id 'com.github.spotbugs' version '6.4.7'
 
     // Testing & coverage
     id 'jacoco'
