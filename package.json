@@ -5,8 +5,8 @@
   "scripts": {
     "lint:css": "stylelint 'src/main/frontend/themes/**/*.css'",
     "lint:css:fix": "stylelint 'src/main/frontend/themes/**/*.css' --fix",
-    "lint:yaml": "sh -c \"find . -type f \\( -name '*.yml' -o -name '*.yaml' \\) ! -path '*/node_modules/*' ! -path '*/build/*' ! -path '*/.jmix/*' | head -1 | xargs -r prettier --check\" || true",
-    "lint:yaml:fix": "sh -c \"find . -type f \\( -name '*.yml' -o -name '*.yaml' \\) ! -path '*/node_modules/*' ! -path '*/build/*' ! -path '*/.jmix/*' | xargs -r prettier --write\" || true"
+    "lint:yaml": "sh -c \"find . -type f \\( -name '*.yml' -o -name '*.yaml' \\) ! -path '*/node_modules/*' ! -path '*/build/*' ! -path '*/.jmix/*' ! -path '*/helm/*' | head -1 | xargs -r prettier --check\" || true",
+    "lint:yaml:fix": "sh -c \"find . -type f \\( -name '*.yml' -o -name '*.yaml' \\) ! -path '*/node_modules/*' ! -path '*/build/*' ! -path '*/.jmix/*' ! -path '*/helm/*' | xargs -r prettier --write\" || true"
   },
   "devDependencies": {
     "@babel/preset-react": "7.27.1",
