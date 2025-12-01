@@ -19,22 +19,44 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @UiTest
-@SpringBootTest(classes = {com.digtp.start.StartApplication.class, FlowuiTestAssistConfiguration.class})
+@SpringBootTest(
+        classes = {
+            com.digtp.start.StartApplication.class,
+            FlowuiTestAssistConfiguration.class,
+            MainViewTest.TestConfig.class
+        })
 @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
-@SuppressWarnings({"java:S5738", "java:S5976", "java:S5853", "removal"
-}) // @MockBean deprecated but still standard for Spring Boot tests
+@SuppressWarnings("java:S5976") // Separate test methods are clearer than parameterized for these scenarios
 class MainViewTest {
 
     @Autowired
     private ViewNavigators viewNavigators;
 
-    @MockBean
+    @Autowired
     private CurrentUserSubstitution currentUserSubstitution;
+
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        @Primary
+        CurrentUserSubstitution currentUserSubstitution() {
+            final CurrentUserSubstitution mock = mock(CurrentUserSubstitution.class);
+            // Default behavior: return admin user to prevent null pointer in UserMenu initialization
+            final User adminUser = new User();
+            adminUser.setUsername("admin");
+            adminUser.setFirstName("Admin");
+            adminUser.setLastName("User");
+            when(mock.getAuthenticatedUser()).thenReturn(adminUser);
+            return mock;
+        }
+    }
 
     @Test
     void testGenerateUserNameWithFirstNameAndLastName() throws ReflectiveOperationException {
@@ -132,6 +154,7 @@ class MainViewTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5853") // Multiple assertions are clearer for component validation
     void testUserMenuButtonRendererWithUser() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
@@ -158,6 +181,7 @@ class MainViewTest {
     }
 
     @Test
+    @SuppressWarnings("java:S5853") // Multiple assertions are clearer for component validation
     void testUserMenuHeaderRendererWithUser() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
