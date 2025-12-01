@@ -108,12 +108,10 @@
         </encoder>
     </appender>
 
-    <!-- OpenTelemetry Appender (only for docker/kubernetes profiles) -->
-    <springProfile name="docker,kubernetes">
-        <appender name="OpenTelemetry" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
-            <captureMdcAttributes>*</captureMdcAttributes>
-        </appender>
-    </springProfile>
+    <!-- OpenTelemetry Appender (defined globally, referenced conditionally) -->
+    <appender name="OpenTelemetry" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
+        <captureMdcAttributes>*</captureMdcAttributes>
+    </appender>
     
     <!-- Application logger - only application logs -->
     <logger name="com.digtp.start" level="INFO" additivity="false">

@@ -16,6 +16,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -49,6 +51,8 @@ public class User implements JmixUserDetails, HasTimeZone {
     @EqualsAndHashCode.Include
     private Integer version;
 
+    @NotNull
+    @Size(min = 1, max = 100)
     @Column(name = "USERNAME", nullable = false)
     private String username;
 

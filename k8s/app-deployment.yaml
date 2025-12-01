@@ -29,11 +29,11 @@ spec:
                 name: start-secret
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "500m"
+              memory: '512Mi'
+              cpu: '500m'
             limits:
-              memory: "1Gi"
-              cpu: "1000m"
+              memory: '1Gi'
+              cpu: '1000m'
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -50,4 +50,3 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 3
             failureThreshold: 3
-

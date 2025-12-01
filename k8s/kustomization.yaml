@@ -17,4 +17,3 @@ resources:
 commonLabels:
   app: start
   managed-by: kustomize
-
