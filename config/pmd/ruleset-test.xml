@@ -34,6 +34,7 @@
         <exclude name="TooManyStaticImports"/> <!-- Test code benefits from static imports -->
         <exclude name="LinguisticNaming"/> <!-- Test method names can be flexible -->
         <exclude name="CallSuperInConstructor"/> <!-- Compiler handles super() automatically -->
+        <exclude name="UnnecessaryImport"/> <!-- Test code may have unused imports for future use or IDE autocomplete -->
     </rule>
 
     <!-- Design -->

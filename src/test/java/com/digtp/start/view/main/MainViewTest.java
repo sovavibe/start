@@ -1,37 +1,38 @@
 package com.digtp.start.view.main;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import com.digtp.start.entity.User;
 import com.digtp.start.test_support.AuthenticatedAsAdmin;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.html.Div;
+import io.jmix.core.security.UserRepository;
 import io.jmix.core.usersubstitution.CurrentUserSubstitution;
 import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
 import io.jmix.flowui.testassist.UiTest;
 import io.jmix.flowui.testassist.UiTestUtils;
 import java.lang.reflect.Method;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @UiTest
-@SpringBootTest(
-        classes = {
-            com.digtp.start.StartApplication.class,
-            FlowuiTestAssistConfiguration.class,
-            MainViewTest.TestConfig.class
-        })
+@SpringBootTest(classes = {com.digtp.start.StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
 @SuppressWarnings("java:S5976") // Separate test methods are clearer than parameterized for these scenarios
 class MainViewTest {
@@ -39,23 +40,18 @@ class MainViewTest {
     @Autowired
     private ViewNavigators viewNavigators;
 
-    @Autowired
+    @MockBean
     private CurrentUserSubstitution currentUserSubstitution;
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        @Primary
-        CurrentUserSubstitution currentUserSubstitution() {
-            final CurrentUserSubstitution mock = mock(CurrentUserSubstitution.class);
-            // Default behavior: return admin user to prevent null pointer in UserMenu initialization
-            final User adminUser = new User();
-            adminUser.setUsername("admin");
-            adminUser.setFirstName("Admin");
-            adminUser.setLastName("User");
-            when(mock.getAuthenticatedUser()).thenReturn(adminUser);
-            return mock;
-        }
+    @Autowired
+    private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        // Configure mock to return admin user by default to prevent NPE during UserMenu initialization
+        // Load real admin user from repository to ensure it has all required properties
+        final UserDetails adminUser = userRepository.loadUserByUsername("admin");
+        when(currentUserSubstitution.getAuthenticatedUser()).thenReturn(adminUser);
     }
 
     @Test
