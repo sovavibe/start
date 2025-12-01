@@ -1,4 +1,4 @@
-.PHONY: help run build clean test check analyze format format-fix ci install setup setup-husky check-setup
+.PHONY: help run build clean test check analyze format format-fix ci install setup setup-husky check-setup kill-port
 
 # Colors for output
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -162,13 +162,7 @@ build: ## Build the project
 
 clean: ## Clean build artifacts and kill process on port 8080
 	@echo "$(GREEN)Cleaning build artifacts...$(RESET)"
-	@if lsof -ti:8080 >/dev/null 2>&1; then \
-		echo "$(YELLOW)Killing process on port 8080...$(RESET)"; \
-		lsof -ti:8080 | xargs kill -9 2>/dev/null || true; \
-		echo "$(GREEN)Process on port 8080 terminated$(RESET)"; \
-	else \
-		echo "$(GREEN)No process found on port 8080$(RESET)"; \
-	fi
+	@$(MAKE) kill-port PORT=8080
 	./gradlew clean
 
 install: ## Install npm dependencies
@@ -300,6 +294,16 @@ setup-husky: ## Setup Husky git hooks
 	fi
 
 ##@ Utilities
+
+kill-port: ## Kill process on specified port (default: 8080). Usage: make kill-port PORT=8080
+	@PORT=$(or $(PORT),8080); \
+	if lsof -ti:$$PORT >/dev/null 2>&1; then \
+		echo "$(YELLOW)Killing process on port $$PORT...$(RESET)"; \
+		lsof -ti:$$PORT | xargs kill -9 2>/dev/null || true; \
+		echo "$(GREEN)Process on port $$PORT terminated$(RESET)"; \
+	else \
+		echo "$(GREEN)No process found on port $$PORT$(RESET)"; \
+	fi
 
 dependencies: ## Show dependency versions
 	@echo "$(GREEN)Showing dependency versions...$(RESET)"
