@@ -53,10 +53,18 @@ make test-observability
 Start application with PostgreSQL:
 
 ```bash
+# 1. Create .env file from example (if not exists)
+cp .env.example .env
+
+# 2. Update .env file with your values (optional, defaults work for local dev)
+
+# 3. Start services
 docker-compose up -d
 ```
 
 Access application: http://localhost:8080
+
+**Note**: Docker Compose automatically loads variables from `.env` file. You can override values in `.env` or use environment variables directly.
 
 ### Observability Stack
 
@@ -137,19 +145,57 @@ This triggers:
 
 ### Profiles
 
-- **default**: HSQLDB (local development)
+- **default**: PostgreSQL (local development with .env file)
 - **docker**: PostgreSQL via Docker Compose
 - **kubernetes**: PostgreSQL in Kubernetes
 - **prod**: Production optimizations
 
-### Environment Variables
+### Environment Variables (.env file)
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `MAIN_DATASOURCE_URL` | Database URL | `jdbc:postgresql://postgres:5432/start` |
-| `MAIN_DATASOURCE_USERNAME` | Database username | `start` |
-| `MAIN_DATASOURCE_PASSWORD` | Database password | (required) |
-| `MANAGEMENT_OTLP_LOGGING_ENDPOINT` | OpenTelemetry endpoint | `http://otel-collector:4318/v1/logs` |
+The application uses `.env` file for local development configuration. All environments use PostgreSQL database.
+
+#### Setup .env file
+
+1. Copy the example file:
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update values in `.env` file for your environment:
+   ```bash
+   # Database Configuration
+   MAIN_DATASOURCE_URL=jdbc:postgresql://localhost:5432/start
+   MAIN_DATASOURCE_USERNAME=start
+   MAIN_DATASOURCE_PASSWORD=your-secure-password
+   
+   # Application Configuration
+   SPRING_PROFILES_ACTIVE=default
+   SERVER_PORT=8080
+   ```
+
+3. The `.env` file is ignored by git (see `.gitignore`)
+
+#### Environment Variables Reference
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `MAIN_DATASOURCE_URL` | Database URL | `jdbc:postgresql://localhost:5432/start` | No |
+| `MAIN_DATASOURCE_USERNAME` | Database username | `start` | No |
+| `MAIN_DATASOURCE_PASSWORD` | Database password | `start` | **Yes** (change in production!) |
+| `SPRING_PROFILES_ACTIVE` | Spring profiles | `default` | No |
+| `SERVER_PORT` | Server port | `8080` | No |
+| `LOGGING_LEVEL_ROOT` | Root logging level | `INFO` | No |
+| `LOGGING_LEVEL_COM_DIGTP_START` | Application logging level | `INFO` | No |
+| `MANAGEMENT_OTLP_LOGGING_ENDPOINT` | OpenTelemetry endpoint | `http://otel-collector:4318/v1/logs` | No |
+
+#### Variable Precedence
+
+Environment variables are loaded in the following order (later values override earlier):
+1. System environment variables
+2. `.env` file (loaded by DotenvConfig)
+3. Default values in `application.properties`
+
+**Note**: System environment variables always take precedence over `.env` file values.
 
 ## Observability
 

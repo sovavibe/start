@@ -13,12 +13,23 @@ import org.springframework.context.annotation.Configuration;
  * <p>Provides OpenTelemetry instance for Logback appender.
  * Spring Boot Actuator configures OpenTelemetry SDK automatically
  * when management.otlp.logging.endpoint is set.
+ *
+ * <p>This class is not designed for extension. All methods are final
+ * and should not be overridden.
  */
 @Configuration
 @ConditionalOnProperty(name = "management.otlp.logging.endpoint")
 @Slf4j
-public final class OpenTelemetryConfig {
+public class OpenTelemetryConfig {
 
+    /**
+     * Creates OpenTelemetry bean instance.
+     *
+     * <p>This method is not designed for extension. It returns the global
+     * OpenTelemetry instance configured by Spring Boot Actuator.
+     *
+     * @return OpenTelemetry instance
+     */
     @Bean
     public OpenTelemetry openTelemetry() {
         // GlobalOpenTelemetry is configured by Spring Boot Actuator

@@ -2,6 +2,7 @@ package com.digtp.start.user;
 
 import com.digtp.start.StartApplication;
 import com.digtp.start.entity.User;
+import com.digtp.start.test_support.AbstractIntegrationTest;
 import com.digtp.start.view.user.UserDetailView;
 import com.digtp.start.view.user.UserListView;
 import io.jmix.core.DataManager;
@@ -19,13 +20,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 /**
  * Sample UI integration test for the User entity.
  */
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
-class UserUiTest {
+@ActiveProfiles("test")
+class UserUiTest extends AbstractIntegrationTest {
 
     @Autowired
     DataManager dataManager;

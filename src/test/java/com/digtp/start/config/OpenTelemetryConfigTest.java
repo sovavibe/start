@@ -2,11 +2,14 @@ package com.digtp.start.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.digtp.start.test_support.AbstractIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
-class OpenTelemetryConfigTest {
+@ActiveProfiles("test")
+class OpenTelemetryConfigTest extends AbstractIntegrationTest {
 
     @Test
     void testOpenTelemetryConfigClassExists() {

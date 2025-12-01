@@ -1,14 +1,19 @@
 # Docker Compose для локальной разработки
 # Использование: docker-compose -f docker-compose.dev.yml up
+#
+# Примечание: Для настройки PostgreSQL используйте .env файл
+# Скопируйте .env.example в .env и обновите значения
 
 services:
   postgres:
     image: postgres:16-alpine
     container_name: start-postgres-dev
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: start
-      POSTGRES_USER: start
-      POSTGRES_PASSWORD: start
+      POSTGRES_DB: ${POSTGRES_DB:-start}
+      POSTGRES_USER: ${POSTGRES_USER:-start}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-start}
     ports:
       - '5432:5432'
     volumes:
