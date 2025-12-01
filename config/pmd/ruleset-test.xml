@@ -20,7 +20,6 @@
         <exclude name="UnitTestAssertionsShouldIncludeMessage"/> <!-- AssertJ assertions are self-documenting -->
         <exclude name="AbstractClassWithoutAbstractMethod"/> <!-- Test base classes are common -->
         <exclude name="LiteralsFirstInComparisons"/> <!-- Test code prefers "actual equals expected" -->
-        <exclude name="SignatureDeclareThrowsException"/> <!-- Tests use throws Exception for reflection and framework operations -->
     </rule>
 
     <!-- Code Style -->
