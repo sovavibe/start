@@ -108,6 +108,8 @@ setup: ## Setup project: check requirements, install dependencies, configure git
 	@echo "$(GREEN)🎉 Setup completed!$(RESET)"
 	@echo ""
 	@echo "$(GREEN)Next steps:$(RESET)"
+	@echo "  • Setup .env file: $(YELLOW)make setup-env$(RESET)"
+	@echo "  • Start PostgreSQL: $(YELLOW)make postgres-up$(RESET) (or use Docker Compose: $(YELLOW)make docker-up$(RESET))"
 	@echo "  • Run application: $(YELLOW)make run$(RESET)"
 	@echo "  • Run tests: $(YELLOW)make test$(RESET)"
 	@echo "  • Check code quality: $(YELLOW)make analyze$(RESET)"
@@ -132,7 +134,7 @@ check-setup: ## Check if project is set up correctly
 		exit 1; \
 	fi
 
-run: ## Run the application (auto-runs setup if needed)
+run: ## Run the application (requires PostgreSQL and .env file)
 	@SETUP_NEEDED=0; \
 	if ! command -v java >/dev/null 2>&1; then \
 		SETUP_NEEDED=1; \
@@ -153,6 +155,29 @@ run: ## Run the application (auto-runs setup if needed)
 		}; \
 		echo ""; \
 	fi
+	@# Check if .env file exists
+	@if [ ! -f ".env" ]; then \
+		echo "$(YELLOW)⚠️  .env file not found$(RESET)"; \
+		echo "$(YELLOW)   Creating .env from .env.example...$(RESET)"; \
+		if [ -f ".env.example" ]; then \
+			cp .env.example .env; \
+			echo "$(GREEN)✅ Created .env file. Please update it with your database credentials$(RESET)"; \
+		else \
+			echo "$(YELLOW)⚠️  .env.example not found. Please create .env file manually$(RESET)"; \
+			echo "$(YELLOW)   See README-DEVOPS.md for required environment variables$(RESET)"; \
+		fi; \
+		echo ""; \
+	fi
+	@# Check PostgreSQL connection (optional, just a warning)
+	@if command -v psql >/dev/null 2>&1; then \
+		PGHOST=$$(grep MAIN_DATASOURCE_URL .env 2>/dev/null | cut -d'/' -f3 | cut -d':' -f1 || echo "localhost"); \
+		PGPORT=$$(grep MAIN_DATASOURCE_URL .env 2>/dev/null | cut -d':' -f3 | cut -d'/' -f1 || echo "5432"); \
+		if ! pg_isready -h "$$PGHOST" -p "$$PGPORT" >/dev/null 2>&1; then \
+			echo "$(YELLOW)⚠️  PostgreSQL not responding at $$PGHOST:$$PGPORT$(RESET)"; \
+			echo "$(YELLOW)   Start PostgreSQL with: $(YELLOW)make postgres-up$(RESET) or $(YELLOW)make docker-up$(RESET)"; \
+			echo ""; \
+		fi; \
+	fi
 	@echo "$(GREEN)Starting application...$(RESET)"
 	./gradlew bootRun
 
@@ -172,9 +197,14 @@ install: ## Install npm dependencies
 
 ##@ Testing
 
-test: ## Run tests (requires Docker for Testcontainers)
+test: ## Run tests (requires Docker for Testcontainers PostgreSQL)
 	@echo "$(GREEN)Running tests...$(RESET)"
 	@echo "$(YELLOW)Note: Tests require Docker to be running for Testcontainers$(RESET)"
+	@if ! docker info >/dev/null 2>&1; then \
+		echo "$(YELLOW)⚠️  Docker is not running$(RESET)"; \
+		echo "$(YELLOW)   Please start Docker and try again$(RESET)"; \
+		exit 1; \
+	fi
 	@if [ ! -f ~/.docker-java.properties ]; then \
 		echo "$(YELLOW)⚠️  Warning: ~/.docker-java.properties not found. Creating it with workaround for Docker 29+...$(RESET)"; \
 		mkdir -p ~/.docker-java 2>/dev/null || true; \
@@ -326,10 +356,80 @@ compile-test: ## Compile test code
 	@echo "$(GREEN)Compiling test code...$(RESET)"
 	./gradlew compileTestJava
 
+##@ Environment Setup
+
+setup-env: ## Create .env file from .env.example
+	@echo "$(GREEN)Setting up .env file...$(RESET)"
+	@if [ -f ".env" ]; then \
+		echo "$(YELLOW)⚠️  .env file already exists$(RESET)"; \
+		echo "$(YELLOW)   Skipping creation. To recreate, delete .env and run this command again$(RESET)"; \
+	else \
+		if [ -f ".env.example" ]; then \
+			cp .env.example .env; \
+			echo "$(GREEN)✅ Created .env file from .env.example$(RESET)"; \
+			echo "$(YELLOW)⚠️  Please update .env with your database credentials$(RESET)"; \
+		else \
+			echo "$(YELLOW)⚠️  .env.example not found$(RESET)"; \
+			echo "$(YELLOW)   Creating basic .env file...$(RESET)"; \
+			echo "# PostgreSQL database configuration" > .env; \
+			echo "MAIN_DATASOURCE_URL=jdbc:postgresql://localhost:5432/start" >> .env; \
+			echo "MAIN_DATASOURCE_USERNAME=start" >> .env; \
+			echo "MAIN_DATASOURCE_PASSWORD=start" >> .env; \
+			echo "$(GREEN)✅ Created basic .env file$(RESET)"; \
+		fi; \
+	fi
+
+postgres-up: ## Start PostgreSQL in Docker (for local development)
+	@echo "$(GREEN)Starting PostgreSQL container...$(RESET)"
+	@if [ ! -f ".env" ]; then \
+		echo "$(YELLOW)⚠️  .env file not found. Creating from .env.example...$(RESET)"; \
+		$(MAKE) setup-env; \
+	fi
+	@docker-compose -f docker-compose.dev.yml up -d postgres || { \
+		echo "$(YELLOW)⚠️  Failed to start PostgreSQL. Trying with docker-compose.yml...$(RESET)"; \
+		docker-compose up -d postgres || { \
+			echo "$(YELLOW)⚠️  PostgreSQL container not found in docker-compose files$(RESET)"; \
+			echo "$(YELLOW)   Starting standalone PostgreSQL container...$(RESET)"; \
+			docker run -d --name start-postgres \
+				-e POSTGRES_DB=start \
+				-e POSTGRES_USER=start \
+				-e POSTGRES_PASSWORD=start \
+				-p 5432:5432 \
+				postgres:16-alpine || echo "$(YELLOW)⚠️  Container may already exist$(RESET)"; \
+		}; \
+	}
+	@echo "$(GREEN)✅ PostgreSQL should be running on localhost:5432$(RESET)"
+	@echo "$(YELLOW)   Waiting for PostgreSQL to be ready...$(RESET)"
+	@sleep 3
+	@if command -v pg_isready >/dev/null 2>&1; then \
+		pg_isready -h localhost -p 5432 && echo "$(GREEN)✅ PostgreSQL is ready$(RESET)" || echo "$(YELLOW)⚠️  PostgreSQL may still be starting$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️  pg_isready not found, skipping readiness check$(RESET)"; \
+	fi
+
+postgres-down: ## Stop PostgreSQL container
+	@echo "$(GREEN)Stopping PostgreSQL container...$(RESET)"
+	@docker-compose -f docker-compose.dev.yml down postgres 2>/dev/null || \
+	docker-compose down postgres 2>/dev/null || \
+	docker stop start-postgres 2>/dev/null || \
+	echo "$(YELLOW)⚠️  No PostgreSQL container found$(RESET)"
+	@echo "$(GREEN)✅ PostgreSQL stopped$(RESET)"
+
+postgres-logs: ## View PostgreSQL logs
+	@echo "$(GREEN)Viewing PostgreSQL logs...$(RESET)"
+	@docker-compose -f docker-compose.dev.yml logs -f postgres 2>/dev/null || \
+	docker-compose logs -f postgres 2>/dev/null || \
+	docker logs -f start-postgres 2>/dev/null || \
+	echo "$(YELLOW)⚠️  No PostgreSQL container found$(RESET)"
+
 ##@ DevOps
 
 docker-up: ## Start Docker Compose (app + PostgreSQL)
 	@echo "$(GREEN)Starting Docker Compose...$(RESET)"
+	@if [ ! -f ".env" ]; then \
+		echo "$(YELLOW)⚠️  .env file not found. Creating from .env.example...$(RESET)"; \
+		$(MAKE) setup-env; \
+	fi
 	docker-compose up -d
 
 docker-down: ## Stop Docker Compose
