@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for Jmix/Vaadin application
 # Stage 1: Build
-FROM gradle:8.11-jdk21-alpine AS build
+FROM gradle:9.2-jdk21-alpine AS build
 
 WORKDIR /app
 
@@ -18,7 +18,7 @@ COPY src/ src/
 RUN ./gradlew -Pvaadin.productionMode=true bootJar --no-daemon -x test
 
 # Stage 2: Runtime
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 
 # Install wget for health check
 RUN apk add --no-cache wget

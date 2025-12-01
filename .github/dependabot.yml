@@ -1,11 +1,13 @@
 version: 2
 updates:
-  # Gradle dependencies
+  # Gradle dependencies - одна группа для всех обновлений
   - package-ecosystem: 'gradle'
     directory: '/'
     schedule:
-      interval: 'weekly'
-    open-pull-requests-limit: 10
+      interval: 'monthly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 1  # Один PR на все обновления
     reviewers:
       - 'sovavibe'
     labels:
@@ -14,13 +16,28 @@ updates:
     commit-message:
       prefix: 'build'
       include: 'scope'
+    # Одна группа для всех обновлений (patch и minor)
+    groups:
+      gradle-updates:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
+    # Игнорируем major обновления автоматически (требуют ручного ревью)
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'
 
-  # GitHub Actions
+  # GitHub Actions - одна группа для всех обновлений
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
-    open-pull-requests-limit: 5
+      interval: 'monthly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 1  # Один PR на все обновления
     reviewers:
       - 'sovavibe'
     labels:
@@ -29,13 +46,22 @@ updates:
     commit-message:
       prefix: 'ci'
       include: 'scope'
+    groups:
+      github-actions-updates:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
 
-  # Docker
+  # Docker - одна группа для всех обновлений
   - package-ecosystem: 'docker'
     directory: '/'
     schedule:
-      interval: 'weekly'
-    open-pull-requests-limit: 5
+      interval: 'monthly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 1  # Один PR на все обновления
     reviewers:
       - 'sovavibe'
     labels:
@@ -44,3 +70,15 @@ updates:
     commit-message:
       prefix: 'build'
       include: 'scope'
+    groups:
+      docker-updates:
+        patterns:
+          - '*'
+        update-types:
+          - 'minor'
+          - 'patch'
+    # Игнорируем major обновления автоматически
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'

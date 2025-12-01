@@ -22,7 +22,7 @@ plugins {
     id 'name.remal.sonarlint' version '7.0.0'
     id 'checkstyle'
     id 'pmd'
-    id 'com.github.spotbugs' version '6.4.6'
+    id 'com.github.spotbugs' version '6.4.7'
 
     // Testing & coverage
     id 'jacoco'
@@ -83,8 +83,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-cache'
 
     // OpenTelemetry
-    implementation 'io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.5.0-alpha'
-    implementation 'io.opentelemetry:opentelemetry-api:1.49.0'
+    implementation 'io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.22.0-alpha'
+    implementation 'io.opentelemetry:opentelemetry-api:1.56.0'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
