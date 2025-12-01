@@ -27,6 +27,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @UiTest
 @SpringBootTest(classes = {com.digtp.start.StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
+@SuppressWarnings({"java:S5738", "java:S5976", "java:S5853"
+}) // @MockBean deprecated but still standard for Spring Boot tests
 class MainViewTest {
 
     @Autowired
