@@ -3,16 +3,16 @@ replicaCount: 2
 image:
   repository: sovavibe/start
   pullPolicy: Always
-  tag: "latest"
+  tag: 'latest'
 
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
+nameOverride: ''
+fullnameOverride: ''
 
 serviceAccount:
   create: true
   annotations: {}
-  name: ""
+  name: ''
 
 podAnnotations: {}
 
@@ -34,7 +34,7 @@ service:
 
 ingress:
   enabled: false
-  className: "nginx"
+  className: 'nginx'
   annotations: {}
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
   hosts:
@@ -71,7 +71,7 @@ postgresql:
   enabled: true
   image:
     repository: postgres
-    tag: "16-alpine"
+    tag: '16-alpine'
   persistence:
     enabled: true
     size: 10Gi
@@ -84,18 +84,18 @@ postgresql:
       memory: 256Mi
 
 config:
-  springProfilesActive: "kubernetes"
-  mainDatasourceUrl: "jdbc:postgresql://start-postgres:5432/start"
-  mainDatasourceUsername: "start"
-  managementEndpointsWebExposureInclude: "health,info,metrics,prometheus"
-  managementEndpointHealthShowDetails: "when-authorized"
-  managementMetricsExportPrometheusEnabled: "true"
-  managementOtlpLoggingEndpoint: "http://otel-collector:4318/v1/logs"
-  loggingLevelRoot: "INFO"
-  loggingLevelComDigtpStart: "INFO"
+  springProfilesActive: 'kubernetes'
+  mainDatasourceUrl: 'jdbc:postgresql://start-postgres:5432/start'
+  mainDatasourceUsername: 'start'
+  managementEndpointsWebExposureInclude: 'health,info,metrics,prometheus'
+  managementEndpointHealthShowDetails: 'when-authorized'
+  managementMetricsExportPrometheusEnabled: 'true'
+  managementOtlpLoggingEndpoint: 'http://otel-collector:4318/v1/logs'
+  loggingLevelRoot: 'INFO'
+  loggingLevelComDigtpStart: 'INFO'
 
 secrets:
-  mainDatasourcePassword: "CHANGE_ME_IN_PRODUCTION"
+  mainDatasourcePassword: 'CHANGE_ME_IN_PRODUCTION'
 
 observability:
   enabled: false
@@ -105,4 +105,3 @@ observability:
     enabled: false
   grafana:
     enabled: false
-
