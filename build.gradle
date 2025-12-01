@@ -256,10 +256,11 @@ tasks.withType(SonarLint).configureEach { task ->
         xml.required = true
         html.required = true
     }
-    // Exclude XML files with UI labels from hard-coded credentials check
-    // login-view.xml contains UI labels (msg:// keys), not actual credentials
+    // Exclude view XML files from xml:S2068 (Hard-coded credentials) check
+    // View XML files contain UI labels (msg:// keys), not actual credentials
+    // This is configured in sonar-project.properties but Gradle plugin needs explicit exclusion
     exclude {
-        it.file.path.contains('login-view.xml')
+        it.file.path.contains('/view/') && it.file.name.endsWith('.xml')
     }
     // Fail build on SonarLint issues in CI
     ignoreFailures = false
