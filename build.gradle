@@ -261,6 +261,8 @@ tasks.withType(SonarLint).configureEach { task ->
     exclude {
         it.file.path.contains('login-view.xml')
     }
+    // Fail build on SonarLint issues in CI
+    ignoreFailures = false
 }
 
 spotbugs {
