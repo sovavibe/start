@@ -39,6 +39,8 @@ import org.springframework.security.core.GrantedAuthority;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class User implements JmixUserDetails, HasTimeZone {
 
+    private static final int USERNAME_MAX_LENGTH = 100;
+
     @Id
     @Column(name = "ID")
     @JmixGeneratedValue
@@ -52,7 +54,7 @@ public class User implements JmixUserDetails, HasTimeZone {
     private Integer version;
 
     @NotNull
-    @Size(min = 1, max = 100)
+    @Size(min = 1, max = USERNAME_MAX_LENGTH)
     @Column(name = "USERNAME", nullable = false)
     private String username;
 
