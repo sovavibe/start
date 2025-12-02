@@ -17,12 +17,24 @@
     <!-- Best Practices -->
     <rule ref="category/java/bestpractices.xml">
         <!-- Exclude rules that are too strict or not applicable -->
-        <exclude name="GuardLogStatement"/> <!-- Modern SLF4J handles level checks efficiently -->
-        <exclude name="UnusedPrivateMethod"/> <!-- Lombok may generate methods that appear unused -->
+        <!-- GuardLogStatement is ENABLED - important for performance in vibe coding -->
+        <!-- Use @SuppressWarnings("PMD.GuardLogStatement") if SLF4J level check is truly unnecessary -->
         <exclude name="UnitTestShouldIncludeAssert"/> <!-- ArchUnit @ArchTest rules don't need explicit assertions -->
         <!-- Note: NonSerializableClass is in errorprone.xml, excluded there -->
         <!-- LooseCoupling is ENABLED - important for architecture, use @SuppressWarnings for framework-specific cases -->
     </rule>
+    
+    <!-- Configure GuardLogStatement for SLF4J -->
+    <!-- SLF4J log methods check level internally, but explicit checks improve performance -->
+    <rule ref="category/java/bestpractices.xml/GuardLogStatement">
+        <properties>
+            <property name="logLevels" value="trace,debug,info,warn,error"/>
+            <property name="guardsMethods" value="isTraceEnabled,isDebugEnabled,isInfoEnabled,isWarnEnabled,isErrorEnabled"/>
+        </properties>
+    </rule>
+    
+    <!-- UnusedPrivateMethod is ENABLED - use @SuppressWarnings for Lombok-generated methods -->
+    <!-- Lombok methods should be suppressed at method level, not globally -->
 
     <!-- Code Style -->
     <rule ref="category/java/codestyle.xml">
@@ -58,10 +70,10 @@
     </rule>
 
     <!-- Configure ExcessiveImports with strict threshold -->
-    <!-- Industry standard: 30 imports per class -->
+    <!-- Stricter threshold for vibe coding: 25 imports per class (reduced from 30) -->
     <rule ref="category/java/design.xml/ExcessiveImports">
         <properties>
-            <property name="minimum" value="30"/>
+            <property name="minimum" value="25"/>
         </properties>
     </rule>
 
@@ -87,6 +99,19 @@
             <property name="reportLevel" value="200"/>
         </properties>
     </rule>
+    
+    <!-- CognitiveComplexity: Maximum 10 per method (stricter for vibe coding) -->
+    <!-- Cognitive complexity measures how difficult code is to understand -->
+    <rule ref="category/java/design.xml/CognitiveComplexity">
+        <properties>
+            <property name="classReportLevel" value="80"/>
+            <property name="methodReportLevel" value="10"/>
+        </properties>
+    </rule>
+    
+    <!-- ImmutableField: Enforce immutability for better thread-safety -->
+    <!-- Fields that are never modified after initialization should be final -->
+    <rule ref="category/java/design.xml/ImmutableField"/>
 
     <!-- Error Prone -->
     <rule ref="category/java/errorprone.xml">
@@ -105,6 +130,11 @@
     <!-- Security -->
     <rule ref="category/java/security.xml"/>
     <!-- No exclusions - all security rules are critical -->
+    
+    <!-- Multithreading -->
+    <!-- Critical for Vaadin/Jmix applications with concurrent access -->
+    <rule ref="category/java/multithreading.xml"/>
+    <!-- No exclusions - all multithreading rules are critical for thread-safety -->
 
     <!-- Documentation -->
     <rule ref="category/java/documentation.xml">

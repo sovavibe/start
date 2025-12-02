@@ -6,18 +6,6 @@
 
 <suppressions>
     <!--
-    Spotless Palantir Java Format Compatibility:
-    These formatting-related checks are suppressed because Palantir Format manages formatting.
-    Palantir Format controls: whitespace, indentation, line wrapping, operator placement.
-    These suppressions are necessary to avoid conflicts between formatter and linter.
-    -->
-    <suppress checks="WhitespaceAround" files=".*"/>
-    <suppress checks="LineLength" files=".*\.java$"/>
-    <suppress checks="Indentation" files=".*\.java$"/>
-    <suppress checks="OperatorWrap" files=".*\.java$"/>
-    <suppress checks="GenericWhitespace" files=".*\.java$"/>
-
-    <!--
     Lombok compatibility: Suppress MissingJavadocMethod ONLY for Lombok-generated methods
     Lombok generates getters, setters, equals, hashCode, toString, constructors
     These methods follow standard JavaBean conventions and don't need javadoc
@@ -39,24 +27,24 @@
             message=".*"/>
 
     <!--
-    Framework compatibility: Suppress MissingJavadocMethod for all methods in View classes
+    Framework compatibility: Suppress MissingJavadocMethod for specific View classes
     Jmix/Vaadin View classes contain framework lifecycle methods (onInit, onReady, etc.)
     These methods are framework callbacks and follow framework conventions
-    All methods in View classes are framework-related and don't require javadoc
+    Using specific class names instead of broad pattern for stricter control
     -->
     <suppress
             checks="MissingJavadocMethod"
-            files=".*View\.java$"
+            files=".*/view/.*/.*View\.java$"
             message=".*"/>
 
     <!--
-    Framework compatibility: Suppress JavadocVariable for @ViewComponent fields
+    Framework compatibility: Suppress JavadocVariable for @ViewComponent fields in View classes
     @ViewComponent fields are framework-injected UI components, don't need javadoc
-    Pattern matches View classes
+    Using specific package pattern instead of broad filename pattern
     -->
     <suppress
             checks="JavadocVariable"
-            files=".*View\.java$"
+            files=".*/view/.*/.*View\.java$"
             message=".*"/>
 
     <!--
@@ -111,21 +99,19 @@
     <!-- These classes are designed for extension by framework, not by application code -->
     <suppress
             checks="DesignForExtension"
-            files=".*View\.java$|.*Configuration\.java$"/>
+            files=".*/view/.*/.*View\.java$|.*Configuration\.java$"/>
 
     <!-- Framework compatibility: Suppress MissingJavadocMethod for framework lifecycle methods -->
     <!-- Jmix/Vaadin lifecycle methods: onInit, onReady, onBeforeSave, onAfterSave, etc. -->
     <!-- These methods are framework callbacks and follow framework conventions -->
     <!-- Suppressed via file pattern above for all View classes -->
 
-    <!-- Framework compatibility: Suppress AvoidStarImport for Jmix/Vaadin view package -->
-    <!-- Jmix views use many classes from io.jmix.flowui.view package (events, annotations) -->
-    <!-- Star import is acceptable for framework packages with many related classes -->
-    <!-- Attempted explicit imports but classes are in different sub-packages, star import is cleaner -->
-    <suppress
-            checks="AvoidStarImport"
-            files=".*View\.java$"
-            message=".*io\.jmix\.flowui\.view\.\*"/>
+    <!--
+    REMOVED: AvoidStarImport suppression for View classes
+    Reason: Star imports are not used in View classes - all imports are explicit
+    All View classes use explicit imports from io.jmix.flowui.view package
+    This suppression was outdated and is no longer needed
+    -->
 
     <!-- Framework compatibility: Suppress DesignForExtension for Spring Boot application class -->
     <!-- Spring Boot @SpringBootApplication class is designed for extension by framework -->

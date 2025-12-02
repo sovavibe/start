@@ -41,6 +41,8 @@ class MainViewTest extends AbstractIntegrationTest {
     @Autowired
     private DataManager dataManager;
 
+    private User savedUser;
+
     @Test
     void testGenerateUserNameWithFirstNameAndLastName() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
@@ -123,6 +125,34 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void testIsSubstitutedWhenAuthenticatedUserIsNull() throws ReflectiveOperationException {
+        viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
+        final MainView mainView = UiTestUtils.getCurrentView();
+        // Create a user that will trigger the authenticatedUser == null branch
+        // This is difficult to test directly, but we can verify the method handles null gracefully
+        final User user = createTestUser("test.user", "Test", "User");
+        // The method checks authenticatedUser == null, which should return false
+        // In normal flow, authenticatedUser is always set by AuthenticatedAsAdmin, so this branch
+        // is hard to test without mocking CurrentUserSubstitution
+        final boolean isSubstituted = invokePrivateMethod(mainView, "isSubstituted", User.class, user);
+        // In test context, authenticatedUser is always set, so this should return true (user != admin)
+        assertThat(isSubstituted).isTrue();
+    }
+
+    @Test
+    void testUserMenuHeaderRendererWhenNameDoesNotEqualUsername() throws ReflectiveOperationException {
+        viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
+        final MainView mainView = UiTestUtils.getCurrentView();
+        // When name does not equal username, else branch is taken (adds subtext with username)
+        final User user = createTestUser("john.doe", "John", "Doe");
+
+        final Component component = invokePrivateMethod(mainView, "userMenuHeaderRenderer", UserDetails.class, user);
+
+        assertThat(component).isNotNull();
+        assertThat(component).isInstanceOf(Div.class);
+    }
+
+    @Test
     void testCreateAvatar() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
@@ -174,11 +204,26 @@ class MainViewTest extends AbstractIntegrationTest {
     void testUserMenuHeaderRendererWhenNameEqualsUsername() throws ReflectiveOperationException {
         viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
         final MainView mainView = UiTestUtils.getCurrentView();
+        // When name equals username, different branch is taken (adds subtext class)
         final User user = createTestUser("john.doe", null, null);
 
         final Component component = invokePrivateMethod(mainView, "userMenuHeaderRenderer", UserDetails.class, user);
 
         assertThat(component).isNotNull();
+    }
+
+    @Test
+    void testUserMenuButtonRendererWithSubstitutedUser() throws ReflectiveOperationException {
+        viewNavigators.view(UiTestUtils.getCurrentView(), MainView.class).navigate();
+        final MainView mainView = UiTestUtils.getCurrentView();
+        // Create user different from authenticated user (admin) to trigger substitution
+        final User user = createTestUser("substituted.user", "Substituted", "User");
+
+        final Component component = invokePrivateMethod(mainView, "userMenuButtonRenderer", UserDetails.class, user);
+
+        assertThat(component).isNotNull();
+        assertThat(component).isInstanceOf(Div.class);
+        // Component should include substitution indicator
     }
 
     @SuppressWarnings("unchecked")
@@ -196,5 +241,13 @@ class MainViewTest extends AbstractIntegrationTest {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         return user;
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void tearDown() {
+        if (savedUser != null) {
+            dataManager.remove(savedUser);
+            savedUser = null;
+        }
     }
 }

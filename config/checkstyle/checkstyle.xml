@@ -72,19 +72,19 @@
     <!-- Checks for Size Violations.                    -->
     <!-- See https://checkstyle.org/checks/sizes/index.html -->
     <!--
-    FileLength: Maximum 250 lines per file
+    FileLength: Maximum 200 lines per file (stricter for vibe coding)
     Based on industry best practices for strict code quality
     Large files are harder to understand, test, and maintain.
     If a file exceeds this limit, consider splitting it into smaller, focused modules.
     -->
     <module name="FileLength">
-        <property name="max" value="250"/>
+        <property name="max" value="200"/>
         <property name="fileExtensions" value="java"/>
     </module>
-    <!-- LineLength: 100 for code, 120 for lines with comments -->
+    <!-- LineLength: 110 for code, 120 for lines with comments -->
     <module name="LineLength">
         <property name="fileExtensions" value="java"/>
-        <property name="max" value="100"/>
+        <property name="max" value="110"/>
         <!-- Ignore lines that contain comments (// or /* */) - allows up to 120 chars for comment lines -->
         <!-- Pattern matches: lines starting with //, lines with // anywhere, block comments -->
         <property name="ignorePattern" value=".*//.*|.*/\*.*\*/.*|^\s*//.*$|^\s*/\*.*$|^\s*\*.*$"/>
@@ -118,6 +118,7 @@
         <module name="JavadocVariable"/>
         <module name="JavadocStyle"/>
         <module name="MissingJavadocMethod"/>
+        <module name="MissingJavadocType"/>
 
         <!-- Checks for Naming Conventions.                  -->
         <!-- See https://checkstyle.org/checks/naming/index.html -->
@@ -130,6 +131,9 @@
         <module name="ParameterName"/>
         <module name="StaticVariableName"/>
         <module name="TypeName"/>
+        <module name="AbbreviationAsWordInName">
+            <property name="allowedAbbreviationLength" value="3"/>
+        </module>
 
         <!-- Checks for imports                              -->
         <!-- See https://checkstyle.org/checks/imports/index.html -->
@@ -144,7 +148,7 @@
         <!-- Checks for Size Violations.                    -->
         <!-- See https://checkstyle.org/checks/sizes/index.html -->
         <module name="MethodLength">
-            <property name="max" value="30"/>
+            <property name="max" value="25"/>
             <property name="countEmpty" value="false"/>
         </module>
         <module name="ParameterNumber">
@@ -179,6 +183,9 @@
         <module name="LeftCurly"/>
         <module name="NeedBraces"/>
         <module name="RightCurly"/>
+        <module name="NoFinalizer"/>
+        <module name="OneTopLevelClass"/>
+        <module name="OuterTypeFilename"/>
 
         <!-- Checks for common coding problems               -->
         <!-- See https://checkstyle.org/checks/coding/index.html -->
