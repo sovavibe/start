@@ -226,7 +226,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.DOCKER_HUB_USERNAME }}/start:buildcache,mode=max
 
       - name: Run Trivy vulnerability scanner on image
-        uses: aquasecurity/trivy-action@0.32.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           image-ref: ${{ env.DOCKER_HUB_USERNAME }}/start:${{ github.ref_name }}
           format: 'sarif'
