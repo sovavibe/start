@@ -44,6 +44,20 @@ class UserServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void testEncodePasswordDifferentPasswordsProduceDifferentHashes() {
+        // Arrange
+        final String password1 = "password1";
+        final String password2 = "password2";
+
+        // Act
+        final String encoded1 = userService.encodePassword(password1);
+        final String encoded2 = userService.encodePassword(password2);
+
+        // Assert
+        assertThat(encoded1).isNotEqualTo(encoded2);
+    }
+
+    @Test
     @SuppressWarnings("nullness:argument") // Intentionally testing null edge case - Objects.equals handles null
     void testValidatePasswordConfirmation() {
         // Arrange
@@ -61,6 +75,12 @@ class UserServiceTest extends AbstractIntegrationTest {
 
         // Act & Assert - null confirmPassword - Objects.equals handles null correctly
         assertThat(userService.validatePasswordConfirmation(password, null)).isFalse();
+
+        // Act & Assert - null password - Objects.equals handles null correctly
+        assertThat(userService.validatePasswordConfirmation(null, password)).isFalse();
+
+        // Act & Assert - both null - Objects.equals handles null correctly
+        assertThat(userService.validatePasswordConfirmation(null, null)).isTrue();
     }
 
     @Test

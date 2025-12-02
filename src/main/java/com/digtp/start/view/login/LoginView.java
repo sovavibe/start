@@ -2,18 +2,12 @@ package com.digtp.start.view.login;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
-import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-import io.jmix.core.CoreProperties;
-import io.jmix.core.MessageTools;
 import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.component.loginform.JmixLoginForm;
-import io.jmix.flowui.kit.component.ComponentUtils;
-import io.jmix.flowui.kit.component.loginform.JmixLoginI18n;
 import io.jmix.flowui.view.MessageBundle;
 import io.jmix.flowui.view.StandardView;
 import io.jmix.flowui.view.Subscribe;
@@ -22,10 +16,6 @@ import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import io.jmix.securityflowui.authentication.AuthDetails;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -47,15 +37,13 @@ import org.springframework.security.authentication.LockedException;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({
-    "PMD.ExcessiveImports", // Jmix/Vaadin View classes require many framework imports
-    "java:S1948" // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint plugin.
-})
+@SuppressWarnings(
+        "java:S1948") // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint
+// plugin.
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
-    private final transient CoreProperties coreProperties;
     private final transient LoginViewSupport loginViewSupport;
-    private final transient MessageTools messageTools;
+    private final transient LocaleHelper localeHelper;
 
     @ViewComponent
     private JmixLoginForm login;
@@ -72,19 +60,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     @Subscribe
     public void onInit(final InitEvent event) {
         log.debug("Login view initialized");
-        initLocales();
+        localeHelper.initLocales(login);
         initDefaultCredentials();
-    }
-
-    @SuppressWarnings("PMD.LooseCoupling") // LinkedHashMap needed to preserve insertion order
-    private void initLocales() {
-        final LinkedHashMap<Locale, String> locales = coreProperties.getAvailableLocales().stream()
-                .collect(Collectors.toMap(
-                        Function.identity(), messageTools::getLocaleDisplayName, (s1, s2) -> s1, LinkedHashMap::new));
-
-        ComponentUtils.setItemsMap(login, locales);
-
-        login.setSelectedLocale(VaadinSession.getCurrent().getLocale());
     }
 
     private void initDefaultCredentials() {
@@ -128,25 +105,6 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     @Override
     public void localeChange(final LocaleChangeEvent event) {
         UI.getCurrent().getPage().setTitle(messageBundle.getMessage("LoginView.title"));
-
-        final JmixLoginI18n loginI18n = JmixLoginI18n.createDefault();
-
-        final JmixLoginI18n.JmixForm form = new JmixLoginI18n.JmixForm();
-        form.setTitle(messageBundle.getMessage("loginForm.headerTitle"));
-        form.setUsername(messageBundle.getMessage("loginForm.username"));
-        form.setPassword(messageBundle.getMessage("loginForm.password"));
-        form.setSubmit(messageBundle.getMessage("loginForm.submit"));
-        form.setForgotPassword(messageBundle.getMessage("loginForm.forgotPassword"));
-        form.setRememberMe(messageBundle.getMessage("loginForm.rememberMe"));
-        loginI18n.setForm(form);
-
-        final LoginI18n.ErrorMessage errorMessage = new LoginI18n.ErrorMessage();
-        errorMessage.setTitle(messageBundle.getMessage("loginForm.errorTitle"));
-        errorMessage.setMessage(messageBundle.getMessage("loginForm.badCredentials"));
-        errorMessage.setUsername(messageBundle.getMessage("loginForm.errorUsername"));
-        errorMessage.setPassword(messageBundle.getMessage("loginForm.errorPassword"));
-        loginI18n.setErrorMessage(errorMessage);
-
-        login.setI18n(loginI18n);
+        localeHelper.updateLoginI18n(login, messageBundle, event);
     }
 }

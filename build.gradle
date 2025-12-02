@@ -296,6 +296,11 @@ spotbugs {
 
 tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
     ignoreFailures = false
+    effort = com.github.spotbugs.snom.Effort.MAX // Maximum analysis effort for better bug detection
+    reportLevel = com.github.spotbugs.snom.Confidence.LOW // Report all bugs including low priority
+    plugins = [
+        'com.h3xstream.findsecbugs:findsecbugs-plugin:1.13.0'
+    ]
 }
 
 jacoco {
@@ -337,11 +342,15 @@ tasks.named("jacocoTestCoverageVerification") {
         rule {
             limit {
                 counter = 'INSTRUCTION'
-                minimum = 0.80 // 80% minimum instruction coverage (strict quality gate for vibe coding)
+                minimum = 0.85 // 85% minimum instruction coverage (stricter for vibe coding)
             }
             limit {
                 counter = 'BRANCH'
-                minimum = 0.70 // 70% minimum branch coverage
+                minimum = 0.75 // 75% minimum branch coverage (stricter for vibe coding)
+            }
+            limit {
+                counter = 'LINE'
+                minimum = 0.90 // 90% minimum line coverage (stricter for vibe coding)
             }
         }
     }
@@ -351,7 +360,7 @@ tasks.named("jacocoTestCoverageVerification") {
 pitest {
     targetClasses = ['com.digtp.start.*']
     targetTests = ['com.digtp.start.*']
-    mutationThreshold = 60 // 60% mutation score threshold
+    mutationThreshold = 70 // 70% mutation score threshold (stricter for vibe coding)
     coverageThreshold = 80 // 80% coverage required
     threads = 4
     outputFormats = ['HTML', 'XML']
@@ -379,6 +388,11 @@ sonar {
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
         property 'sonar.junit.reportPaths', 'build/test-results/test'
     }
+}
+
+// Ensure sonar task runs after coverage report is generated
+tasks.named("sonar") {
+    dependsOn(tasks.named("jacocoTestReport"))
 }
 
 tasks.withType(JavaCompile).configureEach {
