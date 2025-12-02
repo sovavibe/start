@@ -7,6 +7,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.jmix.core.CoreProperties;
 import io.jmix.core.MessageTools;
 import io.jmix.core.security.AccessDeniedException;
@@ -33,7 +34,15 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 
+/**
+ * Login view for user authentication.
+ *
+ * <p>Provides login form with username/password authentication, locale selection,
+ * and remember-me functionality. Handles authentication errors and displays
+ * appropriate messages to users.
+ */
 @Route(value = "login")
+@AnonymousAllowed
 @ViewController(id = "LoginView")
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
@@ -61,6 +70,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     @Subscribe
     public void onInit(final InitEvent event) {
+        log.debug("Login view initialized");
         initLocales();
         initDefaultCredentials();
     }
@@ -103,19 +113,14 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         event.getSource().setError(true);
     }
 
-    @SuppressWarnings("java:S1192") // String literals should not be duplicated - but these are distinct error messages
     private String getLoginFailureReason(final Exception e) {
-        if (e instanceof BadCredentialsException) {
-            return "invalid credentials";
-        } else if (e instanceof DisabledException) {
-            return "account disabled";
-        } else if (e instanceof LockedException) {
-            return "account locked";
-        } else if (e instanceof AccessDeniedException) {
-            return "access denied";
-        } else {
-            return "unknown error";
-        }
+        return switch (e) {
+            case BadCredentialsException ignored -> "invalid credentials";
+            case DisabledException ignored -> "account disabled";
+            case LockedException ignored -> "account locked";
+            case AccessDeniedException ignored -> "access denied";
+            default -> "unknown error";
+        };
     }
 
     @Override

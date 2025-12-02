@@ -9,6 +9,13 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+/**
+ * Database-backed user repository implementation.
+ *
+ * <p>Extends Jmix AbstractDatabaseUserRepository to provide user authentication
+ * and authorization data from the database. Initializes system and anonymous users
+ * with appropriate roles.
+ */
 @Primary
 @Component("userRepository")
 @RequiredArgsConstructor
@@ -26,11 +33,11 @@ public class DatabaseUserRepository extends AbstractDatabaseUserRepository<User>
                 .addResourceRole(FullAccessRole.CODE)
                 .build();
         systemUser.setAuthorities(authorities);
-        log.debug("System user initialized with full access role");
+        log.info("System user initialized with full access role: username={}", systemUser.getUsername());
     }
 
     @Override
     protected void initAnonymousUser(final User anonymousUser) {
-        // Anonymous user doesn't need initialization in this implementation
+        log.debug("Anonymous user initialized: username={}", anonymousUser.getUsername());
     }
 }

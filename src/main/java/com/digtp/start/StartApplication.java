@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -18,10 +19,16 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 
+/**
+ * Main Spring Boot application class.
+ *
+ * <p>Configures Vaadin Push, theme, and PWA settings. Provides data source
+ * configuration and application startup event handling.
+ */
 @Push
 @Theme("start")
 @PWA(name = "Start", shortName = "Start", offline = false)
-@SpringBootApplication
+@SpringBootApplication(exclude = {ProjectInfoAutoConfiguration.class})
 @Slf4j
 @RequiredArgsConstructor
 @SuppressWarnings(

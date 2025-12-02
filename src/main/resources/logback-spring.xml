@@ -177,6 +177,16 @@
         <appender-ref ref="ERROR_FILE"/>
     </logger>
     
+    <!-- Suppress Spring Security warning about web.ignoring() for VAADIN/push (comes from Jmix framework) -->
+    <logger name="org.springframework.security.config.annotation.web.builders.WebSecurity" level="ERROR" additivity="false">
+        <appender-ref ref="WARN_FILE"/>
+    </logger>
+    
+    <!-- Suppress Vaadin dev server warnings about file paths (generated files from Jmix) -->
+    <logger name="com.vaadin.flow.server.frontend.TaskUpdateImports" level="ERROR" additivity="false">
+        <appender-ref ref="WARN_FILE"/>
+    </logger>
+    
     <!-- Production profile - reduce logging overhead -->
     <springProfile name="prod">
         <!-- Application logging - INFO only (no DEBUG) -->
