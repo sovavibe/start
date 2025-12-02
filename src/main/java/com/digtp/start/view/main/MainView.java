@@ -16,12 +16,20 @@ import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 
+/**
+ * Main application view.
+ *
+ * <p>Provides the main application layout with navigation menu and user menu.
+ * Displays user information and handles user substitution indicators.
+ */
 @Route("")
 @ViewController(id = "MainView")
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
+@Slf4j
 @SuppressWarnings(
         "java:S1948") // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint
 // plugin.
@@ -34,10 +42,12 @@ public class MainView extends StandardMainView {
     @Install(to = "userMenu", subject = "buttonRenderer")
     private Component userMenuButtonRenderer(final UserDetails userDetails) {
         if (!(userDetails instanceof User user)) {
+            log.debug("User menu button renderer: user is not instance of User entity");
             return null;
         }
 
         final String userName = generateUserName(user);
+        log.debug("Rendering user menu button: username={}, displayName={}", user.getUsername(), userName);
 
         final Div content = uiComponents.create(Div.class);
         content.setClassName("user-menu-button-content");
@@ -81,7 +91,7 @@ public class MainView extends StandardMainView {
 
         content.add(avatar, text);
 
-        if (name.equals(user.getUsername())) {
+        if (user.getUsername() != null && name.equals(user.getUsername())) {
             text.addClassNames("user-menu-text-subtext");
         } else {
             final Span subtext = uiComponents.create(Span.class);
@@ -112,7 +122,20 @@ public class MainView extends StandardMainView {
     }
 
     private boolean isSubstituted(final User user) {
+        if (user == null) {
+            return false;
+        }
         final UserDetails authenticatedUser = currentUserSubstitution.getAuthenticatedUser();
-        return user != null && !authenticatedUser.getUsername().equals(user.getUsername());
+        if (authenticatedUser == null) {
+            return false;
+        }
+        final boolean isSubstituted = !authenticatedUser.getUsername().equals(user.getUsername());
+        if (isSubstituted) {
+            log.debug(
+                    "User substitution detected: authenticated={}, displayed={}",
+                    authenticatedUser.getUsername(),
+                    user.getUsername());
+        }
+        return isSubstituted;
     }
 }

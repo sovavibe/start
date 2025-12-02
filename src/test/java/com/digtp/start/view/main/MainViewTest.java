@@ -10,6 +10,7 @@ import com.digtp.start.test_support.AuthenticatedAsAdmin;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.html.Div;
+import io.jmix.core.DataManager;
 import io.jmix.core.security.UserRepository;
 import io.jmix.flowui.ViewNavigators;
 import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
@@ -36,6 +37,9 @@ class MainViewTest extends AbstractIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DataManager dataManager;
 
     @Test
     void testGenerateUserNameWithFirstNameAndLastName() throws ReflectiveOperationException {
@@ -187,7 +191,7 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     private User createTestUser(final String username, final String firstName, final String lastName) {
-        final User user = new User();
+        final User user = dataManager.create(User.class);
         user.setUsername(username);
         user.setFirstName(firstName);
         user.setLastName(lastName);

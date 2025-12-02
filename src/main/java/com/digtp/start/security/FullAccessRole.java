@@ -9,6 +9,12 @@ import io.jmix.security.role.annotation.SpecificPolicy;
 import io.jmix.securityflowui.role.annotation.MenuPolicy;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
+/**
+ * Full access security role.
+ *
+ * <p>Provides unrestricted access to all entities, views, menus, and resources.
+ * This role should be assigned only to system administrators.
+ */
 @ResourceRole(name = "Full Access", code = FullAccessRole.CODE)
 public interface FullAccessRole {
 
