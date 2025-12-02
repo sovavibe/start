@@ -6,6 +6,12 @@ import io.jmix.security.role.annotation.SpecificPolicy;
 import io.jmix.securityflowui.role.UiMinimalPolicies;
 import io.jmix.securityflowui.role.annotation.ViewPolicy;
 
+/**
+ * Minimal UI access security role.
+ *
+ * <p>Provides minimal access to UI components: MainView and LoginView.
+ * This role is typically used for anonymous or restricted users.
+ */
 @ResourceRole(name = "UI: minimal access", code = UiMinimalRole.CODE, scope = SecurityScope.UI)
 public interface UiMinimalRole extends UiMinimalPolicies {
 

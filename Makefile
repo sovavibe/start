@@ -221,10 +221,16 @@ build: ## Build the project
 	@echo "$(GREEN)Building project...$(RESET)"
 	./gradlew build
 
-clean: ## Clean build artifacts and kill process on port 8080
+clean: ## Clean build artifacts, logs, and kill process on port 8080
 	@clear
-	@echo "$(GREEN)Cleaning build artifacts...$(RESET)"
+	@echo "$(GREEN)Cleaning build artifacts and logs...$(RESET)"
 	@$(MAKE) kill-port PORT=8080
+	@# Clean logs directory
+	@if [ -d "logs" ]; then \
+		echo "$(YELLOW)Cleaning logs...$(RESET)"; \
+		find logs -type f -name "*.log" -delete 2>/dev/null || true; \
+		echo "$(GREEN)✅ Logs cleaned$(RESET)"; \
+	fi
 	./gradlew clean
 
 install: ## Install npm dependencies

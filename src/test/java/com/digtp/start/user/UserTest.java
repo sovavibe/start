@@ -15,13 +15,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Sample integration test for the User entity.
  */
 @SpringBootTest
 @ActiveProfiles("test")
-@ExtendWith(AuthenticatedAsAdmin.class)
+@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
 class UserTest extends AbstractIntegrationTest {
 
     @Autowired

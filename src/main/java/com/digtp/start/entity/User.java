@@ -26,8 +26,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * User entity representing an application user.
+ *
+ * <p>Implements JmixUserDetails for authentication and HasTimeZone for timezone support.
+ * Provides user management functionality including username, password, email, and timezone.
+ */
 @JmixEntity
 @Entity
 @Table(
@@ -40,6 +47,7 @@ import org.springframework.security.core.GrantedAuthority;
 public class User implements JmixUserDetails, HasTimeZone {
 
     private static final int USERNAME_MAX_LENGTH = 100;
+    private static final int DEFAULT_STRING_LENGTH = 255;
 
     @Id
     @Column(name = "ID")
@@ -63,20 +71,25 @@ public class User implements JmixUserDetails, HasTimeZone {
     @Column(name = "PASSWORD")
     private String password;
 
-    @Column(name = "FIRST_NAME")
+    @Length(max = DEFAULT_STRING_LENGTH)
+    @Column(name = "FIRST_NAME", length = DEFAULT_STRING_LENGTH)
     private String firstName;
 
-    @Column(name = "LAST_NAME")
+    @Length(max = DEFAULT_STRING_LENGTH)
+    @Column(name = "LAST_NAME", length = DEFAULT_STRING_LENGTH)
     private String lastName;
 
-    @Email
-    @Column(name = "EMAIL")
+    @Email(message = "Email address has invalid format: ${validatedValue}")
+    @Length(max = DEFAULT_STRING_LENGTH)
+    @Column(name = "EMAIL", length = DEFAULT_STRING_LENGTH)
     private String email;
 
-    @Column(name = "ACTIVE")
+    @NotNull
+    @Column(name = "ACTIVE", nullable = false)
     private Boolean active = true;
 
-    @Column(name = "TIME_ZONE_ID")
+    @Length(max = DEFAULT_STRING_LENGTH)
+    @Column(name = "TIME_ZONE_ID", length = DEFAULT_STRING_LENGTH)
     private String timeZoneId;
 
     @Transient
@@ -117,7 +130,10 @@ public class User implements JmixUserDetails, HasTimeZone {
     public String getDisplayName() {
         final String firstNameSafe = Objects.requireNonNullElse(firstName, "");
         final String lastNameSafe = Objects.requireNonNullElse(lastName, "");
-        return String.format("%s %s [%s]", firstNameSafe, lastNameSafe, username)
+        return """
+                %s %s [%s]
+                """
+                .formatted(firstNameSafe, lastNameSafe, username)
                 .trim();
     }
 

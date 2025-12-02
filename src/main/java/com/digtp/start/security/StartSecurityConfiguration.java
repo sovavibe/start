@@ -40,6 +40,14 @@ import org.springframework.security.web.SecurityFilterChain;
 @Slf4j
 public class StartSecurityConfiguration {
 
+    /**
+     * Public API endpoints filter chain.
+     * Applied before Jmix default security chains.
+     *
+     * @param http HttpSecurity instance to configure
+     * @return configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
     @Bean
     @Order(JmixSecurityFilterChainOrder.CUSTOM)
     SecurityFilterChain publicFilterChain(final HttpSecurity http) throws Exception {
@@ -47,6 +55,25 @@ public class StartSecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
 
         log.info("Public security filter chain configured for /public/** endpoints");
+        return http.build();
+    }
+
+    /**
+     * Vaadin Push endpoints filter chain.
+     * Fixes Spring Security warning about using web.ignoring() instead of authorizeHttpRequests().
+     * Applied before Jmix default security chains.
+     *
+     * @param http HttpSecurity instance to configure
+     * @return configured SecurityFilterChain
+     * @throws Exception if configuration fails
+     */
+    @Bean
+    @Order(JmixSecurityFilterChainOrder.CUSTOM - 1)
+    SecurityFilterChain vaadinPushFilterChain(final HttpSecurity http) throws Exception {
+        http.securityMatcher("/VAADIN/push/**")
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+
+        log.info("Vaadin Push security filter chain configured for /VAADIN/push/** endpoints");
         return http.build();
     }
 }
