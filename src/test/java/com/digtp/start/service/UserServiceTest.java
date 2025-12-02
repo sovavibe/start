@@ -32,9 +32,13 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Test
     void testEncodePassword() {
+        // Arrange
         final String plainPassword = "test-password-123";
+
+        // Act
         final String encodedPassword = userService.encodePassword(plainPassword);
 
+        // Assert
         assertThat(encodedPassword).isNotBlank().isNotEqualTo(plainPassword);
         assertThat(encodedPassword.length()).isGreaterThan(plainPassword.length());
     }
@@ -42,22 +46,34 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     @SuppressWarnings("nullness:argument") // Intentionally testing null edge case - Objects.equals handles null
     void testValidatePasswordConfirmation() {
-        assertThat(userService.validatePasswordConfirmation("password", "password"))
+        // Arrange
+        final String password = "password";
+        final String matchingPassword = "password";
+        final String differentPassword = "different";
+
+        // Act & Assert - matching passwords
+        assertThat(userService.validatePasswordConfirmation(password, matchingPassword))
                 .isTrue();
-        assertThat(userService.validatePasswordConfirmation("password", "different"))
+
+        // Act & Assert - different passwords
+        assertThat(userService.validatePasswordConfirmation(password, differentPassword))
                 .isFalse();
-        // Test null confirmPassword - Objects.equals handles null correctly
-        assertThat(userService.validatePasswordConfirmation("password", null)).isFalse();
+
+        // Act & Assert - null confirmPassword - Objects.equals handles null correctly
+        assertThat(userService.validatePasswordConfirmation(password, null)).isFalse();
     }
 
     @Test
     void testPrepareUserForSaveNewUser() {
+        // Arrange
         final User user = dataManager.create(User.class);
         user.setUsername("test-user-" + System.currentTimeMillis());
         final String password = "test-password";
 
+        // Act
         userService.prepareUserForSave(user, password, true);
 
+        // Assert
         assertThat(user.getPassword()).isNotBlank().isNotEqualTo(password);
         savedUser = dataManager.save(user);
     }

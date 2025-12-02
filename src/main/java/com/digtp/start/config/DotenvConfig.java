@@ -55,7 +55,11 @@ public final class DotenvConfig implements ApplicationListener<ApplicationEnviro
 
             environment.getPropertySources().addLast(new MapPropertySource("dotenv", dotenvProperties));
             log.info("Loaded {} environment variables from .env file", dotenvProperties.size());
-        } catch (final RuntimeException e) {
+        } catch (
+                @SuppressWarnings("PMD.AvoidCatchingGenericException")
+                final RuntimeException e) {
+            // Dotenv library throws various runtime exceptions (IOException wrapped, parsing errors)
+            // Catching RuntimeException is necessary as we can't predict all exception types
             // .env file is optional, so we log at debug level
             // Dotenv library throws various runtime exceptions (IOException wrapped, parsing errors, etc.)
             log.debug("No .env file found or error loading it: {}", e.getMessage());

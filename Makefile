@@ -239,6 +239,10 @@ install: ## Install npm dependencies
 
 ##@ Testing
 
+mutation: ## Run mutation testing (PIT)
+	@echo "$(GREEN)Running mutation testing (PIT)...$(RESET)"
+	./gradlew pitest --no-daemon
+
 test: ## Run tests (requires Docker for Testcontainers PostgreSQL)
 	@echo "$(GREEN)Running tests...$(RESET)"
 	@echo "$(YELLOW)Note: Tests require Docker to be running for Testcontainers$(RESET)"

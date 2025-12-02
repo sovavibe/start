@@ -101,6 +101,7 @@ public class User implements JmixUserDetails, HasTimeZone {
     }
 
     @Override
+    @SuppressWarnings("checkstyle:HiddenField") // Interface method signature requires parameter name matching field
     public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
     }

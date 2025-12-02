@@ -48,7 +48,7 @@
     <module name="SuppressWarningsFilter"/>
 
     <property name="charset" value="UTF-8"/>
-    <property name="severity" value="warning"/>
+    <property name="severity" value="error"/>
     <property name="fileExtensions" value="java, properties, xml"/>
 
     <!-- Excludes all 'module-info.java' files              -->
@@ -72,13 +72,13 @@
     <!-- Checks for Size Violations.                    -->
     <!-- See https://checkstyle.org/checks/sizes/index.html -->
     <!--
-    FileLength: Maximum 300 lines per file
-    Based on industry best practices (Google, Amazon recommend 300-400)
+    FileLength: Maximum 250 lines per file
+    Based on industry best practices for strict code quality
     Large files are harder to understand, test, and maintain.
     If a file exceeds this limit, consider splitting it into smaller, focused modules.
     -->
     <module name="FileLength">
-        <property name="max" value="300"/>
+        <property name="max" value="250"/>
         <property name="fileExtensions" value="java"/>
     </module>
     <!-- LineLength: 100 for code, 120 for lines with comments -->
@@ -143,8 +143,16 @@
 
         <!-- Checks for Size Violations.                    -->
         <!-- See https://checkstyle.org/checks/sizes/index.html -->
-        <module name="MethodLength"/>
-        <module name="ParameterNumber"/>
+        <module name="MethodLength">
+            <property name="max" value="30"/>
+            <property name="countEmpty" value="false"/>
+        </module>
+        <module name="ParameterNumber">
+            <property name="max" value="7"/>
+        </module>
+        <module name="CyclomaticComplexity">
+            <property name="max" value="10"/>
+        </module>
 
         <!-- Checks for whitespace                               -->
         <!-- See https://checkstyle.org/checks/whitespace/index.html -->
@@ -181,6 +189,11 @@
         <module name="InnerAssignment"/>
         <module name="MagicNumber"/>
         <module name="MissingSwitchDefault"/>
+        <module name="MissingOverride"/>
+        <module name="FallThrough"/>
+        <module name="StringLiteralEquality"/>
+        <module name="EqualsAvoidNull"/>
+        <module name="OneStatementPerLine"/>
         <module name="MultipleVariableDeclarations"/>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
