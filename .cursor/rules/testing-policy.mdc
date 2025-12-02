@@ -83,6 +83,51 @@ Java stdlib → Spring → Jmix → Project → Static imports
 - **Order matters**: SpringExtension first (init ApplicationContext), AuthenticatedAsAdmin second (provides admin security context)
 - AuthenticatedAsAdmin automatically sets admin user before each test, cleans up after
 
+### Test Structure (AAA/GWT Pattern)
+**REQUIRED**: Every test method MUST follow AAA (Arrange-Act-Assert) or GWT (Given-When-Then) pattern with explicit comments:
+
+```java
+@Test
+void testMethodName() {
+    // Arrange (Given) - Setup test data, mocks, and preconditions
+    final String input = "test-value";
+    final Entity entity = dataManager.create(Entity.class);
+    
+    // Act (When) - Execute the code under test
+    final String result = service.process(input);
+    
+    // Assert (Then) - Verify the expected outcome
+    assertThat(result).isEqualTo("expected-value");
+}
+```
+
+**Rules**:
+- ✅ **Arrange/Given**: Prepare test data, mocks, dependencies, set up preconditions
+- ✅ **Act/When**: Execute the method/operation being tested (single action)
+- ✅ **Assert/Then**: Verify results, state changes, exceptions
+- ✅ Use clear comments: `// Arrange`, `// Act`, `// Assert` (or `// Given`, `// When`, `// Then`)
+- ✅ Each section should be clearly separated
+- ✅ One logical action in Act section
+- ✅ Multiple assertions in Assert section are acceptable
+
+**Example**:
+```java
+@Test
+void testValidatePassword() {
+    // Arrange
+    final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
+    final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+    when(context.getPassword()).thenReturn(validPassword);
+    
+    // Act
+    passwordValidator.validate(context);
+    
+    // Assert
+    assertThatCode(() -> passwordValidator.validate(context))
+            .doesNotThrowAnyException();
+}
+```
+
 ### Assertions
 - Use AssertJ: `assertThat(actual).isEqualTo(expected)`
 - AssertJ automatically available in Jmix projects

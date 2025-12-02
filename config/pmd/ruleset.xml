@@ -19,8 +19,9 @@
         <!-- Exclude rules that are too strict or not applicable -->
         <exclude name="GuardLogStatement"/> <!-- Modern SLF4J handles level checks efficiently -->
         <exclude name="UnusedPrivateMethod"/> <!-- Lombok may generate methods that appear unused -->
+        <exclude name="UnitTestShouldIncludeAssert"/> <!-- ArchUnit @ArchTest rules don't need explicit assertions -->
         <!-- Note: NonSerializableClass is in errorprone.xml, excluded there -->
-        <exclude name="LooseCoupling"/> <!-- Framework code often requires specific implementations -->
+        <!-- LooseCoupling is ENABLED - important for architecture, use @SuppressWarnings for framework-specific cases -->
     </rule>
 
     <!-- Code Style -->
@@ -32,8 +33,11 @@
         <exclude name="UnnecessaryAnnotationValueElement"/> <!-- Modern Java style allows value= -->
         <exclude name="UselessParentheses"/> <!-- Parentheses can improve readability -->
         <exclude name="OnlyOneReturn"/> <!-- Early returns improve code readability -->
+        <!-- FieldNamingConventions: ArchUnit uses snake_case for rule names, which conflicts with Java naming -->
+        <exclude name="FieldNamingConventions"/>
         <exclude name="AtLeastOneConstructor"/> <!-- Default constructor is acceptable -->
         <exclude name="ShortVariable"/> <!-- Short variable names are acceptable in some contexts -->
+        <!-- Note: UseCollectionIsEmpty was removed in PMD 7.x -->
         <!-- Note: UnnecessaryFullyQualifiedName is enabled by default - checks annotations and classes -->
     </rule>
 
@@ -41,19 +45,23 @@
     <rule ref="category/java/design.xml">
         <!-- Exclude CyclomaticComplexity to configure it separately below -->
         <exclude name="CyclomaticComplexity"/>
+        <!-- Exclude NPathComplexity to configure it separately below -->
+        <exclude name="NPathComplexity"/>
+        <!-- Exclude ExcessiveImports to configure it separately below -->
+        <exclude name="ExcessiveImports"/>
+        <!-- Exclude LoosePackageCoupling - requires package/class specification which is not needed -->
+        <exclude name="LoosePackageCoupling"/>
         <!-- Exclude rules that are too strict for framework code -->
         <exclude name="LawOfDemeter"/> <!-- Framework code often uses method chaining -->
         <exclude name="SignatureDeclareThrowsException"/> <!-- Framework methods may throw Exception -->
-        <!-- Exclude AvoidCatchingGenericException for DotenvConfig -->
-        <!-- Dotenv library throws various runtime exceptions (IOException wrapped, parsing errors) -->
-        <!-- Catching RuntimeException is necessary as we can't predict all exception types -->
-        <exclude name="AvoidCatchingGenericException"/>
+        <!-- AvoidCatchingGenericException is ENABLED - use @SuppressWarnings for specific cases where necessary -->
     </rule>
 
-    <!-- Configure ExcessiveImports with custom threshold for Vaadin views -->
+    <!-- Configure ExcessiveImports with strict threshold -->
+    <!-- Industry standard: 30 imports per class -->
     <rule ref="category/java/design.xml/ExcessiveImports">
         <properties>
-            <property name="minimum" value="40"/>
+            <property name="minimum" value="30"/>
         </properties>
     </rule>
 
@@ -76,7 +84,7 @@
     </rule>
     <rule ref="category/java/design.xml/NPathComplexity">
         <properties>
-            <property name="reportLevel" value="250"/>
+            <property name="reportLevel" value="200"/>
         </properties>
     </rule>
 

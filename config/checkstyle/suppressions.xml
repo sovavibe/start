@@ -5,27 +5,106 @@
         "https://checkstyle.org/dtds/suppressions_1_2.dtd">
 
 <suppressions>
-    <!-- Conflict with spotless  -->
+    <!--
+    Spotless Palantir Java Format Compatibility:
+    These formatting-related checks are suppressed because Palantir Format manages formatting.
+    Palantir Format controls: whitespace, indentation, line wrapping, operator placement.
+    These suppressions are necessary to avoid conflicts between formatter and linter.
+    -->
     <suppress checks="WhitespaceAround" files=".*"/>
+    <suppress checks="LineLength" files=".*\.java$"/>
+    <suppress checks="Indentation" files=".*\.java$"/>
+    <suppress checks="OperatorWrap" files=".*\.java$"/>
+    <suppress checks="GenericWhitespace" files=".*\.java$"/>
 
-    <!-- Lombok compatibility: Suppress MissingJavadocMethod for Lombok-generated methods -->
-    <!-- Lombok generates getters, setters, equals, hashCode, toString, constructors -->
-    <!-- These methods follow standard JavaBean conventions and don't need javadoc -->
+    <!--
+    Lombok compatibility: Suppress MissingJavadocMethod ONLY for Lombok-generated methods
+    Lombok generates getters, setters, equals, hashCode, toString, constructors
+    These methods follow standard JavaBean conventions and don't need javadoc
+    Pattern matches entity/DTO classes by package path (more reliable than filename)
+    -->
     <suppress
             checks="MissingJavadocMethod"
-            files=".*\.java$"/>
+            files=".*/entity/.*\.java$|.*/dto/.*\.java$|.*/record/.*\.java$|.*Entity\.java$|.*Dto\.java$|.*Record\.java$"
+            message=".*"/>
 
-    <!-- Lombok compatibility: Suppress JavadocVariable for private fields with Lombok annotations -->
-    <!-- Lombok @Getter/@Setter/@Data generate accessors, fields don't need javadoc -->
+    <!--
+    Lombok compatibility: Suppress JavadocVariable ONLY for private fields with Lombok annotations
+    Lombok @Getter/@Setter/@Data generate accessors, fields don't need javadoc
+    Pattern matches entity/DTO classes by package path (more reliable than filename)
+    -->
     <suppress
             checks="JavadocVariable"
-            files=".*\.java$"/>
+            files=".*/entity/.*\.java$|.*/dto/.*\.java$|.*/record/.*\.java$|.*Entity\.java$|.*Dto\.java$|.*Record\.java$"
+            message=".*"/>
 
-    <!-- Lombok compatibility: Suppress HiddenField for setter parameters -->
-    <!-- Lombok generates standard setters with parameters that shadow fields (JPA pattern) -->
+    <!--
+    Framework compatibility: Suppress MissingJavadocMethod for all methods in View classes
+    Jmix/Vaadin View classes contain framework lifecycle methods (onInit, onReady, etc.)
+    These methods are framework callbacks and follow framework conventions
+    All methods in View classes are framework-related and don't require javadoc
+    -->
     <suppress
-            checks="HiddenField"
-            files=".*\.java$"/>
+            checks="MissingJavadocMethod"
+            files=".*View\.java$"
+            message=".*"/>
+
+    <!--
+    Framework compatibility: Suppress JavadocVariable for @ViewComponent fields
+    @ViewComponent fields are framework-injected UI components, don't need javadoc
+    Pattern matches View classes
+    -->
+    <suppress
+            checks="JavadocVariable"
+            files=".*View\.java$"
+            message=".*"/>
+
+    <!--
+    Framework compatibility: Suppress JavadocVariable for @RequiredArgsConstructor final fields
+    Config/Service classes use constructor injection via Lombok @RequiredArgsConstructor
+    Final fields injected via constructor don't need javadoc (dependency injection pattern)
+    -->
+    <suppress
+            checks="JavadocVariable"
+            files=".*Config\.java$|.*Initializer\.java$|.*Service\.java$|.*Application\.java$"
+            message=".*"/>
+
+    <!--
+    Framework compatibility: Suppress MissingJavadocMethod for security role interface methods
+    Security role interfaces use annotation-based configuration, methods are framework callbacks
+    Pattern matches security role interfaces
+    -->
+    <suppress
+            checks="MissingJavadocMethod"
+            files=".*Role\.java$"
+            message=".*"/>
+
+    <!--
+    Framework compatibility: Suppress JavadocVariable for interface constants
+    Interface constants (like CODE in role interfaces) are self-documenting
+    Pattern matches security role interfaces
+    -->
+    <suppress
+            checks="JavadocVariable"
+            files=".*Role\.java$"
+            message=".*"/>
+
+    <!--
+    Framework compatibility: Suppress MissingJavadocMethod for Spring Boot application methods
+    Spring Boot @Bean, @EventListener methods are framework configuration, don't need javadoc
+    Main method signature is standard and doesn't need javadoc
+    -->
+    <suppress
+            checks="MissingJavadocMethod"
+            files=".*Application\.java$"
+            message=".*"/>
+
+    <!--
+    NOTE: HiddenField suppression REMOVED - this check is critical for code quality
+    HiddenField detects when method parameters shadow class fields, which is a real bug
+    This is NOT related to formatting and should be enabled
+    If Lombok setters or interface methods cause issues, use @SuppressWarnings("checkstyle:HiddenField") on specific methods
+    -->
 
     <!-- Framework compatibility: Suppress DesignForExtension for Jmix/Vaadin framework classes -->
     <!-- Framework views extend StandardView, StandardListView, StandardDetailView -->
@@ -81,11 +160,27 @@
             checks="VisibilityModifier"
             files=".*Test\.java$|.*Tests\.java$"/>
 
-    <!-- Code formatting: Suppress LineLength check -->
-    <!-- Palantir Java Format (via Spotless) handles code formatting but doesn't enforce line length -->
-    <!-- Line length is a style preference, not a code quality issue -->
-    <!-- Spotless applies consistent formatting, line length variations are acceptable -->
+    <!-- Test compatibility: Suppress JavadocVariable for test fields -->
+    <!-- Test classes use @Autowired fields and package-private fields for test convenience -->
+    <!-- This is a standard testing pattern and doesn't violate encapsulation in test context -->
+    <!-- Pattern includes test support classes in test_support package -->
     <suppress
-            checks="LineLength"
-            files=".*\.java$"/>
+            checks="JavadocVariable"
+            files=".*Test\.java$|.*Tests\.java$|.*/test/.*\.java$|.*/test_support/.*\.java$"
+            message=".*"/>
+
+    <!-- Test compatibility: Suppress MissingJavadocMethod for test support classes -->
+    <!-- Test support classes (like PostgresTestContainer) are utility classes for tests -->
+    <!-- These methods are self-documenting through descriptive names -->
+    <suppress
+            checks="MissingJavadocMethod"
+            files=".*/test_support/.*\.java$"
+            message=".*"/>
+
+    <!-- Test compatibility: Suppress ConstantName for ArchUnit test rules -->
+    <!-- ArchUnit convention uses snake_case for rule names, which conflicts with Java constant naming -->
+    <suppress
+            checks="ConstantName"
+            files=".*/architecture/.*\.java$"
+            message=".*"/>
 </suppressions>

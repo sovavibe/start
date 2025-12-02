@@ -41,6 +41,8 @@
     <rule ref="category/java/design.xml">
         <!-- Exclude CyclomaticComplexity to configure it separately below -->
         <exclude name="CyclomaticComplexity"/>
+        <!-- Exclude LoosePackageCoupling - requires package/class specification which is not needed -->
+        <exclude name="LoosePackageCoupling"/>
         <!-- Exclude rules that are too strict for framework code -->
         <exclude name="LawOfDemeter"/> <!-- Framework code often uses method chaining -->
         <exclude name="DataClass"/> <!-- Records are data classes by design -->

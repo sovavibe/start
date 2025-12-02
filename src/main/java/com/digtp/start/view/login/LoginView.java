@@ -47,9 +47,10 @@ import org.springframework.security.authentication.LockedException;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings(
-        "java:S1948") // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint
-// plugin.
+@SuppressWarnings({
+    "PMD.ExcessiveImports", // Jmix/Vaadin View classes require many framework imports
+    "java:S1948" // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint plugin.
+})
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private final transient CoreProperties coreProperties;
@@ -75,6 +76,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         initDefaultCredentials();
     }
 
+    @SuppressWarnings("PMD.LooseCoupling") // LinkedHashMap needed to preserve insertion order
     private void initLocales() {
         final LinkedHashMap<Locale, String> locales = coreProperties.getAvailableLocales().stream()
                 .collect(Collectors.toMap(
