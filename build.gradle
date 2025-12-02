@@ -96,7 +96,7 @@ dependencies {
     implementation 'com.bucket4j:bucket4j-core:8.10.1'
 
     // Environment variables (.env file support)
-    implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation 'io.github.cdimascio:dotenv-java:3.2.0'
 
     // Lombok - reduce boilerplate, auto-generate getters/setters/constructors
     compileOnly 'org.projectlombok:lombok'
@@ -107,8 +107,8 @@ dependencies {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
     testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
-    testImplementation 'org.testcontainers:postgresql:1.19.8'
-    testImplementation 'org.testcontainers:junit-jupiter:1.19.8'
+    testImplementation 'org.testcontainers:postgresql:1.21.3'
+    testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
