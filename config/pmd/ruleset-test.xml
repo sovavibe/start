@@ -64,6 +64,15 @@
             <property name="methodReportLevel" value="20"/>
         </properties>
     </rule>
+    
+    <!-- CognitiveComplexity: Maximum 20 per method for tests (higher than main ruleset) -->
+    <!-- Tests can have higher cognitive complexity due to setup and multiple scenarios -->
+    <rule ref="category/java/design.xml/CognitiveComplexity">
+        <properties>
+            <property name="classReportLevel" value="100"/>
+            <property name="methodReportLevel" value="20"/>
+        </properties>
+    </rule>
 
     <!-- Error Prone -->
     <rule ref="category/java/errorprone.xml">

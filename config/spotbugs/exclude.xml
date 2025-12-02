@@ -12,13 +12,14 @@
 -->
 <FindBugsFilter>
     <!--
-    Framework compatibility: Exclude specific SpotBugs issues for Jmix/Vaadin views
+    Framework compatibility: Exclude specific SpotBugs issues for specific Jmix/Vaadin view classes
     Views contain framework-managed beans that are not serializable
     This is expected behavior for framework views
+    Using specific class names instead of broad pattern for stricter control
     -->
     <Match>
-        <Class name="~.*View"/>
-        <Bug pattern="SE_BAD_FIELD|SE_NO_SERIALVERSIONID"/>
+        <Class name="~com\.digtp\.start\.view\..*View"/>
+        <Bug pattern="SE_BAD_FIELD"/>
     </Match>
     
     <!--
@@ -26,8 +27,8 @@
     Application class contains framework dependencies that are not serializable
     -->
     <Match>
-        <Class name="~.*Application"/>
-        <Bug pattern="SE_BAD_FIELD|SE_NO_SERIALVERSIONID"/>
+        <Class name="~com\.digtp\.start\.StartApplication"/>
+        <Bug pattern="SE_BAD_FIELD"/>
     </Match>
     
     <!--
@@ -45,9 +46,10 @@
     Framework lifecycle methods: Exclude specific issues for framework callbacks
     Jmix/Vaadin lifecycle methods may have patterns that trigger false positives
     Only exclude specific bug patterns, not all checks
+    Using specific package pattern instead of broad class pattern
     -->
     <Match>
-        <Class name="~.*View"/>
+        <Class name="~com\.digtp\.start\.view\..*View"/>
         <Method name="onInit.*|onReady.*|onBeforeSave.*|onAfterSave.*|onValidation.*|onInitEntity.*"/>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
