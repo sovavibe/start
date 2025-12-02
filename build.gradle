@@ -36,9 +36,15 @@ plugins {
     // Dependency updates checker
     id 'com.github.ben-manes.versions' version '0.53.0'
 
+    // Mutation testing
+    id 'info.solidsoft.pitest' version '1.15.0'
+
+    // SonarQube/SonarCloud integration
+    id 'org.sonarqube' version '6.0.1.5171'
+
+
     // Note: SonarLint is primarily an IDE plugin, not needed for build
-    // If build-time analysis is needed, use SonarQube plugin instead:
-    // id 'org.sonarqube' version '4.0.0'
+    // SonarQube plugin is used for CI/CD integration with SonarCloud
 }
 
 // Spring Boot and Vaadin plugins are applied by Jmix plugin
@@ -102,6 +108,12 @@ dependencies {
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
+    // Error Prone for compile-time bug detection
+    annotationProcessor 'com.google.errorprone:error_prone_core:2.36.0'
+
+    // Nullaway for null-safety static analysis
+    annotationProcessor 'com.uber.nullaway:nullaway:0.12.3'
+
     // Test dependencies
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
@@ -109,6 +121,7 @@ dependencies {
     testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
     testImplementation 'org.testcontainers:postgresql:1.19.8'
     testImplementation 'org.testcontainers:junit-jupiter:1.19.8'
+    testImplementation 'com.tngtech.archunit:archunit-junit5:1.3.0'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
@@ -195,20 +208,26 @@ checkstyle {
     toolVersion = "10.12.1"
     configFile = rootProject.file("config/checkstyle/checkstyle.xml")
     configDirectory = rootProject.file("config/checkstyle")
+    ignoreFailures = false
+    maxWarnings = 0
 }
 
 tasks.withType(Checkstyle).configureEach { task ->
     task.configProperties = [
             'configDirectory': "${rootProject.projectDir}/config/checkstyle"
     ]
+    ignoreFailures = false
+    maxWarnings = 0
 }
 
 pmd {
     toolVersion = "7.9.0"
     ruleSetFiles = files("config/pmd/ruleset.xml")
+    ignoreFailures = false
 }
 
 tasks.withType(Pmd).configureEach {
+    ignoreFailures = false
     reports {
         xml.required = true
         html.required = true
@@ -272,6 +291,11 @@ spotbugs {
     showProgress = true
     includeFilter = file("config/spotbugs/include.xml")
     excludeFilter = file("config/spotbugs/exclude.xml")
+    ignoreFailures = false
+}
+
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+    ignoreFailures = false
 }
 
 jacoco {
@@ -312,9 +336,48 @@ tasks.named("jacocoTestCoverageVerification") {
     violationRules {
         rule {
             limit {
-                minimum = 0.70 // 70% minimum instruction coverage (current: 81.11%)
+                counter = 'INSTRUCTION'
+                minimum = 0.80 // 80% minimum instruction coverage (strict quality gate for vibe coding)
+            }
+            limit {
+                counter = 'BRANCH'
+                minimum = 0.70 // 70% minimum branch coverage
             }
         }
+    }
+}
+
+// PIT Mutation Testing configuration
+pitest {
+    targetClasses = ['com.digtp.start.*']
+    targetTests = ['com.digtp.start.*']
+    mutationThreshold = 60 // 60% mutation score threshold
+    coverageThreshold = 80 // 80% coverage required
+    threads = 4
+    outputFormats = ['HTML', 'XML']
+    timestampedReports = false
+    excludedClasses = [
+            'com.digtp.start.entity.*', // Entities are data classes, mutation testing not valuable
+            'com.digtp.start.config.*', // Configuration classes
+            'com.digtp.start.StartApplication' // Spring Boot application class
+    ]
+}
+
+// SonarQube/SonarCloud configuration
+sonar {
+    properties {
+        property 'sonar.projectKey', 'sovavibe_start'
+        property 'sonar.organization', 'sovavibe'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.java.source', '21'
+        property 'sonar.java.target', '21'
+        // Exclude generated and build files
+        property 'sonar.exclusions', '**/generated/**,**/build/**,**/.archive/**'
+        property 'sonar.test.exclusions', '**/test_support/**'
+        // Coverage reports
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
+        property 'sonar.junit.reportPaths', 'build/test-results/test'
     }
 }
 
@@ -325,6 +388,8 @@ tasks.withType(JavaCompile).configureEach {
             "-Xlint:all,-serial,-processing"
     ])
     dependsOn("spotlessApply")
+    // Note: Error Prone and Nullaway are added as annotation processors
+    // They will run during compilation but are configured to be non-blocking
     // Note: Gradle deprecation warnings during compileJava/compileTestJava:
     // - "Task.project at execution time" - caused by Spotless/SonarLint plugins using deprecated API
     // - "Project.javaexec(Action)" - caused by plugins using deprecated API

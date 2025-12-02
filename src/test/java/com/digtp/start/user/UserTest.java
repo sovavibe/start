@@ -38,18 +38,18 @@ class UserTest extends AbstractIntegrationTest {
 
     @Test
     void testSaveAndLoad() {
-        // Create and save a new User
+        // Arrange
         final User user = dataManager.create(User.class);
         user.setUsername("test-user-" + System.currentTimeMillis());
         user.setPassword(passwordEncoder.encode("test-passwd"));
+
+        // Act
         savedUser = dataManager.save(user);
-
-        // Check the new user can be loaded
         final User loadedUser = dataManager.load(User.class).id(user.getId()).one();
-        assertThat(loadedUser).isEqualTo(user);
-
-        // Check the new user is available through UserRepository
         final UserDetails userDetails = userRepository.loadUserByUsername(user.getUsername());
+
+        // Assert
+        assertThat(loadedUser).isEqualTo(user);
         assertThat(userDetails).isEqualTo(user);
     }
 
