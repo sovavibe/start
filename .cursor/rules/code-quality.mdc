@@ -10,7 +10,29 @@ version: "5.0.0"
 Virtual threads, pattern matching, records (5+ params → Builder), text blocks
 
 ## METRICS
-**Limits**: 250 lines/file, 10 cyclomatic, 10 cognitive complexity | **If exceeded**: Refactor (extract methods, split files) | **Formatting**: 100 chars/line, Palantir Java Format (Spotless) | **Suppressions**: Document why, fix root cause
+**Limits**: 250 lines/file, 10 cyclomatic, 10 cognitive complexity | **If exceeded**: Refactor (extract methods, split files) | **Formatting**: 120 chars/line (Palantir Style Guide standard), Palantir Java Format (Spotless via Baseline) | **Suppressions**: Document why, fix root cause
+
+**Reference**: [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md)
+
+## CHECKSTYLE SUPPRESSIONS (Palantir Baseline)
+- **Per-line/block**: `@SuppressWarnings("checkstyle:rulename")` (lowercase, without "Check" suffix)
+  - Example: `@SuppressWarnings("checkstyle:magicnumber")`
+- **Comments**: `// CHECKSTYLE:OFF` ... `// CHECKSTYLE:ON` (for checks like IllegalImport)
+- **File-level**: Add to `.baseline/checkstyle/custom-suppressions.xml` (NOT `checkstyle-suppressions.xml` - it's auto-generated)
+- **Best practice**: Format code first, then suppress only if necessary
+- **Reference**: [Palantir Baseline Checkstyle](https://github.com/palantir/gradle-baseline#compalantirbaseline-checkstyle)
+- Use `@suppress-policy.mdc` for comprehensive suppression guidelines (PMD, SpotBugs, Sonar, Checkstyle)
+
+## FORMATTING (Palantir Baseline)
+- **Format command**: `./gradlew format` (Palantir Baseline format task)
+- **Auto-configuration**: Palantir Baseline configures Spotless with:
+  - `importOrder` (Palantir default order)
+  - `removeUnusedImports`
+  - `trimTrailingWhitespace`
+  - `endWithNewline`
+  - `palantirJavaFormat` (2.68.0)
+- **Additional**: `cleanthat()`, `formatAnnotations()`, `lineEndings = 'UNIX'`
+- **Reference**: [Palantir Baseline Format](https://github.com/palantir/gradle-baseline#compalantirbaseline-format)
 
 ## STANDARDS
 SOLID, Clean Architecture, DRY, KISS | Final fields, immutable | Constructor injection | @Nullable/@NonNull | Validation: @Email, @NotNull, @Size | Senior+ level: production-ready, maintainable, testable

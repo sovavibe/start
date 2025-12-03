@@ -1,5 +1,6 @@
 ---
-alwaysApply: true
+globs: [".archive/**", "docs/**"]
+alwaysApply: false
 version: "1.0.0"
 ---
 

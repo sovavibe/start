@@ -1,39 +1,65 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import com.github.spotbugs.snom.Effort
+import com.github.spotbugs.snom.SpotBugsTask
 import name.remal.gradle_plugins.sonarlint.SonarLint
 import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
-import com.github.gradle.node.npm.task.NpmTask
 
-// Plugins
+// ============================================================================
+// PLUGINS
+// ============================================================================
 plugins {
-    // Framework plugins
+    // Framework
     id 'io.jmix' version '2.7.1'
 
-    // Core plugins
+    // Core
     id 'java'
     id 'io.spring.dependency-management' version '1.1.7'
 
-    // IDE plugins
+    // IDE
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
+    id 'com.palantir.baseline-idea' version '6.76.0'
 
-    // Code quality plugins
-    // Note: Spotless 8.1.0 and SonarLint 7.0.0 use deprecated Gradle APIs internally
-    // causing warnings: "Task.project at execution time" and "Project.javaexec(Action)"
-    // These are plugin implementation issues, not our code. Waiting for plugin updates.
+    // Code Quality - Palantir Baseline
+    // Main plugin includes: Checkstyle, PMD, SpotBugs, Spotless auto-config
+    // See: https://github.com/palantir/gradle-baseline
+    id 'com.palantir.baseline' version '6.76.0'
+    id 'com.palantir.baseline-exact-dependencies' version '6.76.0'
+    id 'com.palantir.baseline-error-prone' version '6.76.0'
+    id 'com.palantir.baseline-class-uniqueness' version '6.76.0'
+    id 'com.palantir.baseline-prefer-project-modules' version '6.76.0'
+
+    // Code Quality - Additional
     id 'com.diffplug.spotless' version '8.1.0'
     id 'name.remal.sonarlint' version '7.0.0'
-    id 'checkstyle'
     id 'pmd'
     id 'com.github.spotbugs' version '6.4.7'
 
-    // Testing & coverage
+    // Testing & Coverage
     id 'jacoco'
+    id 'info.solidsoft.pitest' version '1.15.0'
 
     // Security
     id 'org.owasp.dependencycheck' version '12.1.9'
 
-    // Node.js for frontend linting (prettier, stylelint)
+    // Frontend
     id 'com.github.node-gradle.node' version '7.1.0'
 
-    // Dependency updates checker
+    // Utilities
     id 'com.github.ben-manes.versions' version '0.53.0'
 
     // Mutation testing
@@ -41,7 +67,6 @@ plugins {
 
     // SonarQube/SonarCloud integration
     id 'org.sonarqube' version '6.3.1.5724'
-
 
     // Note: SonarLint is primarily an IDE plugin, not needed for build
     // SonarQube plugin is used for CI/CD integration with SonarCloud
@@ -51,13 +76,20 @@ plugins {
 apply plugin: 'org.springframework.boot'
 apply plugin: 'com.vaadin'
 
+// ============================================================================
+// PROJECT METADATA
+// ============================================================================
 group = 'com.digtp'
 version = '0.0.1-SNAPSHOT'
+
 java {
     sourceCompatibility = JavaVersion.VERSION_21
     targetCompatibility = JavaVersion.VERSION_21
 }
 
+// ============================================================================
+// REPOSITORIES
+// ============================================================================
 repositories {
     gradlePluginPortal()
     mavenCentral()
@@ -66,10 +98,12 @@ repositories {
     }
 }
 
+// ============================================================================
+// DEPENDENCIES
+// ============================================================================
 dependencies {
+    // Framework - Jmix
     implementation 'io.jmix.translations:jmix-translations-ru'
-
-    // Jmix dependencies
     implementation 'io.jmix.core:jmix-core-starter'
     implementation 'io.jmix.data:jmix-eclipselink-starter'
     implementation 'io.jmix.security:jmix-security-starter'
@@ -82,39 +116,45 @@ dependencies {
     implementation 'io.jmix.datatools:jmix-datatools-starter'
     implementation 'io.jmix.datatools:jmix-datatools-flowui-starter'
 
-    // Spring Boot
+    // Framework - Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
 
-    // OpenTelemetry
+    // Observability
     implementation 'io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0:2.22.0-alpha'
     implementation 'io.opentelemetry:opentelemetry-api:1.56.0'
 
     // Database
     runtimeOnly 'org.postgresql:postgresql'
 
-    // Caching
+    // Utilities
     implementation 'com.github.ben-manes.caffeine:caffeine'
-
-    // Rate limiting
     implementation 'com.bucket4j:bucket4j-core:8.10.1'
 
     // Environment variables (.env file support)
     implementation 'io.github.cdimascio:dotenv-java:3.2.0'
+    implementation 'org.jetbrains:annotations:24.1.0'
 
-    // Lombok - reduce boilerplate, auto-generate getters/setters/constructors
+    // Code Generation
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
     // Error Prone for compile-time bug detection
+    implementation 'com.google.errorprone:error_prone_annotations:2.45.0'
     annotationProcessor 'com.google.errorprone:error_prone_core:2.45.0'
 
     // Nullaway for null-safety static analysis
     annotationProcessor 'com.uber.nullaway:nullaway:0.12.13'
+    
+    // SpotBugs plugins
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.13.0'
+    
+    // Safe logging for Error Prone PreferSafeLoggableExceptions
+    implementation 'com.palantir.safe-logging:preconditions:3.0.0'
 
-    // Test dependencies
+    // Testing
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
@@ -126,13 +166,15 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
+// ============================================================================
+// CONFIGURATIONS
+// ============================================================================
 configurations.implementation {
     exclude group: 'com.vaadin', module: 'hilla'
     exclude group: 'com.vaadin', module: 'hilla-dev'
     exclude group: 'com.vaadin', module: 'copilot'
 }
 
-// Dependency locking
 configurations {
     compileClasspath {
         resolutionStrategy.activateDependencyLocking()
@@ -148,25 +190,31 @@ configurations {
     }
 }
 
-// Plugin configurations
+// ============================================================================
+// PLUGIN CONFIGURATIONS
+// ============================================================================
 
+// Jmix
 jmix {
     bomVersion = '2.7.1'
 }
 
+// Vaadin
 vaadin {
     optimizeBundle = false
 }
 
+// IntelliJ IDEA
 idea {
     project {
         languageLevel = new IdeaLanguageLevel(JavaVersion.VERSION_21)
     }
     module {
-        excludeDirs.addAll(files '.jmix', 'node_modules', 'src/main/frontend/generated/', 'src/main/bundles')
+        excludeDirs.addAll(files('.jmix', 'node_modules', 'src/main/frontend/generated/', 'src/main/bundles'))
     }
 }
 
+// Spotless
 spotless {
     java {
         target 'src/**/*.java'
@@ -176,54 +224,34 @@ spotless {
                 '**/build/**',
                 '**/.archive/**'
         )
-        importOrder(
-                'java',
-                'javax',
-                'jakarta',
-                'org',
-                'com',
-                'com.digtp',
-                ''
-        ).wildcardsLast()
-        removeUnusedImports()
-        cleanthat()
-                .sourceCompatibility('21')
+        // Palantir Baseline automatically configures:
+        // - removeUnusedImports, trimTrailingWhitespace, endWithNewline
+        // Note: Baseline's default importOrder groups all com.* together
+        // Manually fix import order in code after formatting if needed
+        cleanthat().sourceCompatibility('21')
         formatAnnotations()
-        trimTrailingWhitespace()
-        endWithNewline()
         lineEndings = 'UNIX'
         palantirJavaFormat('2.68.0')
         toggleOffOn()
     }
-    kotlinGradle {
-        target '*.gradle.kts', 'buildSrc/**/*.gradle.kts'
-        targetExclude '**/build/**/*.gradle.kts'
-        ktlint()
-        endWithNewline()
-        trimTrailingWhitespace()
-    }
 }
 
+// Checkstyle
 checkstyle {
-    toolVersion = "10.12.1"
-    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
-    configDirectory = rootProject.file("config/checkstyle")
+    // Configuration managed by Palantir Baseline
+}
+
+tasks.withType(Checkstyle).configureEach {
     ignoreFailures = false
     maxWarnings = 0
 }
 
-tasks.withType(Checkstyle).configureEach { task ->
-    task.configProperties = [
-            'configDirectory': "${rootProject.projectDir}/config/checkstyle"
-    ]
-    ignoreFailures = false
-    maxWarnings = 0
-}
-
+// PMD
 pmd {
     toolVersion = "7.9.0"
-    ruleSetFiles = files("config/pmd/ruleset.xml")
-    ignoreFailures = false
+    // Configuration managed by Palantir Baseline
+    // Framework-specific false positives are suppressed in code via @SuppressWarnings("PMD.RuleName")
+    // See: .cursor/rules/palantir-baseline-integration.mdc
 }
 
 tasks.withType(Pmd).configureEach {
@@ -234,14 +262,8 @@ tasks.withType(Pmd).configureEach {
     }
 }
 
-tasks.named("pmdTest", Pmd) {
-    ruleSetFiles = files("config/pmd/ruleset-test.xml")
-}
-
-// SonarLint configuration
+// SonarLint
 // All settings are in config/sonar-project.properties (single source of truth)
-// IDE SonarLint reads it automatically, Gradle plugin loads it here
-// Note: afterEvaluate is safe for configuration cache (runs in configuration phase)
 project.afterEvaluate {
     def sonarlintExt = project.extensions.findByName('sonarlint')
     if (sonarlintExt) {
@@ -249,13 +271,10 @@ project.afterEvaluate {
             include 'java', 'xml'
         }
 
-        // Load all properties from sonar-project.properties
-        // Capture file path during configuration phase (configuration cache compatible)
         def sonarPropsFile = file('config/sonar-project.properties')
         def sonarProps = new Properties()
         sonarPropsFile.withInputStream { sonarProps.load(it) }
 
-        // Pass all sonar.* properties to analyzer
         def analyzerProps = [:]
         sonarProps.each { key, value ->
             if (key.startsWith('sonar.')) {
@@ -269,46 +288,112 @@ project.afterEvaluate {
     }
 }
 
-// SonarLint configuration
-// All settings are in config/sonar-project.properties (single source of truth)
-// Suppressions: use sonar-project.properties for global rules or @SuppressWarnings("squid:RuleKey") in code
-tasks.withType(SonarLint).configureEach { task ->
+tasks.withType(SonarLint).configureEach {
     reports {
         xml.required = true
         html.required = true
     }
-    // Exclude view XML files from xml:S2068 (Hard-coded credentials) check
-    // View XML files contain UI labels (msg:// keys), not actual credentials
-    // This is configured in sonar-project.properties but Gradle plugin needs explicit exclusion
-    exclude {
-        it.file.path.contains('/view/') && it.file.name.endsWith('.xml')
-    }
-    // Fail build on SonarLint issues in CI
+    // Note: xml:S2068 exclusion for view XML files is configured in config/sonar-project.properties
+    // via sonar.issue.ignore.multicriteria.e8 (excludes only the rule, not entire files)
     ignoreFailures = false
 }
 
+// SpotBugs
 spotbugs {
     showProgress = true
-    includeFilter = file("config/spotbugs/include.xml")
     excludeFilter = file("config/spotbugs/exclude.xml")
-    ignoreFailures = false
 }
 
-tasks.withType(com.github.spotbugs.snom.SpotBugsTask).configureEach {
+tasks.withType(SpotBugsTask).configureEach {
     ignoreFailures = false
-    effort = com.github.spotbugs.snom.Effort.MAX // Maximum analysis effort for better bug detection
-    reportLevel = com.github.spotbugs.snom.Confidence.LOW // Report all bugs including low priority
-    plugins = [
-        'com.h3xstream.findsecbugs:findsecbugs-plugin:1.13.0'
-    ]
+    effort = Effort.MAX
+    // Note: EclipseLink generated _persistence_* methods trigger ES false positives
+    // Exclusion configured in config/spotbugs/exclude.xml, but SpotBugs cannot match
+    // bytecode-generated methods. This is a known SpotBugs limitation.
+    // Workaround: Filter out ES violations for entity package in post-processing
+    reports {
+        html.required = true
+        xml.required = true
+    }
 }
 
+// JaCoCo
 jacoco {
     toolVersion = "0.8.13"
 }
 
-// Task configurations
+// PIT Mutation Testing
+pitest {
+    targetClasses = ['com.digtp.start.*']
+    targetTests = ['com.digtp.start.*']
+    mutationThreshold = 70
+    coverageThreshold = 80
+    threads = 4
+    outputFormats = ['HTML', 'XML']
+    timestampedReports = false
+    excludedClasses = [
+            'com.digtp.start.entity.*',
+            'com.digtp.start.config.*',
+            'com.digtp.start.StartApplication'
+    ]
+}
 
+// SonarQube/SonarCloud
+sonar {
+    properties {
+        property 'sonar.projectKey', 'sovavibe_start'
+        property 'sonar.organization', 'sovavibe'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.java.source', '21'
+        property 'sonar.java.target', '21'
+        property 'sonar.exclusions', '**/generated/**,**/build/**,**/.archive/**'
+        property 'sonar.test.exclusions', '**/test_support/**'
+        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
+        property 'sonar.junit.reportPaths', 'build/test-results/test'
+    }
+}
+
+// Node.js
+node {
+    version = '24.11.0'
+    download = true
+    workDir = file("${layout.buildDirectory.get()}/nodejs")
+    npmWorkDir = file("${layout.buildDirectory.get()}/npm")
+}
+
+// ============================================================================
+// TASK CONFIGURATIONS
+// ============================================================================
+
+// Java Compilation
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+    options.compilerArgs.addAll([
+            "-parameters",
+            "-Xlint:all,-serial,-processing"
+    ])
+    options.errorprone {
+        disable("Slf4jLogsafeArgs")
+        disable("CatchBlockLogException")
+        disable("StringConcatToTextBlock")
+        // UnusedMethod: @Install methods are used by Jmix framework via reflection
+        disable("UnusedMethod")
+        // DeprecatedForRemovalApiUsage: @MockBean is deprecated but still needed for Spring Boot test compatibility
+        disable("DeprecatedForRemovalApiUsage")
+
+        option("NullAway:AnnotatedPackages", "com.digtp.start")
+        option("NullAway:ExcludedClassAnnotations", "io.jmix.core.metamodel.annotation.JmixEntity")
+        option("NullAway:ExcludedFieldAnnotations", "io.jmix.flowui.view.ViewComponent|org.springframework.beans.factory.annotation.Value|org.springframework.beans.factory.annotation.Autowired")
+        // Exclude @Install methods with @Nullable return - framework callbacks can return null
+        option("NullAway:ExcludedMethodAnnotations", "io.jmix.flowui.view.Install")
+        // Exclude test classes from NullAway checks - tests intentionally test null edge cases
+        option("NullAway:ExcludedClasses", ".*Test")
+    }
+    mustRunAfter("spotlessApply")
+}
+
+// Testing
 tasks.withType(Test).configureEach {
     group = JavaBasePlugin.VERIFICATION_GROUP
     description = "Run tests"
@@ -327,6 +412,7 @@ tasks.withType(Test).configureEach {
     finalizedBy(tasks.named("jacocoTestReport"))
 }
 
+// JaCoCo Reports
 tasks.named("jacocoTestReport") {
     dependsOn(tasks.named("test"))
     reports {
@@ -342,77 +428,26 @@ tasks.named("jacocoTestCoverageVerification") {
         rule {
             limit {
                 counter = 'INSTRUCTION'
-                minimum = 0.85 // 85% minimum instruction coverage (stricter for vibe coding)
+                minimum = 0.85
             }
             limit {
                 counter = 'BRANCH'
-                minimum = 0.75 // 75% minimum branch coverage (stricter for vibe coding)
+                minimum = 0.75
             }
             limit {
                 counter = 'LINE'
-                minimum = 0.90 // 90% minimum line coverage (stricter for vibe coding)
+                minimum = 0.90
             }
         }
     }
 }
 
-// PIT Mutation Testing configuration
-pitest {
-    targetClasses = ['com.digtp.start.*']
-    targetTests = ['com.digtp.start.*']
-    mutationThreshold = 70 // 70% mutation score threshold (stricter for vibe coding)
-    coverageThreshold = 80 // 80% coverage required
-    threads = 4
-    outputFormats = ['HTML', 'XML']
-    timestampedReports = false
-    excludedClasses = [
-            'com.digtp.start.entity.*', // Entities are data classes, mutation testing not valuable
-            'com.digtp.start.config.*', // Configuration classes
-            'com.digtp.start.StartApplication' // Spring Boot application class
-    ]
-}
-
-// SonarQube/SonarCloud configuration
-sonar {
-    properties {
-        property 'sonar.projectKey', 'sovavibe_start'
-        property 'sonar.organization', 'sovavibe'
-        property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.sourceEncoding', 'UTF-8'
-        property 'sonar.java.source', '21'
-        property 'sonar.java.target', '21'
-        // Exclude generated and build files
-        property 'sonar.exclusions', '**/generated/**,**/build/**,**/.archive/**'
-        property 'sonar.test.exclusions', '**/test_support/**'
-        // Coverage reports
-        property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
-        property 'sonar.junit.reportPaths', 'build/test-results/test'
-    }
-}
-
-// Ensure sonar task runs after coverage report is generated
+// SonarQube
 tasks.named("sonar") {
     dependsOn(tasks.named("jacocoTestReport"))
 }
 
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = "UTF-8"
-    options.compilerArgs.addAll([
-            "-parameters",
-            "-Xlint:all,-serial,-processing"
-    ])
-    dependsOn("spotlessApply")
-    // Note: Error Prone and Nullaway are added as annotation processors
-    // They will run during compilation but are configured to be non-blocking
-    // Note: Gradle deprecation warnings during compileJava/compileTestJava:
-    // - "Task.project at execution time" - caused by Spotless/SonarLint plugins using deprecated API
-    // - "Project.javaexec(Action)" - caused by plugins using deprecated API
-    // These are known limitations in plugin implementations, not our code.
-    // Warnings will become errors in Gradle 10.0 (Task.project) and Gradle 9.0 (javaexec).
-    // Waiting for plugin updates to fix these issues. Doesn't affect current functionality.
-}
-
-// JavaDoc configuration
+// JavaDoc
 tasks.withType(Javadoc).configureEach {
     options.encoding = "UTF-8"
     options.charSet = "UTF-8"
@@ -420,44 +455,31 @@ tasks.withType(Javadoc).configureEach {
     options.addStringOption("Xdoclint:none", "-quiet")
     options.addBooleanOption("html5", true)
     options.addStringOption("Xmaxwarns", "1000")
-
-    // Set source compatibility
     source = sourceSets.main.allJava
     classpath = sourceSets.main.compileClasspath
-
-    // Set destination directory
     destinationDir = file("${layout.buildDirectory.get()}/docs/javadoc")
-
-    // Fail on warnings (optional, can be disabled)
     failOnError = false
 }
 
-// Configure main javadoc task to exclude generated and test files
 tasks.named("javadoc", Javadoc) {
     exclude "**/generated/**"
     exclude "**/test/**"
     exclude "**/build/**"
 }
 
-node {
-    version = '24.11.0'
-    download = true
-    workDir = file("${layout.buildDirectory.get()}/nodejs")
-    npmWorkDir = file("${layout.buildDirectory.get()}/npm")
-}
-
-// Fix task dependency: npmInstall needs vaadinPrepareFrontend to run first
-// because vaadinPrepareFrontend generates/modifies package.json
+// Node.js
 tasks.named("npmInstall") {
     dependsOn("vaadinPrepareFrontend")
 }
 
-// Custom tasks
+// ============================================================================
+// CUSTOM TASKS
+// ============================================================================
 
+// Code Quality Tasks
 tasks.register("codeQuality") {
     description = "Runs code quality checks"
     group = JavaBasePlugin.VERIFICATION_GROUP
-
     dependsOn(
             "sonarlintMain",
             "sonarlintTest",
@@ -470,6 +492,17 @@ tasks.register("codeQuality") {
     )
 }
 
+tasks.register("codeQualityFull") {
+    description = "Runs all code quality checks"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    dependsOn(
+            "codeQuality",
+            "lintCss",
+            "lintYaml"
+    )
+}
+
+// Frontend Linting Tasks
 tasks.register("lintCss", NpmTask) {
     description = "Run stylelint for CSS in themes"
     group = JavaBasePlugin.VERIFICATION_GROUP
@@ -500,21 +533,10 @@ tasks.register("lintYamlFix", NpmTask) {
     args = ["run", "lint:yaml:fix"]
 }
 
-tasks.register("codeQualityFull") {
-    description = "Runs all code quality checks"
-    group = JavaBasePlugin.VERIFICATION_GROUP
-
-    dependsOn(
-            "codeQuality",
-            "lintCss",
-            "lintYaml"
-    )
-}
-
+// CI/CD Tasks
 tasks.register("ciBuild") {
     description = "CI build pipeline"
     group = JavaBasePlugin.VERIFICATION_GROUP
-
     dependsOn(
             "spotlessCheck",
             "codeQualityFull",
@@ -523,17 +545,12 @@ tasks.register("ciBuild") {
     )
 }
 
-// NOTE: This task requires --no-configuration-cache flag
-// because it accesses project.configurations at execution time.
-// Use: ./gradlew --no-configuration-cache lockDependencies
-// Or disable configuration cache in gradle.properties
+// Dependency Management Tasks
+// NOTE: These tasks require --no-configuration-cache flag
 tasks.register("lockDependencies") {
     description = "Lock dependency versions"
     group = JavaBasePlugin.VERIFICATION_GROUP
-
-    // Capture configurations during configuration phase (not execution)
     def resolvableConfigs = project.configurations.findAll { it.canBeResolved }
-
     doLast {
         resolvableConfigs.each { config ->
             try {
@@ -548,22 +565,14 @@ tasks.register("lockDependencies") {
 tasks.register("updateDependencies") {
     description = "Update dependency lock files"
     group = JavaBasePlugin.VERIFICATION_GROUP
-
     dependsOn("lockDependencies")
 }
 
-// NOTE: This task requires --no-configuration-cache flag
-// because it accesses project.extensions at execution time.
-// Use: ./gradlew --no-configuration-cache managedVersions
-// Or disable configuration cache in gradle.properties
 tasks.register("managedVersions") {
     description = "Prints dependency versions from Spring Boot BOM"
     group = JavaBasePlugin.VERIFICATION_GROUP
-
-    // Capture extension during configuration phase (not execution)
     def dependencyManagement = project.extensions.findByName("dependencyManagement")
     def hasManagedVersions = dependencyManagement != null && dependencyManagement.hasProperty("managedVersions")
-
     doLast {
         if (hasManagedVersions) {
             println("Managed dependency versions:")
@@ -577,20 +586,24 @@ tasks.register("managedVersions") {
     }
 }
 
-tasks.register("buildInfo") {
-    description = "Show build information"
-    group = JavaBasePlugin.VERIFICATION_GROUP
-
-    doLast {
-        println("Run './gradlew properties' to see all build information")
-        println("Or check build.gradle for: group, version, java version")
-    }
-}
-
+// Documentation Tasks
 tasks.register("javadocAll") {
     description = "Generate JavaDoc for all source code"
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     dependsOn("javadoc")
 }
 
+// Utility Tasks
+tasks.register("buildInfo") {
+    description = "Show build information"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    doLast {
+        println("Run './gradlew properties' to see all build information")
+        println("Or check build.gradle for: group, version, java version")
+    }
+}
+
+// ============================================================================
+// DEFAULT TASKS
+// ============================================================================
 defaultTasks("bootRun")

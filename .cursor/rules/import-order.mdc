@@ -6,8 +6,8 @@ version: "1.0.0"
 
 # IMPORT ORDER
 
-## STANDARD ORDER (Spotless/Palantir Java Format)
-Order enforced by Spotless in `build.gradle`:
+## STANDARD ORDER (Palantir Baseline)
+Order automatically enforced by `com.palantir.baseline` plugin via Spotless:
 1. `java.*` - Java standard library
 2. `javax.*` - Legacy Java extensions
 3. `jakarta.*` - Jakarta EE (replaces javax)
@@ -15,6 +15,8 @@ Order enforced by Spotless in `build.gradle`:
 5. `com.*` - Third-party libraries
 6. `com.digtp.*` - Project packages
 7. Static imports last
+
+**Note**: Palantir Baseline automatically configures `importOrder` in Spotless. No manual configuration needed.
 
 ## DETAILED ORDERING WITHIN GROUPS
 
@@ -83,6 +85,17 @@ import com.digtp.start.test_support.AuthenticatedAsAdmin;
 - ✅ No blank lines within same group
 - ✅ Alphabetical order within each group
 
-## SPOTLESS ENFORCEMENT
-Import order is automatically enforced by Spotless/Palantir Java Format.
-Run `./gradlew spotlessApply` to auto-format imports.
+## PALANTIR BASELINE ENFORCEMENT
+Import order is automatically enforced by Palantir Baseline via Spotless.
+- Run `./gradlew format` to auto-format all Java files (includes imports, unused imports removal, whitespace)
+- Run `./gradlew spotlessApply` for Spotless-only formatting
+- Palantir Baseline automatically configures: `importOrder`, `removeUnusedImports`, `trimTrailingWhitespace`, `endWithNewline`
+
+**Note**: Palantir Baseline's default import order groups all `com.*` imports together (including `com.digtp.*`).
+This is the standard Baseline behavior and is acceptable for this project.
+According to Palantir Java Style Guide, project imports (`com.digtp.*`) should ideally come after third-party `com.*` imports,
+but Baseline's automatic grouping is a practical compromise that works well in practice.
+
+**References**:
+- [Palantir Baseline Format](https://github.com/palantir/gradle-baseline#compalantirbaseline-format)
+- [Palantir Java Style Guide - Import Statements](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md#import-statements)

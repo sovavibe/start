@@ -23,6 +23,12 @@ src/main/bundles/
 out/
 /target/
 
+# Palantir Baseline
+.baseline/
+# But commit important configuration files
+!.baseline/copyright/
+!.baseline/checkstyle/custom-suppressions.xml
+
 # VS Code
 .vscode/
 

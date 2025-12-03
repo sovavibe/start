@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 autoFix: false
 version: "1.0.0"
 ---

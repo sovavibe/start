@@ -1,0 +1,193 @@
+---
+globs: ["**/*.java", "build.gradle", "config/spotbugs/**", "config/sonar-project.properties", ".baseline/**"]
+alwaysApply: false
+autoFix: false
+version: "1.0.0"
+---
+
+# SUPPRESSION POLICY
+
+## PRINCIPLES
+
+**Vibe Coding**: Minimal suppressions, maximum code quality | **Token Economy**: Optimize suppression usage | **Framework-Specific**: Only suppress Jmix/Vaadin/Lombok false positives | **Local First**: Prefer inline `@SuppressWarnings` over global configs
+
+## WHEN TO SUPPRESS
+
+### ✅ Use Inline `@SuppressWarnings` (Preferred)
+
+**When**: Framework-specific false positives that cannot be fixed in code
+
+**How**:
+```java
+// Framework pattern: Jmix views extend multiple framework classes
+@SuppressWarnings("java:S110")
+public class UserDetailView extends StandardDetailView<User> {
+    // ...
+}
+```
+
+**Requirements**:
+- ✅ **Always include justification comment** explaining why suppression is needed
+- ✅ **Be specific**: Use exact rule name (`PMD.RuleName`, `java:S110`, `checkstyle:rulename`)
+- ✅ **Minimal scope**: Suppress only what's necessary (method > class > package)
+- ✅ **Framework-specific**: Only for Jmix/Vaadin/Lombok patterns, not general code quality issues
+
+**Examples**:
+- Jmix View lifecycle methods (`onInit`, `onReady`, `onBeforeSave`)
+- Lombok-generated code (`@RequiredArgsConstructor`, `@Getter/@Setter`)
+- Framework serialization patterns (views, entities)
+- Test-specific patterns (reflection, null assignments)
+
+### ✅ Use Centralized Configs (SpotBugs, Sonar, Checkstyle)
+
+**When**: Mass framework patterns that cannot be handled inline
+
+**Where**:
+- **SpotBugs**: `config/spotbugs/exclude.xml` - EclipseLink bytecode, Lombok collections, test patterns
+- **Sonar**: `config/sonar-project.properties` - Jmix/Vaadin view patterns, Lombok methods
+- **Checkstyle**: `.baseline/checkstyle/custom-suppressions.xml` - Framework view patterns, Lombok javadoc
+
+**Requirements**:
+- ✅ **Narrow scope**: Use package/class patterns (`.*/view/.*View\.java$`, `.*/entity/.*\.java$`)
+- ✅ **Documented**: Each exclusion has justification comment
+- ✅ **Framework-only**: Never suppress for services, configs, or business logic
+
+### ❌ NEVER Use Global Rule Disabling
+
+**Forbidden**:
+- ❌ **PMD**: `pmd { ruleSetFiles = ... }` - completely overrides Baseline defaults
+- ❌ **PMD**: Global rule exclusions in custom ruleset
+- ❌ **Checkstyle**: Global suppressions for non-framework code
+- ❌ **Error Prone**: Disabling checks without justification
+
+**Why**: Loses Baseline advantages, hides real bugs, makes maintenance harder
+
+## TOKEN OPTIMIZATION
+
+### Minimize Suppressions
+
+1. **Fix code first**: Refactor to avoid suppression when possible
+2. **Use Baseline defaults**: Let Palantir Baseline handle common patterns
+3. **Local over global**: Prefer inline `@SuppressWarnings` over central configs
+4. **Document why**: Every suppression needs justification comment
+
+### Suppression Hierarchy (Most to Least Preferred)
+
+1. **Fix the code** - Best option, no suppression needed
+2. **Inline `@SuppressWarnings`** - Visible, local, documented
+3. **Central config (narrow scope)** - Only for mass framework patterns
+4. **Global rule disabling** - ❌ NEVER (except Baseline-managed)
+
+## FRAMEWORK-SPECIFIC PATTERNS
+
+### Jmix/Vaadin Views
+
+```java
+// Framework pattern: Jmix views extend multiple framework classes
+@SuppressWarnings("java:S110")
+// Framework pattern: Lifecycle methods may have same names as parent
+@SuppressWarnings("java:S2177")
+// Framework pattern: @ViewComponent fields are framework-managed
+@SuppressWarnings("java:S1948")
+private MessageBundle messageBundle;
+```
+
+### Lombok Entities
+
+```java
+// Framework pattern: Lombok @RequiredArgsConstructor generates constructor
+@SuppressWarnings("PMD.AtLeastOneConstructor")
+// Framework pattern: Lombok generates getters/setters, no javadoc needed
+// (Handled via Checkstyle custom-suppressions.xml for entity package)
+```
+
+### EclipseLink Entities
+
+```java
+// Framework pattern: EclipseLink generates _persistence_* methods
+// (Handled via SpotBugs exclude.xml for entity package - ES, EI patterns)
+```
+
+### Tests
+
+```java
+// Test pattern: Reflection for testing framework behavior
+@SuppressWarnings("PMD.AvoidAccessibilityAlteration")
+// Test pattern: Null assignments for cleanup
+@SuppressWarnings("PMD.NullAssignment")
+```
+
+## QUALITY GATES
+
+### Strict Enforcement
+
+- ✅ **CI fails on violations**: `ignoreFailures = false` for all tools (Checkstyle, PMD, SpotBugs, SonarLint)
+- ✅ **Coverage thresholds**: JaCoCo 85% instruction, 75% branch, 90% line
+- ✅ **Mutation testing**: PIT 70% mutation threshold, 80% coverage threshold
+- ✅ **SonarCloud**: Quality gates enforced in CI (complexity max 10, duplication threshold 50 tokens)
+- ✅ **CI pipeline**: `ciBuild` task runs `spotlessCheck`, `codeQualityFull`, `test`, `build` - all must pass
+
+### Suppressions Must Not Weaken Quality Gates
+
+- ❌ Never suppress to pass quality gates
+- ❌ Never use global suppressions to hide real issues
+- ✅ Suppress only framework-specific false positives
+- ✅ Document every suppression with justification
+
+## EXAMPLES
+
+### ✅ Good: Local, Documented, Framework-Specific
+
+```java
+@SuppressWarnings({
+    "PMD.CommentSize", // Copyright header is standard and required (Apache License)
+    "PMD.MissingSerialVersionUID" // Jmix views don't need serialVersionUID
+})
+public class UserDetailView extends StandardDetailView<User> {
+    // ...
+}
+```
+
+### ❌ Bad: Global, Undocumented, Hides Real Issues
+
+```java
+// In build.gradle - DON'T DO THIS
+pmd {
+    ruleSetFiles = files("config/pmd/custom-ruleset.xml") // Overrides Baseline!
+}
+```
+
+### ✅ Good: Central Config for Mass Framework Pattern
+
+```xml
+<!-- config/spotbugs/exclude.xml -->
+<Match>
+    <Class name="~com\.digtp\.start\.entity\..*"/>
+    <Bug pattern="ES"/> <!-- EclipseLink generated _persistence_* methods -->
+</Match>
+```
+
+### ❌ Bad: Central Config for General Code
+
+```xml
+<!-- DON'T DO THIS -->
+<Match>
+    <Class name="~com\.digtp\.start\.service\..*"/>
+    <Bug pattern="EI"/> <!-- This hides real bugs in services! -->
+</Match>
+```
+
+## MAINTENANCE
+
+### Review Suppressions Regularly
+
+1. **On Baseline update**: Check if new Baseline version handles old suppressions
+2. **On framework update**: Verify Jmix/Vaadin patterns still need suppressions
+3. **Code review**: Question every new suppression - is it really needed?
+
+### Remove Redundant Suppressions
+
+- ✅ Remove suppressions when code is refactored to avoid them
+- ✅ Remove suppressions when Baseline/framework handles them
+- ✅ Consolidate duplicate suppressions
+
