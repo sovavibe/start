@@ -23,6 +23,18 @@ Virtual threads, pattern matching, records (5+ params → Builder), text blocks
 - **Reference**: [Palantir Baseline Checkstyle](https://github.com/palantir/gradle-baseline#compalantirbaseline-checkstyle)
 - Use `@suppress-policy.mdc` for comprehensive suppression guidelines (PMD, SpotBugs, Sonar, Checkstyle)
 
+## FQN (FULLY QUALIFIED NAMES) CHECK
+- **Rule**: `AvoidFullyQualifiedNames` (Checkstyle RegexpSinglelineJava)
+- **Location**: `.baseline/checkstyle/checkstyle.xml` (TreeWalker section)
+- **Purpose**: Enforces use of imports instead of fully qualified names in code
+- **Pattern**: Universal - catches any FQN pattern `package.subpackage.Class` or `package.subpackage.method` (minimum 2 dots)
+- **Example violations**: 
+  - `io.jmix.flowui.view.View<?> loginView` → should use `View<?> loginView` with import
+  - `java.lang.reflect.Method method` → should use `Method method` with import
+  - `org.mockito.Mockito.mock(...)` → should use static import `mock(...)`
+- **Exclusions**: Imports and package declarations are automatically excluded via regex negative lookahead
+- **Suppression**: `@SuppressWarnings("checkstyle:avoidfullyqualifiednames")` if truly necessary (rare)
+
 ## FORMATTING (Palantir Baseline)
 - **Format command**: `./gradlew format` (Palantir Baseline format task)
 - **Auto-configuration**: Palantir Baseline configures Spotless with:
