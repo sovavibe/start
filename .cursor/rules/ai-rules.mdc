@@ -9,20 +9,24 @@ version: "2.0.0"
 ## PRINCIPLES
 Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor, not workarounds | Autonomous end-to-end | Use context7 MCP docs | Check compilation | Verify linters via `make analyze-full`
 
+**Vibe Coding**: Minimal suppressions, maximum code quality | **Token Economy**: Optimize rule usage | **Framework-Specific**: Suppressions only for Jmix/Vaadin/Lombok false positives | **Local First**: Prefer inline `@SuppressWarnings` over global configs
+
 ## CODE GENERATION
-**Spring**: @Service in service/, @Component in config/ | **Jmix**: See jmix-best-practices.mdc | **Lombok**: @Slf4j, @RequiredArgsConstructor, @Getter/@Setter, @FieldDefaults, @EqualsAndHashCode(onlyExplicitlyIncluded=true) | **Validation**: @NonNull/@Nullable, service layer, Bean Validation
+**Spring**: @Service in service/, @Component in config/ | **Jmix**: Use `@jmix-best-practices.mdc` | **Lombok**: @Slf4j, @RequiredArgsConstructor, @Getter/@Setter, @FieldDefaults, @EqualsAndHashCode(onlyExplicitlyIncluded=true) | **Validation**: @NonNull/@Nullable, service layer, Bean Validation | **Copyright**: Apache License 2.0, Digital Technologies and Platforms LLC | `./gradlew format` auto-adds copyright headers
 
 ## ERRORS
-**Compilation**: Fix immediately, check imports, verify annotations | **Linters**: Fix all before completion, use `make analyze-full` | **Suppressions**: Document why - `@SuppressWarnings("squid:RuleKey") // Reason: explanation` | ❌ ignoreFailures, global suppressions | Fix root cause, not symptoms
+**Compilation**: Fix immediately, check imports, verify annotations | **Linters**: Fix all before completion, use `make analyze-full` | **Suppressions**: Document why - `@SuppressWarnings("squid:RuleKey") // Reason: explanation` | **Checkstyle**: Use `@SuppressWarnings("checkstyle:rulename")` or `// CHECKSTYLE:OFF/ON` | **Custom suppressions**: Add to `.baseline/checkstyle/custom-suppressions.xml` (NOT `checkstyle-suppressions.xml`) | ❌ ignoreFailures, global suppressions | Fix root cause, not symptoms | Use `@suppress-policy.mdc` for comprehensive guidelines
 
 ## DOCUMENTATION (STRICT)
 ❌ Create docs unless EXPLICITLY requested | ❌ Summaries, "for reference", completion reports, plans, duplicates | ✅ Only when user asks: "create docs", "document this", "write README" | ✅ Check existing first, update instead of duplicate | ✅ Place in `docs/` (not `.archive/`) | ✅ ONE concise file if needed | Focus on code, not docs
 
 ## WORKFLOW
-**Commands**: `make analyze-full` (not `./gradlew codeQualityFull`), `make test`, `make format` | **Process**: Understand → Search codebase → Implement → Compile → Linters (end) → Test | **Before completion**: Compiles, linters pass, follows conventions, production-ready
+**Commands**: `make analyze-full` (not `./gradlew codeQualityFull`), `make test`, `./gradlew format` (Palantir Baseline) | **Process**: Understand → Search codebase → Implement → Compile → Linters (end) → Test | **Before completion**: Compiles, linters pass, follows conventions, production-ready
+
+**Formatting**: Use `./gradlew format` (Palantir Baseline format task) or `./gradlew spotlessApply` (Spotless only). Palantir Baseline automatically configures Spotless with import order, unused imports removal, and other formatting rules.
 
 ## CI/CD BEST PRACTICES
 **GitHub Actions**: Use latest stable versions, pin major versions (v5, v6), enable caching | **Parallelization**: Split jobs (format-check, code-quality, test, build) for faster execution | **Timeouts**: Set timeouts for all jobs (10-30 min) | **Dependabot**: Group updates, limit PRs, monthly schedule, auto-merge safe updates | **Security**: Use GITHUB_TOKEN, scan dependencies (Trivy, OWASP), upload SARIF reports
 
 ## CONTEXT
-Search codebase first | Follow existing patterns | Use context7 MCP docs | Maintain consistency | See rules.mdc for security, logging, testing, prohibitions, metrics
+Search codebase first | Follow existing patterns | Use context7 MCP docs | Maintain consistency | Use `@rules.mdc` for security, logging, testing, prohibitions, metrics

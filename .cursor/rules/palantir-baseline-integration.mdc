@@ -1,0 +1,62 @@
+---
+globs: ["**/*.java", "build.gradle", "config/spotbugs/**", "config/sonar-project.properties", ".baseline/**"]
+alwaysApply: false
+autoFix: false
+version: "1.0.0"
+---
+
+# PALANTIR BASELINE INTEGRATION
+
+## APPLIED PLUGINS
+- `com.palantir.baseline` (6.76.0) - Checkstyle, PMD, SpotBugs, Spotless auto-config
+- `com.palantir.baseline-idea` (6.76.0) - IntelliJ IDEA config
+- `com.palantir.baseline-exact-dependencies` (6.76.0) - checkUnusedDependencies, checkImplicitDependencies
+- `com.palantir.baseline-error-prone` (6.76.0) - Error-prone static analysis
+- `com.palantir.baseline-class-uniqueness` (6.76.0) - Check duplicate classes in classpath
+- `com.palantir.baseline-prefer-project-modules` (6.76.0) - Prefer project modules
+
+## CONFIGURATION
+**Checkstyle**: Baseline manages automatically via `.baseline/checkstyle/checkstyle.xml` | Custom suppressions in `.baseline/checkstyle/custom-suppressions.xml` (NOT `checkstyle-suppressions.xml` - auto-generated) | **PMD**: ✅ Baseline defaults are used (DO NOT use `ruleSetFiles` - it overrides Baseline), specific suppressions via `@SuppressWarnings("PMD.RuleName")` in code | **SpotBugs**: Baseline defaults are used, only specific exclusions for Lombok/Jmix in `config/spotbugs/exclude.xml`
+
+**Suppression Policy**: Use `@suppress-policy.mdc` for comprehensive guidelines on when and how to suppress static analysis warnings.
+
+## FORMATTING
+- **Command**: `./gradlew format` (Baseline format task) - formats Java files
+- **Spotless**: Baseline automatically configures `importOrder`, `removeUnusedImports`, `trimTrailingWhitespace`, `endWithNewline`
+- **Additional**: `cleanthat()`, `formatAnnotations()`, `lineEndings = 'UNIX'`, `palantirJavaFormat('2.68.0')`
+- **Priority**: Auto-format (Palantir Java Format) takes precedence over Checkstyle indentation rules
+- **Note**: Checkstyle Indentation checks are suppressed to prioritize auto-formatting (see custom-suppressions.xml)
+
+## CHECKSTYLE SUPPRESSIONS
+- **Per-line/block**: `@SuppressWarnings("checkstyle:rulename")` (lowercase, without "Check")
+- **Comments**: `// CHECKSTYLE:OFF` ... `// CHECKSTYLE:ON` (for IllegalImport, etc.)
+- **File-level**: `.baseline/checkstyle/custom-suppressions.xml` (NOT `checkstyle-suppressions.xml`)
+
+## COPYRIGHT
+- **Templates**: `.baseline/copyright/*.txt` | Largest file (lexicographically) is used for new files
+- **Current template**: `001_apache-2.0.txt` - Apache License 2.0 with Digital Technologies and Platforms LLC copyright
+- **Update**: `./gradlew format` automatically updates all files with copyright headers
+- **Open source**: Project uses Apache License 2.0, copyright holder: Digital Technologies and Platforms LLC
+
+## UPDATE
+- `./gradlew baselineUpdateConfig` - updates `.baseline/checkstyle/checkstyle.xml` and `checkstyle-suppressions.xml` (does NOT overwrite `custom-suppressions.xml`)
+
+## FIXED ERRORS
+1. **Spotless duplication**: Removed `importOrder`, `removeUnusedImports`, `trimTrailingWhitespace`, `endWithNewline` from `spotless.java` (Baseline adds automatically)
+2. **Unused Checkstyle**: Removed `config/checkstyle/checkstyle.xml` (Baseline uses `.baseline/checkstyle/checkstyle.xml`)
+3. **Suppressions**: Moved from `config/checkstyle/suppressions.xml` to `.baseline/checkstyle/custom-suppressions.xml`
+4. **PMD/SpotBugs**: Removed custom ruleset/includeFilter, using Baseline defaults, only specific exclusions for Lombok/Jmix
+5. **Duplicate suppressions**: Removed duplicate test suppressions (Baseline already provides in `checkstyle-suppressions.xml`)
+6. **NullAway**: Enabled with AnnotatedPackages="com.digtp.start" - checks null-safety only for classes in specified packages
+7. **Error Prone**: Baseline Error Prone includes strict checks (Slf4jLogsafeArgs, CatchBlockLogException, StrictUnusedVariable) - disabled checks requiring logsafe
+
+## BEST PRACTICES
+- ✅ Use `./gradlew format` before commit
+- ✅ Suppressions only in `custom-suppressions.xml`, not in auto-generated files
+- ✅ Format code first, then suppress only when necessary
+- ✅ **PMD**: Use Baseline defaults, suppress via `@SuppressWarnings("PMD.RuleName")` in code (DO NOT use `ruleSetFiles`)
+- ✅ **SpotBugs**: Use Baseline defaults, add only specific exclusions for Lombok/Jmix
+- ✅ **Lombok**: Use `@lombok-baseline-integration.mdc` for Lombok-specific suppressions
+- ✅ Remove duplicate suppressions (Baseline already provides for tests)
+- ❌ **NEVER** use `pmd { ruleSetFiles = ... }` - it completely overrides Baseline defaults
+- 📖 Use `@suppress-policy.mdc` for detailed suppression guidelines
