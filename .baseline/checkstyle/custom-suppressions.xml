@@ -183,4 +183,14 @@
             checks="ConstantName"
             files=".*Test\.java$"
             message=".*"/>
+
+    <!--
+    Documentation: Suppress AvoidFullyQualifiedNames for FQN in javadoc code examples
+    FQN in javadoc {@code} blocks are acceptable for documentation purposes
+    Pattern matches OpenTelemetry config classes that contain FQN in javadoc examples
+    -->
+    <suppress
+            checks="RegexpSinglelineJava"
+            files=".*OpenTelemetry.*\.java$"
+            message=".*Avoid fully qualified names.*"/>
 </suppressions>
