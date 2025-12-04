@@ -1,0 +1,47 @@
+---
+globs: ["**/rest/**/*.java", "**/controller/**/*.java", "**/dto/**/*.java", "**/api/**/*.java"]
+autoFix: true
+version: "1.0.0"
+---
+
+# API DESIGN
+
+## REST CONVENTIONS
+**Methods**: GET (read), POST (create), PUT (full update), PATCH (partial), DELETE (remove) | **URLs**: `/api/v1/entities`, `/api/v1/entities/{id}` | **Plural nouns**: `/users` not `/user` | **Nested**: `/orders/{id}/items`
+
+## HTTP STATUS CODES
+**2xx**: 200 OK, 201 Created, 204 No Content | **4xx**: 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict, 422 Unprocessable | **5xx**: 500 Internal Error
+
+## DTO PATTERNS
+**Rule**: ❌ Never expose entities directly | ✅ Use DTOs for API responses
+
+**Types**:
+- `CreateDto` — input for POST (no ID)
+- `UpdateDto` — input for PUT/PATCH
+- `ResponseDto` — output (read-only)
+- `ListDto` — paginated list wrapper
+
+**Mapping**: Use MapStruct or manual mapping in service layer
+
+## PAGINATION & FILTERING
+**Pagination**: `?page=0&size=20&sort=name,asc` | **Filtering**: `?status=ACTIVE&createdAfter=2024-01-01` | **Response**: `{ content: [], page: 0, size: 20, totalElements: 100, totalPages: 5 }`
+
+## ERROR RESPONSES (RFC 7807)
+```json
+{
+  "type": "about:blank",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Field 'email' must be valid",
+  "instance": "/api/v1/users"
+}
+```
+
+## JMIX REST API
+**Generic REST**: Auto-generated CRUD for entities | **Custom**: `@RestController` + `@RequestMapping` | **Security**: `@PreAuthorize`, resource roles | **OpenAPI**: Auto-generated via `jmix-rest-openapi`
+
+## VERSIONING
+**URL**: `/api/v1/`, `/api/v2/` (preferred) | **Header**: `Accept: application/vnd.api.v1+json` | **Query**: `?version=1` (not recommended)
+
+## ANTIPATTERNS
+❌ Exposing entities → DTOs | ❌ Business logic in controllers → services | ❌ Generic `/api/getData` → RESTful URLs | ❌ Ignoring HTTP methods → use correctly | ❌ 200 for errors → proper status codes

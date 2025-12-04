@@ -1,7 +1,7 @@
 ---
 globs: ["**/security/**/*.java", "**/entity/**/*User*.java", "**/view/**/*Login*.java"]
 autoFix: true
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # JMIX SECURITY
@@ -10,7 +10,7 @@ version: "1.0.0"
 @SystemLevel for system entities (User, Role) | @Secret for password fields | DataManager enforces row-level security | JmixUserDetails for authentication
 
 ## RESOURCE ROLES (@ResourceRole)
-✅ Define roles as interfaces with @ResourceRole annotation | ✅ Use @EntityPolicy for CRUD operations | ✅ Use @EntityAttributePolicy for attribute-level access | ✅ Use @ViewPolicy for screen access | ✅ Use @MenuPolicy for menu items | ✅ Use @SpecificPolicy for custom resources | ✅ SecurityScope.UI for UI-only roles
+✅ Define roles as interfaces with @ResourceRole | ✅ Use @EntityPolicy for CRUD | ✅ Use @EntityAttributePolicy for attributes | ✅ Use @ViewPolicy for screens | ✅ Use @MenuPolicy for menu | ✅ Use @SpecificPolicy for custom | ✅ SecurityScope.UI for UI-only roles
 
 **Example:**
 ```java
@@ -20,13 +20,12 @@ public interface FullAccessRole {
     @EntityAttributePolicy(entityName = "*", attributes = "*", action = EntityAttributePolicyAction.MODIFY)
     @ViewPolicy(viewIds = "*")
     @MenuPolicy(menuIds = "*")
-    @SpecificPolicy(resources = "*")
     void fullAccess();
 }
 ```
 
 ## ROW-LEVEL ROLES (@RowLevelRole)
-✅ Use @RowLevelRole for instance-level restrictions | ✅ Use @PredicateRowLevelPolicy with JPQL conditions | ✅ Use @JpqlRowLevelPolicy for complex queries | ✅ Combine with resource roles for complete security
+✅ Use @RowLevelRole for instance-level restrictions | ✅ Use @PredicateRowLevelPolicy with JPQL | ✅ Use @JpqlRowLevelPolicy for complex queries
 
 **Example:**
 ```java
@@ -39,47 +38,43 @@ public interface DepartmentDocumentsRole {
 ```
 
 ## USER REPOSITORY
-✅ Extend AbstractDatabaseUserRepository<User> | ✅ Override initSystemUser() for system operations | ✅ Override initAnonymousUser() for anonymous access | ✅ Use @Primary @Component("userRepository") | ✅ Set authorities via getGrantedAuthoritiesBuilder()
+✅ Extend AbstractDatabaseUserRepository<User> | ✅ Override initSystemUser() / initAnonymousUser() | ✅ Use @Primary @Component("userRepository") | ✅ Set authorities via getGrantedAuthoritiesBuilder()
 
 ## AUTHENTICATION
-✅ Use `LoginViewSupport.authenticate(AuthDetails)` in login views | ✅ Use `CurrentAuthentication` bean to get current user | ✅ Use `AuthDetails.of(username, password).withLocale().withRememberMe()` | ✅ Handle exceptions: BadCredentialsException, DisabledException, LockedException, AccessDeniedException | ✅ Use `RoleGrantedAuthorityUtils` to create authorities from role codes
+✅ Use `LoginViewSupport.authenticate(AuthDetails)` in login views | ✅ Use `CurrentAuthentication` to get current user | ✅ Use `AuthDetails.of(username, password).withLocale().withRememberMe()` | ✅ Handle: BadCredentialsException, DisabledException, LockedException, AccessDeniedException
 
 ## AUTHORIZATION
-✅ Use `CurrentAuthentication.getUser()` to get current user | ✅ Use `CurrentAuthentication.isAuthenticated()` to check authentication | ✅ Use `CurrentAuthentication.getAuthorities()` to get user roles | ✅ Check permissions programmatically via DataManager (enforced automatically) | ✅ Use `SystemAuthenticator` for system-level operations
+✅ Use `CurrentAuthentication.getUser()` / `isAuthenticated()` / `getAuthorities()` | ✅ DataManager enforces permissions automatically | ✅ Use `SystemAuthenticator` for system operations
 
 ## USER MANAGEMENT
-✅ User entity must implement `JmixUserDetails` | ✅ Use `@Secret` for password field | ✅ Use `@SystemLevel` for system entities | ✅ Implement `isEnabled()`, `isAccountNonExpired()`, `isAccountNonLocked()`, `isCredentialsNonExpired()` | ✅ Use `DatabaseUserRepository` to load users from database | ✅ Assign roles via `SEC_ROLE_ASSIGNMENT` table or programmatically
+✅ User implements `JmixUserDetails` | ✅ Use `@Secret` for password | ✅ Use `@SystemLevel` for system entities | ✅ Implement: `isEnabled()`, `isAccountNonExpired()`, `isAccountNonLocked()`, `isCredentialsNonExpired()`
 
 ## PASSWORD MANAGEMENT
-✅ Always use `PasswordEncoder.encode()` before saving passwords | ✅ Never store plain text passwords | ✅ Use `PasswordEncoder` bean (BCrypt by default) | ✅ Validate password confirmation in UI before save | ✅ Use standard Jmix actions: `sec_changePassword`, `sec_resetPassword` | ✅ Password format in DB: `{encoder}encodedPassword` (e.g., `{bcrypt}$2a$10...`, `{noop}plain` for dev only)
+✅ Always use `PasswordEncoder.encode()` before saving | ✅ Never store plain text | ✅ Format: `{encoder}encodedPassword` (e.g., `{bcrypt}$2a$10...`, `{noop}plain` dev only) | ✅ Validate confirmation in UI | ✅ Use standard actions: `sec_changePassword`, `sec_resetPassword`
 
-**Password Storage Formats**: `{bcrypt}$2a$10...` (production, default), `{noop}plain` (dev only, NEVER in production), `{pbkdf2}...` | Spring Security auto-detects format prefix
+**Formats**: `{bcrypt}$2a$10...` (production), `{noop}plain` (dev only, NEVER production), `{pbkdf2}...` | Spring Security auto-detects prefix
 
 ## SECURITY FILTER CHAIN
-✅ Use @Order(JmixSecurityFilterChainOrder.CUSTOM) for custom endpoints | ✅ Define SecurityFilterChain beans in @Configuration | ✅ Use securityMatcher() for URL patterns | ✅ Custom filter chains are applied before Jmix default chains
+✅ Use @Order(JmixSecurityFilterChainOrder.CUSTOM) for custom endpoints | ✅ Define SecurityFilterChain beans in @Configuration | ✅ Use securityMatcher() for URL patterns
 
 ## ROLE AUTHORITY PREFIXES
-✅ Customize resource role prefix via `GrantedAuthorityDefaults` bean | ✅ Customize row-level role prefix via `jmix.security.default-row-level-role-prefix` property | ✅ Default format: `ROLE_{roleCode}` for resource roles, `RL_{roleCode}` for row-level roles
+✅ Customize via `GrantedAuthorityDefaults` bean | ✅ Default: `ROLE_{roleCode}` (resource), `RL_{roleCode}` (row-level)
 
-## UI COMPONENT POLICIES (UI Constraints Add-on)
-✅ Use `@UiComponentPolicy` in resource roles to control UI component visibility/accessibility | ✅ Requires `jmix-uiconstraints` add-on | ✅ Policies are "denying" - can only restrict, not grant | ✅ Applied after view initialization (after ReadyEvent) | ✅ Any component with ID can be controlled
-
-**Note**: UI Constraints add-on is optional. Install via `jmix-uiconstraints` dependency.
+## UI COMPONENT POLICIES (Optional Add-on)
+✅ Use `@UiComponentPolicy` in resource roles | ✅ Requires `jmix-uiconstraints` add-on | ✅ Policies are "denying" - can only restrict | ✅ Applied after ReadyEvent
 
 ## SESSION MANAGEMENT
-✅ Use `SessionData` bean to store session-scoped data | ✅ Use `UserSessions` bean (Audit add-on) to manage active sessions | ✅ Session attributes shared across requests within same user session | ✅ Session invalidation available via Audit add-on UI | **Remember Me**: Use `AuthDetails.withRememberMe(true)` in login
+✅ Use `SessionData` for session-scoped data | ✅ Use `UserSessions` (Audit add-on) for active sessions | ✅ Remember Me: `AuthDetails.withRememberMe(true)`
 
 ## SECURITY TESTING
-✅ Use `@ExtendWith(AuthenticatedAsAdmin.class)` for system authentication in tests | ✅ Use `SystemAuthenticator.begin(username)` / `end()` for manual authentication | ✅ Use `UserRepository.loadUserByUsername()` to test user loading | ✅ Test security policies via DataManager operations (access denied exceptions)
+✅ Use `@ExtendWith(AuthenticatedAsAdmin.class)` for system auth | ✅ Use `SystemAuthenticator.begin(username)` / `end()` manually | ✅ Test via DataManager operations (access denied exceptions)
 
-## EXTERNAL AUTHENTICATION (OIDC/LDAP)
-✅ Optional: Use OIDC add-on for OpenID Connect authentication | ✅ Optional: Use LDAP add-on for LDAP/Active Directory authentication | ✅ External IAM manages users and roles | ✅ Application maps external roles to internal Jmix roles | ✅ Configure via add-on properties
-
-**Note**: External authentication is optional. Standard database authentication is default.
+## EXTERNAL AUTHENTICATION (Optional)
+✅ OIDC add-on for OpenID Connect | ✅ LDAP add-on for LDAP/Active Directory | ✅ External IAM manages users/roles | ✅ Application maps external to internal roles
 
 ## SECURITY SERVICES
-**SystemAuthenticator**: ✅ Use `SystemAuthenticator.begin(username)` for system operations | ✅ Always call `SystemAuthenticator.end()` in finally block | ✅ Use in background tasks, scheduled jobs, async operations | ✅ Use in tests via `@ExtendWith(AuthenticatedAsAdmin.class)`
+**SystemAuthenticator**: ✅ Use `begin(username)` / `end()` in finally block | ✅ Use in background tasks, scheduled jobs, tests
 
-**CurrentUserSubstitution (Impersonation)**: ✅ Use `CurrentUserSubstitution.setSubstitutedUser(username)` for impersonation | ✅ Use `CurrentUserSubstitution.clearSubstitution()` to restore original user | ✅ Requires proper permissions | ✅ Use for support/debugging scenarios
+**CurrentUserSubstitution**: ✅ Use `setSubstitutedUser(username)` / `clearSubstitution()` | ✅ Requires proper permissions | ✅ Use for support/debugging
 
-**Runtime/Database Roles**: ✅ Roles can be defined at runtime and stored in database | ✅ Use `SEC_ROLE` table for role definitions | ✅ Use `SEC_ROLE_ASSIGNMENT` table for user-role assignments | ✅ Runtime roles complement annotation-based roles | ✅ UI available for managing runtime roles
+**Runtime/Database Roles**: ✅ Defined at runtime, stored in SEC_ROLE table | ✅ Use SEC_ROLE_ASSIGNMENT for user-role assignments | ✅ UI available for management

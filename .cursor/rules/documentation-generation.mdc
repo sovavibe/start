@@ -1,9 +1,9 @@
-# DOCUMENTATION GENERATION
+---
+globs: ["docs/**/*.md"]
+autoFix: false
+version: "2.0.0"
+---
 
-See ai-rules.mdc for main rules. This file: specific guidance only.
+# DOCUMENTATION
 
-## WHEN TO CREATE
-✅ ONLY when user EXPLICITLY asks: "create docs", "document this", "write README" | ✅ Place in `docs/` (not `.archive/`) | ✅ ONE concise file (< 200 lines) | ❌ NO automatic generation, summaries, plans, duplicates
-
-## PROHIBITIONS
-❌ Automatic README/API/architecture docs | ❌ "Completion reports" | ❌ Multiple files for same topic | ❌ Long files (> 200 lines) | ❌ "For future reference" | Focus on code, not docs
+See `@ai-rules.mdc` → DOCUMENTATION (STRICT) section for complete guidelines.
