@@ -40,6 +40,14 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
 ## WORKFLOW
 **Commands**: `make analyze-full` (not `./gradlew codeQualityFull`), `make test`, `./gradlew format` (Palantir Baseline) | **Process**: Understand → Search codebase → Implement → Compile → Linters (end) → Test | **Before completion**: Compiles, linters pass, follows conventions, production-ready
 
+**ITERATION COMPLETION CHECKLIST** (MANDATORY):
+1. ✅ Code compiles without errors
+2. ✅ Run `make analyze-full` - all linters must pass (Checkstyle, PMD, SpotBugs, SonarLint)
+3. ✅ Fix all linter violations before marking task complete
+4. ✅ Code follows project conventions and standards
+5. ✅ Production-ready quality (no workarounds, proper error handling)
+6. ✅ All tests pass (if applicable)
+
 **Formatting**: Use `./gradlew format` (Palantir Baseline format task) or `./gradlew spotlessApply` (Spotless only). Palantir Baseline automatically configures Spotless with import order, unused imports removal, and other formatting rules.
 
 ## CI/CD BEST PRACTICES
