@@ -7,6 +7,9 @@ version: "1.1.0"
 
 # PALANTIR BASELINE INTEGRATION
 
+## PRINCIPLE
+**CRITICAL**: Use Baseline out-of-the-box, do NOT customize unless absolutely necessary | Baseline manages versions, configurations, and defaults automatically | ❌ Do NOT override Baseline-managed versions (Error Prone, Checkstyle, PMD, SpotBugs) | ✅ Let Baseline manage everything | Only add framework-specific suppressions when needed (Lombok, Jmix)
+
 ## APPLIED PLUGINS
 - `com.palantir.baseline` (6.76.0) - Checkstyle, PMD, SpotBugs, Spotless auto-config
 - `com.palantir.baseline-idea` (6.76.0) - IntelliJ IDEA config
@@ -40,11 +43,15 @@ version: "1.1.0"
 - `./gradlew baselineUpdateConfig` - updates `.baseline/checkstyle/checkstyle.xml` and `checkstyle-suppressions.xml` (does NOT overwrite `custom-suppressions.xml`)
 
 ## BEST PRACTICES
-- ✅ Use `./gradlew format` before commit
+- ✅ **Use Baseline out-of-the-box**: Let Baseline manage versions and configurations
+- ✅ Use `./gradlew format` before commit (Baseline format task)
 - ✅ Suppressions only in `custom-suppressions.xml`, not in auto-generated files
 - ✅ Format code first, then suppress only when necessary
 - ✅ **PMD**: Use Baseline defaults, suppress via `@SuppressWarnings("PMD.RuleName")` (DO NOT use `ruleSetFiles`)
 - ✅ **SpotBugs**: Use Baseline defaults, add only specific exclusions for Lombok/Jmix
+- ✅ **Error Prone**: Use Baseline-managed version, only disable specific checkers for framework patterns
 - ✅ **Lombok**: See `@lombok-baseline-integration.mdc` for Lombok-specific suppressions
+- ❌ **NEVER** override Baseline-managed versions (Error Prone, Checkstyle, PMD, SpotBugs)
 - ❌ **NEVER** use `pmd { ruleSetFiles = ... }` - completely overrides Baseline defaults
+- ❌ **NEVER** customize Baseline configurations unless framework-specific suppressions are needed
 - 📖 See `@suppress-policy.mdc` for detailed suppression guidelines

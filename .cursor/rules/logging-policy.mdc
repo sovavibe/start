@@ -8,40 +8,40 @@ version: "1.0.0"
 
 ## PRINCIPLES
 
-**Observability First**: Логи - это глаза системы. Удаление логов = потеря observability.
+**Observability First**: Logs are the eyes of the system. Removing logs = loss of observability.
 
-**Structured Logging**: Всегда использовать параметризованные сообщения, никогда конкатенацию.
+**Structured Logging**: Always use parameterized messages, never concatenation.
 
-**Context Matters**: Всегда логировать важный контекст (userId, entityId, operation, requestId).
+**Context Matters**: Always log important context (userId, entityId, operation, requestId).
 
-**Security**: Никогда не логировать пароли, токены, секреты, PII (кроме audit.log с маскированием).
+**Security**: Never log passwords, tokens, secrets, PII (except audit.log with masking).
 
 ## LOG LEVELS
 
 ### DEBUG
-**Когда использовать**:
-- Детальная диагностика (загрузка конфигов, валидация, внутренние состояния)
-- Трассировка выполнения методов
-- Параметры вызовов (безопасные данные)
-- Внутренние состояния компонентов
+**When to use**:
+- Detailed diagnostics (config loading, validation, internal states)
+- Method execution tracing
+- Call parameters (safe data)
+- Internal component states
 
-**Примеры**:
+**Examples**:
 ```java
 log.debug("Loading configuration from .env file");
 log.debug("User entity initialized: isNew={}, username={}", isNew, username);
 log.debug("Password validation passed: username={}", username);
 ```
 
-**Важно**: DEBUG логи НЕ влияют на production (уровень INFO), но критичны для диагностики.
+**Important**: DEBUG logs do NOT affect production (INFO level), but are critical for diagnostics.
 
 ### INFO
-**Когда использовать**:
-- Бизнес-события (создание/обновление сущностей, успешные операции)
-- Старт/остановка компонентов
-- Важные изменения состояния
-- Успешные операции пользователей
+**When to use**:
+- Business events (entity creation/update, successful operations)
+- Component start/stop
+- Important state changes
+- Successful user operations
 
-**Примеры**:
+**Examples**:
 ```java
 log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
 log.info("User '{}' successfully logged in", username);
@@ -50,14 +50,14 @@ log.info("Loaded {} environment variables from .env file", count);
 ```
 
 ### WARN
-**Когда использовать**:
-- Проблемы, которые не ломают функциональность
-- Валидация failed (ожидаемое поведение)
-- Retry операции
+**When to use**:
+- Issues that don't break functionality
+- Validation failed (expected behavior)
+- Retry operations
 - Deprecated API usage
-- Неоптимальные, но работающие сценарии
+- Suboptimal but working scenarios
 
-**Примеры**:
+**Examples**:
 ```java
 log.warn("Password validation failed: {}", validationError);
 log.warn("Login failed for user '{}': {}", username, reason);
@@ -65,13 +65,13 @@ log.warn("Cache '{}' is not recording statistics", cacheName);
 ```
 
 ### ERROR
-**Когда использовать**:
-- Критические ошибки, исключения
-- Операции, которые не могут быть выполнены
-- Системные ошибки
-- Неожиданные исключения
+**When to use**:
+- Critical errors, exceptions
+- Operations that cannot be executed
+- System errors
+- Unexpected exceptions
 
-**Примеры**:
+**Examples**:
 ```java
 log.error("Failed to save user: id={}, username={}", user.getId(), user.getUsername(), exception);
 log.error("Database connection failed", exception);
@@ -79,80 +79,80 @@ log.error("Database connection failed", exception);
 
 ## STRUCTURED LOGGING
 
-### ✅ Правильно
+### ✅ Correct
 ```java
 log.info("User created: id={}, username={}", user.getId(), user.getUsername());
 log.debug("Processing request: method={}, path={}", method, path);
 log.warn("Validation failed: field={}, error={}", fieldName, error);
 ```
 
-### ❌ Неправильно
+### ❌ Incorrect
 ```java
-log.info("User created: id=" + user.getId() + ", username=" + user.getUsername()); // Конкатенация
-log.info("User created: " + user); // toString() в строке
-log.info("User created"); // Нет контекста
+log.info("User created: id=" + user.getId() + ", username=" + user.getUsername()); // Concatenation
+log.info("User created: " + user); // toString() in string
+log.info("User created"); // No context
 ```
 
 ## WHEN NOT TO REMOVE LOGS
 
-**КРИТИЧНО**: НЕ удалять логи в следующих случаях:
+**CRITICAL**: Do NOT remove logs in the following cases:
 
-1. **Конфигурация и инициализация**:
-   - Загрузка конфигов (.env, properties)
-   - Инициализация компонентов
-   - Старт/остановка приложения
+1. **Configuration and initialization**:
+   - Config loading (.env, properties)
+   - Component initialization
+   - Application start/stop
    - Database migrations
 
-2. **Обработка ошибок**:
-   - Catch блоки (всегда логировать исключения)
-   - Валидация failed
-   - Retry операции
+2. **Error handling**:
+   - Catch blocks (always log exceptions)
+   - Validation failed
+   - Retry operations
 
-3. **Бизнес-события**:
-   - Создание/обновление/удаление сущностей
-   - Аутентификация (успешная и неудачная)
-   - Критические операции
+3. **Business events**:
+   - Entity creation/update/deletion
+   - Authentication (successful and failed)
+   - Critical operations
 
-4. **Диагностика**:
-   - DEBUG логи для внутренних состояний
-   - Трассировка выполнения
-   - Параметры вызовов
+4. **Diagnostics**:
+   - DEBUG logs for internal states
+   - Execution tracing
+   - Call parameters
 
-**Правило**: Если логирование помогает понять, что происходит в системе - НЕ удалять.
+**Rule**: If logging helps understand what's happening in the system - do NOT remove it.
 
 ## SECURITY
 
-### ❌ Никогда не логировать
-- Пароли (plain text или hashed)
-- Токены (JWT, API keys, session tokens)
-- Секреты (private keys, credentials)
-- PII без маскирования (кроме audit.log)
-- SQL с параметрами, содержащими секреты
+### ❌ Never log
+- Passwords (plain text or hashed)
+- Tokens (JWT, API keys, session tokens)
+- Secrets (private keys, credentials)
+- PII without masking (except audit.log)
+- SQL with parameters containing secrets
 
-### ✅ Безопасное логирование
+### ✅ Safe logging
 ```java
-// ✅ Правильно
+// ✅ Correct
 log.info("User authenticated: username={}", username);
 log.debug("Password validation passed: username={}", username);
 
-// ❌ Неправильно
-log.info("User authenticated: password={}", password); // НИКОГДА!
-log.debug("Token: {}", token); // НИКОГДА!
+// ❌ Incorrect
+log.info("User authenticated: password={}", password); // NEVER!
+log.debug("Token: {}", token); // NEVER!
 ```
 
 ## CONTEXT (MDC)
 
-**Всегда использовать MDC для контекста запроса**:
-- `requestId` - уникальный ID запроса (UUID)
-- `userId` - ID пользователя (если аутентифицирован)
-- `sessionId` - ID сессии (опционально)
+**Always use MDC for request context**:
+- `requestId` - unique request ID (UUID)
+- `userId` - user ID (if authenticated)
+- `sessionId` - session ID (optional)
 
-**Пример**:
+**Example**:
 ```java
 MDC.put("requestId", UUID.randomUUID().toString());
 MDC.put("userId", getCurrentUserId());
 try {
-    // ... операция
+    // ... operation
 } finally {
     MDC.clear();
 }
@@ -160,13 +160,13 @@ try {
 
 ## AUDIT LOGGING
 
-**Использовать отдельный логгер `com.digtp.start.audit`** для бизнес-событий:
-- Создание/обновление/удаление сущностей
-- Аутентификация (успешная и неудачная)
-- Критические операции
-- Изменения безопасности
+**Use separate logger `com.digtp.start.audit`** for business events:
+- Entity creation/update/deletion
+- Authentication (successful and failed)
+- Critical operations
+- Security changes
 
-**Пример**:
+**Example**:
 ```java
 @Slf4j
 public class AuditService {
@@ -180,16 +180,16 @@ public class AuditService {
 
 ## PERFORMANCE
 
-### Логирование производительности
-- Логировать медленные операции (>100ms для сервисов, >500ms для views)
-- Использовать DEBUG уровень для детальной трассировки
-- Не логировать в hot paths без необходимости
+### Performance logging
+- Log slow operations (>100ms for services, >500ms for views)
+- Use DEBUG level for detailed tracing
+- Don't log in hot paths unnecessarily
 
-**Пример**:
+**Example**:
 ```java
 long start = System.currentTimeMillis();
 try {
-    // ... операция
+    // ... operation
 } finally {
     long duration = System.currentTimeMillis() - start;
     if (duration > 100) {
@@ -200,38 +200,38 @@ try {
 
 ## ANTIPATTERNS
 
-### ❌ Удаление логов для "чистоты кода"
+### ❌ Removing logs for "code cleanliness"
 ```java
-// ❌ ПЛОХО - потеря observability
+// ❌ BAD - loss of observability
 if (dotenvProperties.isEmpty()) {
     // No variables to load
     return;
 }
 
-// ✅ ХОРОШО - сохраняем observability
+// ✅ GOOD - preserve observability
 if (dotenvProperties.isEmpty()) {
     log.debug("No .env file found or all variables already set");
     return;
 }
 ```
 
-### ❌ Логирование без контекста
+### ❌ Logging without context
 ```java
-// ❌ ПЛОХО
+// ❌ BAD
 log.info("User created");
 
-// ✅ ХОРОШО
+// ✅ GOOD
 log.info("User created: id={}, username={}", user.getId(), user.getUsername());
 ```
 
-### ❌ Логирование в цикле без проверки уровня
+### ❌ Logging in loop without level check
 ```java
-// ❌ ПЛОХО - создает строки даже если DEBUG отключен
+// ❌ BAD - creates strings even if DEBUG is disabled
 for (User user : users) {
     log.debug("Processing user: " + user.getUsername());
 }
 
-// ✅ ХОРОШО - параметризованное логирование
+// ✅ GOOD - parameterized logging
 for (User user : users) {
     log.debug("Processing user: username={}", user.getUsername());
 }
@@ -239,54 +239,54 @@ for (User user : users) {
 
 ## EXAMPLES BY SCENARIO
 
-### Конфигурация
+### Configuration
 ```java
-// ✅ DEBUG для деталей
+// ✅ DEBUG for details
 log.debug("Loaded {} from .env file", key);
 log.debug("No .env file found or error loading it: {}", exception.getMessage(), exception);
 
-// ✅ INFO для результата
+// ✅ INFO for result
 log.info("Loaded {} environment variables from .env file", count);
 ```
 
-### Бизнес-операции
+### Business operations
 ```java
-// ✅ INFO для успешных операций
+// ✅ INFO for successful operations
 log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
 log.info("User '{}' successfully logged in", username);
 
-// ✅ WARN для проблем валидации
+// ✅ WARN for validation problems
 log.warn("Password validation failed: {}", validationError);
 log.warn("Login failed for user '{}': {}", username, reason);
 ```
 
-### Ошибки
+### Errors
 ```java
-// ✅ ERROR с исключением
+// ✅ ERROR with exception
 log.error("Failed to save user: id={}, username={}", user.getId(), user.getUsername(), exception);
 
-// ✅ WARN для ожидаемых проблем
+// ✅ WARN for expected problems
 log.warn("Password confirmation validation failed");
 ```
 
 ## CHECKLIST
 
-Перед удалением или изменением лога, спроси себя:
+Before removing or changing a log, ask yourself:
 
-- [ ] Помогает ли этот лог понять, что происходит в системе?
-- [ ] Используется ли он для диагностики проблем?
-- [ ] Содержит ли он важный контекст (userId, entityId, operation)?
-- [ ] Является ли это бизнес-событием или ошибкой?
+- [ ] Does this log help understand what's happening in the system?
+- [ ] Is it used for diagnosing problems?
+- [ ] Does it contain important context (userId, entityId, operation)?
+- [ ] Is this a business event or error?
 
-**Если хотя бы один ответ "да" - НЕ удалять лог.**
+**If at least one answer is "yes" - do NOT remove the log.**
 
 ## SUMMARY
 
-1. **Observability First** - логи критичны для понимания системы
-2. **Structured Logging** - всегда параметризованные сообщения
-3. **Context Matters** - всегда логировать важный контекст
-4. **Security** - никогда не логировать секреты
-5. **Don't Remove Logs** - если лог помогает понять систему, оставить его
-6. **Use Right Level** - DEBUG/INFO/WARN/ERROR по назначению
-7. **MDC for Tracing** - использовать MDC для трейсинга запросов
-8. **Audit for Business** - использовать audit.log для бизнес-событий
+1. **Observability First** - logs are critical for understanding the system
+2. **Structured Logging** - always parameterized messages
+3. **Context Matters** - always log important context
+4. **Security** - never log secrets
+5. **Don't Remove Logs** - if a log helps understand the system, keep it
+6. **Use Right Level** - DEBUG/INFO/WARN/ERROR as appropriate
+7. **MDC for Tracing** - use MDC for request tracing
+8. **Audit for Business** - use audit.log for business events
