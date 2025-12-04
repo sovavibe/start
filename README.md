@@ -164,6 +164,15 @@ make build
 make ci
 ```
 
+### 🤖 For Analysts (Fully Automated)
+
+```bash
+# Zero knowledge required - just run this!
+./scripts/analyst-workflow.sh
+```
+
+The script guides you through everything automatically - from hypothesis to PR!
+
 See [Makefile](Makefile) for all available commands.
 
 ## Contributing

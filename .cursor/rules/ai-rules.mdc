@@ -58,3 +58,14 @@ Search codebase first | Follow existing patterns | Use context7 MCP docs | Maint
 
 ## GIT WORKFLOW
 **Branches**: See `@branch-naming.mdc` for naming conventions | **Commits**: See `@conventional-commits.mdc` for format | **PRs**: See `@github.mdc` for workflow | **Auto PR**: Use `./scripts/create-pr.sh` to create PR with auto-generated description from diff
+
+## COMMUNICATION LANGUAGE
+**CRITICAL**: Language usage is strict and context-dependent:
+- **Code & Documentation**: ALWAYS English (comments, JavaDoc, README, code, commit messages, rules documentation)
+- **Chat with User**: ✅ Use Russian when user communicates in Russian | ✅ Use English when user communicates in English | Adapt to user's language preference
+- **Brevity**: Be concise, avoid verbose explanations unless requested
+- **Examples**: 
+  - ✅ Chat in Russian: "Файлы успешно добавлены в git"
+  - ✅ Code comment: `// Loads user from database` (always English)
+  - ✅ Rule documentation: "Use DataManager.create() instead of new Entity()" (always English)
+  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных`

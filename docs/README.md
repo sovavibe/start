@@ -32,6 +32,7 @@ This directory contains all project documentation organized by category for easy
 
 ### 📖 Examples
 - **[Code Examples](development/examples/)** - Example code patterns for entities, services, views, and tests
+- **[Analyst Workflow Example](examples/ANALYST_WORKFLOW_EXAMPLE.md)** - Complete example of automated analyst workflow
 
 ## Quick Links
 

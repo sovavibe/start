@@ -46,13 +46,13 @@ Conventional: `type(scope): description` | Types: feat|fix|docs|refactor|perf|te
 ## COMMUNICATION LANGUAGE
 **CRITICAL**: Language usage is strict and context-dependent:
 - **Code & Documentation**: ALWAYS English (comments, JavaDoc, README, code, commit messages, rules documentation)
-- **Chat with User**: Context-dependent (use appropriate language for user)
+- **Chat with User**: ✅ Use Russian when user communicates in Russian | ✅ Use English when user communicates in English | Adapt to user's language preference
 - **Brevity**: Be concise, avoid verbose explanations unless requested
 - **Examples**: 
-  - ✅ Code comment: `// Loads user from database`
-  - ✅ Rule documentation: "Use DataManager.create() instead of new Entity()"
-  - ❌ Code comment: `// Loads user from database` (non-English)
-  - ❌ Rule documentation: "Use DataManager.create()" (non-English)
+  - ✅ Chat in Russian: "Файлы успешно добавлены в git"
+  - ✅ Code comment: `// Loads user from database` (always English)
+  - ✅ Rule documentation: "Use DataManager.create() instead of new Entity()" (always English)
+  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных`
 
 ## PROHIBITIONS
 System.out.println → SLF4J | System.getenv() → @Value | @Autowired fields → constructor (tests: allowed) | Dead code → remove | Workarounds → refactor | @SuppressWarnings → document why

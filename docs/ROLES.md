@@ -6,24 +6,27 @@ Quick reference for Analysts, Developers, and Reviewers.
 
 **Role**: Analyze requirements, plan implementation, validate feasibility
 
-### Key Responsibilities
+### 🚀 Fully Automated Workflow (Zero Knowledge Required!)
 
-1. **Hypothesis Validation**
-   - Document hypothesis/idea
-   - Gather requirements
-   - Assess impact
+**Just run one command:**
 
-2. **Technical Analysis**
-   - Review codebase
-   - Identify affected components
-   - Plan architecture changes
+```bash
+./scripts/analyst-workflow.sh
+```
 
-3. **Quality Planning**
-   - Identify test scenarios
-   - Plan quality gates
-   - Define acceptance criteria
+The script will:
+- ✅ Ask you simple questions (hypothesis, type, scope)
+- ✅ Setup project automatically
+- ✅ Create branch with correct name
+- ✅ Run all analysis commands
+- ✅ Format and check code
+- ✅ Commit with correct format
+- ✅ Push branch
+- ✅ Create PR automatically
 
-### Essential Commands
+**You don't need to know any commands!** Just answer questions. 🎉
+
+### Manual Commands (if needed)
 
 ```bash
 make setup          # Setup project

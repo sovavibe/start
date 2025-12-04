@@ -17,6 +17,25 @@ That's it! The `make setup` command will:
 - ✅ Configure Git hooks
 - ✅ Compile the project
 
+### 🤖 For Analysts (Fully Automated - Zero Knowledge Required!)
+
+```bash
+# Just run this - it does EVERYTHING automatically!
+./scripts/analyst-workflow.sh
+```
+
+**What it does:**
+1. ✅ Sets up project automatically
+2. ✅ Asks simple questions (hypothesis, type, scope)
+3. ✅ Creates branch with correct name automatically
+4. ✅ Runs analysis commands automatically
+5. ✅ Formats and checks code automatically
+6. ✅ Commits with correct format automatically
+7. ✅ Pushes branch automatically
+8. ✅ Creates PR with description automatically
+
+**You just answer 3-4 simple questions!** 🎉
+
 ## 📋 Essential Commands
 
 ### For Analysts
