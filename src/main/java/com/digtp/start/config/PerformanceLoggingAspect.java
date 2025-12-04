@@ -15,12 +15,13 @@
  */
 package com.digtp.start.config;
 
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * AOP aspect for logging slow operations.
@@ -100,7 +101,7 @@ public class PerformanceLoggingAspect {
             final long duration = System.currentTimeMillis() - startTime;
             if (duration > thresholdMs && log.isDebugEnabled()) {
                 final String methodName = getMethodName(joinPoint);
-                final String className = joinPoint.getTarget().getClass().getSimpleName();
+                final String className = getClassName(joinPoint);
                 log.debug(
                         "Slow {} operation: class={}, method={}, duration={}ms",
                         layer,
@@ -120,5 +121,26 @@ public class PerformanceLoggingAspect {
     private String getMethodName(final ProceedingJoinPoint joinPoint) {
         final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         return signature.getMethod().getName();
+    }
+
+    /**
+     * Extracts class name from join point.
+     *
+     * <p>Handles both instance and static methods. For static methods, getTarget()
+     * returns null, so we use the declaring type from the signature instead.
+     *
+     * @param joinPoint method execution join point
+     * @return simple class name
+     */
+    private String getClassName(final ProceedingJoinPoint joinPoint) {
+        final Object target = joinPoint.getTarget();
+        if (target != null) {
+            return target.getClass().getSimpleName();
+        }
+        // For static methods, getTarget() returns null, use declaring type from signature
+        final MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        final String declaringTypeName = signature.getDeclaringTypeName();
+        final int lastDot = declaringTypeName.lastIndexOf('.');
+        return lastDot >= 0 ? declaringTypeName.substring(lastDot + 1) : declaringTypeName;
     }
 }
