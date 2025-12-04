@@ -101,6 +101,42 @@ if (duration > 100 && log.isDebugEnabled()) {
 
 Before removing/changing a log: Does it help understand the system? Used for diagnostics? Contains context (userId, entityId, operation)? Business event or error? **If yes → keep it.**
 
+## ERROR LOGGING
+
+**CRITICAL**: Always log exceptions in catch blocks with context:
+```java
+try {
+    // operation
+} catch (final Exception exception) {
+    log.error("Operation failed: entityId={}, username={}, error={}", entityId, username, exception.getMessage(), exception);
+    // handle error
+}
+```
+
+**Best Practices**:
+- ✅ Always include exception as last parameter: `log.error("...", exception)`
+- ✅ Include context: entityId, userId, operation name
+- ✅ Use ERROR level for unexpected exceptions
+- ✅ Use WARN level for expected exceptions (validation, business rules)
+- ❌ Never swallow exceptions silently
+- ❌ Never use `printStackTrace()` or `System.out.println()`
+
+## EXAMPLES
+
+### ✅ Good: Structured logging with context
+```java
+log.info("User created: id={}, username={}, createdBy={}", userId, username, currentUser);
+log.warn("Login failed: username={}, reason={}", username, reason, exception);
+log.error("Failed to save user: id={}, username={}, error={}", userId, username, exception.getMessage(), exception);
+```
+
+### ❌ Bad: Concatenation, no context, silent failures
+```java
+log.info("User created: id=" + userId); // Concatenation
+log.info("User created"); // No context
+catch (Exception e) { } // Silent failure
+```
+
 ## SUMMARY
 
-1. Observability First | 2. Structured Logging (parameterized) | 3. Context Matters | 4. Security (no secrets) | 5. Don't Remove Logs | 6. Use Right Level (DEBUG/INFO/WARN/ERROR) | 7. MDC for Tracing | 8. Audit for Business
+1. Observability First | 2. Structured Logging (parameterized) | 3. Context Matters | 4. Security (no secrets) | 5. Don't Remove Logs | 6. Use Right Level (DEBUG/INFO/WARN/ERROR) | 7. MDC for Tracing | 8. Audit for Business | 9. Always Log Exceptions | 10. Include Context in Errors

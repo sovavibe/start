@@ -115,6 +115,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private void handleLoginFailure(final LoginEvent event, final Exception exception) {
         final String reason = getLoginFailureReason(exception);
+        log.warn("Login failed: username={}, reason={}", event.getUsername(), reason, exception);
         auditService.logLoginFailed(event.getUsername(), reason);
         event.getSource().setError(true);
     }
