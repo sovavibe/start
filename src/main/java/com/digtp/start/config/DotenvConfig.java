@@ -82,7 +82,7 @@ public final class DotenvConfig implements ApplicationListener<ApplicationEnviro
             });
 
             if (dotenvProperties.isEmpty()) {
-                // No variables to load - .env file not found or all variables already set
+                log.debug("No .env file found or all variables already set");
                 return;
             }
 
