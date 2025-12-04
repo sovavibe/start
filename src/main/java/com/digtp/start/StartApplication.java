@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start;
 
@@ -47,7 +36,7 @@ import org.springframework.core.env.Environment;
 @Slf4j
 @RequiredArgsConstructor
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentDefaultAccessModifier, PMD.CommentRequired
+// - PMD.CommentDefaultAccessModifier, PMD.CommentRequired
 // - java:S1948 excluded via config/sonar-project.properties
 @SuppressWarnings({
     "java:S1948",

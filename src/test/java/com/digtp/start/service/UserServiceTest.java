@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.service;
 
@@ -23,6 +12,7 @@ import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.TestFixtures;
 import io.jmix.core.DataManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -35,13 +25,11 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
+// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
 // - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
 // - PMD.LawOfDemeter, PMD.TooManyMethods
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Test data uses duplicate string literals for clarity
 class UserServiceTest extends AbstractIntegrationTest {
 
-    private static final String TEST_USER_PREFIX = "test-user-";
     private static final String EXISTING_ENCODED_PASSWORD = "existing-encoded-password";
     private static final String AT_LEAST = "at least ";
 
@@ -56,7 +44,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void testEncodePassword() {
         // Arrange
-        final String plainPassword = "test-password-123";
+        final String plainPassword = TestFixtures.DEFAULT_TEST_PASSWORD;
 
         // Act
         final String encodedPassword = userService.encodePassword(plainPassword);
@@ -110,8 +98,8 @@ class UserServiceTest extends AbstractIntegrationTest {
     void testPrepareUserForSaveNewUser() {
         // Arrange
         final User user = dataManager.create(User.class);
-        user.setUsername(TEST_USER_PREFIX + System.currentTimeMillis());
-        final String password = "test-password";
+        user.setUsername(TestFixtures.uniqueUsername());
+        final String password = TestFixtures.DEFAULT_TEST_PASSWORD;
 
         // Act
         userService.prepareUserForSave(user, password, true);
@@ -124,7 +112,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void testPrepareUserForSaveExistingUser() {
         final User user = dataManager.create(User.class);
-        user.setUsername(TEST_USER_PREFIX + System.currentTimeMillis());
+        user.setUsername(TestFixtures.uniqueUsername());
         user.setPassword(EXISTING_ENCODED_PASSWORD);
         savedUser = dataManager.save(user);
 
@@ -136,7 +124,7 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Test
     void testValidatePasswordStrengthValid() {
-        final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
+        final String validPassword = TestFixtures.validPassword();
         // Should not throw exception
         assertThatCode(() -> userService.validatePasswordStrength(validPassword))
                 .doesNotThrowAnyException();
@@ -144,7 +132,7 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Test
     void testValidatePasswordStrengthBoundary() {
-        final String boundaryPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH - 1);
+        final String boundaryPassword = TestFixtures.shortPassword();
         assertThatThrownBy(() -> userService.validatePasswordStrength(boundaryPassword))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
@@ -152,15 +140,15 @@ class UserServiceTest extends AbstractIntegrationTest {
 
     @Test
     void testValidatePasswordStrengthTooShort() {
-        assertThatThrownBy(() -> userService.validatePasswordStrength("short"))
+        assertThatThrownBy(() -> userService.validatePasswordStrength(TestFixtures.SHORT_PASSWORD))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
+                .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
     @Test
     void testPrepareUserForSaveNewUserWithEmptyPassword() {
         final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
+        user.setUsername(TestFixtures.uniqueUsername());
 
         assertThatThrownBy(() -> userService.prepareUserForSave(user, "", true))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -170,7 +158,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void testPrepareUserForSaveNewUserWithNullPassword() {
         final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
+        user.setUsername(TestFixtures.uniqueUsername());
 
         assertThatThrownBy(() -> userService.prepareUserForSave(user, null, true))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -180,36 +168,36 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void testPrepareUserForSaveNewUserWithShortPassword() {
         final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
+        user.setUsername(TestFixtures.uniqueUsername());
 
-        assertThatThrownBy(() -> userService.prepareUserForSave(user, "short", true))
+        assertThatThrownBy(() -> userService.prepareUserForSave(user, TestFixtures.SHORT_PASSWORD, true))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
+                .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
     @Test
     void testPrepareUserForSaveExistingUserWithShortPassword() {
         final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
-        user.setPassword("existing-encoded-password");
+        user.setUsername(TestFixtures.uniqueUsername());
+        user.setPassword(EXISTING_ENCODED_PASSWORD);
         savedUser = dataManager.save(user);
 
-        assertThatThrownBy(() -> userService.prepareUserForSave(user, "short", false))
+        assertThatThrownBy(() -> userService.prepareUserForSave(user, TestFixtures.SHORT_PASSWORD, false))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
+                .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
     @Test
     void testPrepareUserForSaveExistingUserWithValidPassword() {
         final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
-        user.setPassword("existing-encoded-password");
+        user.setUsername(TestFixtures.uniqueUsername());
+        user.setPassword(EXISTING_ENCODED_PASSWORD);
         savedUser = dataManager.save(user);
 
-        final String newPassword = "newValidPassword123";
+        final String newPassword = TestFixtures.VALID_PASSWORD;
         userService.prepareUserForSave(user, newPassword, false);
 
-        assertThat(user.getPassword()).isNotBlank().isNotEqualTo(newPassword).isNotEqualTo("existing-encoded-password");
+        assertThat(user.getPassword()).isNotBlank().isNotEqualTo(newPassword).isNotEqualTo(EXISTING_ENCODED_PASSWORD);
     }
 
     @AfterEach

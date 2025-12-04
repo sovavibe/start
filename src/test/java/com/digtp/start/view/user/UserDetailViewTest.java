@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.view.user;
 
@@ -44,13 +33,10 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
+// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
 // - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
 // - PMD.LawOfDemeter, PMD.TooManyMethods, PMD.AvoidDuplicateLiterals
-@SuppressWarnings({
-    "PMD.AvoidAccessibilityAlteration", // Test: reflection via invokeMethod helper
-    "PMD.AvoidDuplicateLiterals" // Test: "getEditedEntity" string literal repeated for clarity
-})
+@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection via invokeMethod helper
 @ExtendWith(AuthenticatedAsAdmin.class)
 class UserDetailViewTest extends AbstractIntegrationTest {
 
@@ -58,6 +44,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     private static final String USERNAME_FIELD = "usernameField";
     private static final String PASSWORD_FIELD = "passwordField";
     private static final String CONFIRM_PASSWORD_FIELD = "confirmPasswordField";
+    private static final String GET_EDITED_ENTITY_METHOD = "getEditedEntity";
 
     @Autowired
     private ViewNavigators viewNavigators;
@@ -123,7 +110,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(null);
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -225,7 +212,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue("");
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -246,7 +233,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword + "different");
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -267,7 +254,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(shortPassword);
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
