@@ -396,6 +396,8 @@ sonar {
         property 'sonar.test.exclusions', '**/test_support/**'
         property 'sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml'
         property 'sonar.junit.reportPaths', 'build/test-results/test'
+        // Explicitly mark as CI analysis (disables Automatic Analysis conflict warning)
+        property 'sonar.analysis.mode', 'ci'
     }
 }
 
