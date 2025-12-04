@@ -6,6 +6,7 @@ package com.digtp.start.security;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.digtp.start.config.SecurityConstants;
@@ -73,8 +74,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     @Test
     void testValidateNullPassword() {
         // Arrange
-        when(passwordContext.getPassword()).thenReturn(null);
-        when(passwordContext.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn(null);
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
@@ -85,8 +86,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     @Test
     void testValidateEmptyPassword() {
         // Arrange
-        when(passwordContext.getPassword()).thenReturn("");
-        when(passwordContext.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn("");
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
@@ -98,8 +99,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     void testValidatePasswordTooShort() {
         // Arrange
         final String shortPassword = "short";
-        when(passwordContext.getPassword()).thenReturn(shortPassword);
-        when(passwordContext.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn(shortPassword);
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
@@ -111,8 +112,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     void testValidatePasswordBoundary() {
         // Arrange
         final String boundaryPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH - 1);
-        when(passwordContext.getPassword()).thenReturn(boundaryPassword);
-        when(passwordContext.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn(boundaryPassword);
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))

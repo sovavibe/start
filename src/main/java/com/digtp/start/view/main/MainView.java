@@ -37,9 +37,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @RequiredArgsConstructor
 @Slf4j
 // Framework patterns: PMD rules handled by Baseline, Sonar/Checkstyle rules excluded centrally
-@SuppressWarnings({
-    "PMD.NonSerializableClass" // Views contain framework-managed non-serializable beans (expected)
-})
+@SuppressWarnings("PMD.NonSerializableClass")
 public class MainView extends StandardMainView {
 
     private static final long serialVersionUID = 1L;

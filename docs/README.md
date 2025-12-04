@@ -20,7 +20,6 @@ This directory contains all project documentation organized by category for easy
 
 ### 🔍 Quality & CI/CD
 - **[Quality Gates](quality/QUALITY_GATES.md)** - Comprehensive quality gates documentation and thresholds
-- **[Suppressions](quality/suppressions-obosnovaniya.md)** - Suppression policy and justifications
 - **[CI/CD Pipeline](ci-cd/CI_CD.md)** - Continuous Integration and Deployment pipeline documentation
 - **[CI/CD Setup](ci-cd/CI_CD_SETUP.md)** - CI/CD configuration and secrets setup guide
 - **[SonarCloud Verification](ci-cd/SONARCLOUD_VERIFICATION.md)** - SonarCloud connection verification guide
