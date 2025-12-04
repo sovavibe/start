@@ -1,153 +1,68 @@
 ---
-globs: ["**/*.java"]
+globs: ["src/main/**/*.java", "src/test/**/*.java"]
 autoFix: false
-version: "1.0.0"
+version: "2.0.0"
 ---
 
 # LOGGING POLICY
 
 ## PRINCIPLES
-
 **Observability First**: Logs are the eyes of the system. Removing logs = loss of observability.
-
 **Structured Logging**: Always use parameterized messages, never concatenation.
-
 **Context Matters**: Always log important context (userId, entityId, operation, requestId).
-
 **Security**: Never log passwords, tokens, secrets, PII (except audit.log with masking).
 
 ## LOG LEVELS
 
-### DEBUG
-**When to use**:
-- Detailed diagnostics (config loading, validation, internal states)
-- Method execution tracing
-- Call parameters (safe data)
-- Internal component states
-
-**Examples**:
+**DEBUG**: Detailed diagnostics, method tracing, internal states. Does NOT affect production (INFO level).
 ```java
 log.debug("Loading configuration from .env file");
 log.debug("User entity initialized: isNew={}, username={}", isNew, username);
-log.debug("Password validation passed: username={}", username);
 ```
 
-**Important**: DEBUG logs do NOT affect production (INFO level), but are critical for diagnostics.
-
-### INFO
-**When to use**:
-- Business events (entity creation/update, successful operations)
-- Component start/stop
-- Important state changes
-- Successful user operations
-
-**Examples**:
+**INFO**: Business events (entity CRUD, successful operations), component start/stop, state changes.
 ```java
 log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
-log.info("User '{}' successfully logged in", username);
 log.info("Application started successfully");
-log.info("Loaded {} environment variables from .env file", count);
 ```
 
-### WARN
-**When to use**:
-- Issues that don't break functionality
-- Validation failed (expected behavior)
-- Retry operations
-- Deprecated API usage
-- Suboptimal but working scenarios
-
-**Examples**:
+**WARN**: Issues that don't break functionality, validation failed (expected), retry operations, deprecated API.
 ```java
 log.warn("Password validation failed: {}", validationError);
 log.warn("Login failed for user '{}': {}", username, reason);
-log.warn("Cache '{}' is not recording statistics", cacheName);
 ```
 
-### ERROR
-**When to use**:
-- Critical errors, exceptions
-- Operations that cannot be executed
-- System errors
-- Unexpected exceptions
-
-**Examples**:
+**ERROR**: Critical errors, exceptions, operations that cannot be executed, system errors.
 ```java
 log.error("Failed to save user: id={}, username={}", user.getId(), user.getUsername(), exception);
-log.error("Database connection failed", exception);
 ```
 
 ## STRUCTURED LOGGING
 
-### ✅ Correct
-```java
-log.info("User created: id={}, username={}", user.getId(), user.getUsername());
-log.debug("Processing request: method={}, path={}", method, path);
-log.warn("Validation failed: field={}, error={}", fieldName, error);
-```
-
-### ❌ Incorrect
-```java
-log.info("User created: id=" + user.getId() + ", username=" + user.getUsername()); // Concatenation
-log.info("User created: " + user); // toString() in string
-log.info("User created"); // No context
-```
+✅ **Correct**: `log.info("User created: id={}, username={}", user.getId(), user.getUsername());`
+❌ **Incorrect**: `log.info("User created: id=" + user.getId());` // Concatenation
+❌ **Incorrect**: `log.info("User created");` // No context
 
 ## WHEN NOT TO REMOVE LOGS
 
-**CRITICAL**: Do NOT remove logs in the following cases:
+**CRITICAL**: Do NOT remove logs for:
+1. **Configuration/initialization**: Config loading, component init, app start/stop, DB migrations
+2. **Error handling**: Catch blocks (always log exceptions), validation failed, retry operations
+3. **Business events**: Entity CRUD, authentication (success/failure), critical operations
+4. **Diagnostics**: DEBUG logs for internal states, execution tracing, call parameters
 
-1. **Configuration and initialization**:
-   - Config loading (.env, properties)
-   - Component initialization
-   - Application start/stop
-   - Database migrations
-
-2. **Error handling**:
-   - Catch blocks (always log exceptions)
-   - Validation failed
-   - Retry operations
-
-3. **Business events**:
-   - Entity creation/update/deletion
-   - Authentication (successful and failed)
-   - Critical operations
-
-4. **Diagnostics**:
-   - DEBUG logs for internal states
-   - Execution tracing
-   - Call parameters
-
-**Rule**: If logging helps understand what's happening in the system - do NOT remove it.
+**Rule**: If logging helps understand what's happening - do NOT remove it.
 
 ## SECURITY
 
-### ❌ Never log
-- Passwords (plain text or hashed)
-- Tokens (JWT, API keys, session tokens)
-- Secrets (private keys, credentials)
-- PII without masking (except audit.log)
-- SQL with parameters containing secrets
+❌ **Never log**: Passwords (plain/hashed), tokens (JWT, API keys, sessions), secrets, PII without masking (except audit.log), SQL with secret parameters.
 
-### ✅ Safe logging
-```java
-// ✅ Correct
-log.info("User authenticated: username={}", username);
-log.debug("Password validation passed: username={}", username);
-
-// ❌ Incorrect
-log.info("User authenticated: password={}", password); // NEVER!
-log.debug("Token: {}", token); // NEVER!
-```
+✅ **Safe**: `log.info("User authenticated: username={}", username);`
+❌ **Never**: `log.info("User authenticated: password={}", password);`
 
 ## CONTEXT (MDC)
 
-**Always use MDC for request context**:
-- `requestId` - unique request ID (UUID)
-- `userId` - user ID (if authenticated)
-- `sessionId` - session ID (optional)
-
-**Example**:
+Always use MDC for request context: `requestId` (UUID), `userId` (if authenticated), `sessionId` (optional).
 ```java
 MDC.put("requestId", UUID.randomUUID().toString());
 MDC.put("userId", getCurrentUserId());
@@ -160,133 +75,32 @@ try {
 
 ## AUDIT LOGGING
 
-**Use separate logger `com.digtp.start.audit`** for business events:
-- Entity creation/update/deletion
-- Authentication (successful and failed)
-- Critical operations
-- Security changes
-
-**Example**:
+Use separate logger `com.digtp.start.audit` for business events (entity CRUD, authentication, critical operations, security changes).
 ```java
-@Slf4j
-public class AuditService {
-    private static final Logger auditLogger = LoggerFactory.getLogger("com.digtp.start.audit");
-    
-    public void logUserCreated(UUID userId, String username) {
-        auditLogger.info("USER_CREATED: userId={}, username={}", userId, username);
-    }
-}
+private static final Logger auditLogger = LoggerFactory.getLogger("com.digtp.start.audit");
+auditLogger.info("USER_CREATED: userId={}, username={}", userId, username);
 ```
 
 ## PERFORMANCE
 
-### Performance logging
-- Log slow operations (>100ms for services, >500ms for views)
-- Use DEBUG level for detailed tracing
-- Don't log in hot paths unnecessarily
-
-**Example**:
+Log slow operations (>100ms services, >500ms views) at DEBUG level. Don't log in hot paths unnecessarily.
 ```java
-long start = System.currentTimeMillis();
-try {
-    // ... operation
-} finally {
-    long duration = System.currentTimeMillis() - start;
-    if (duration > 100) {
-        log.debug("Slow operation: method={}, duration={}ms", methodName, duration);
-    }
+long duration = System.currentTimeMillis() - start;
+if (duration > 100 && log.isDebugEnabled()) {
+    log.debug("Slow operation: method={}, duration={}ms", methodName, duration);
 }
 ```
 
 ## ANTIPATTERNS
 
-### ❌ Removing logs for "code cleanliness"
-```java
-// ❌ BAD - loss of observability
-if (dotenvProperties.isEmpty()) {
-    // No variables to load
-    return;
-}
-
-// ✅ GOOD - preserve observability
-if (dotenvProperties.isEmpty()) {
-    log.debug("No .env file found or all variables already set");
-    return;
-}
-```
-
-### ❌ Logging without context
-```java
-// ❌ BAD
-log.info("User created");
-
-// ✅ GOOD
-log.info("User created: id={}, username={}", user.getId(), user.getUsername());
-```
-
-### ❌ Logging in loop without level check
-```java
-// ❌ BAD - creates strings even if DEBUG is disabled
-for (User user : users) {
-    log.debug("Processing user: " + user.getUsername());
-}
-
-// ✅ GOOD - parameterized logging
-for (User user : users) {
-    log.debug("Processing user: username={}", user.getUsername());
-}
-```
-
-## EXAMPLES BY SCENARIO
-
-### Configuration
-```java
-// ✅ DEBUG for details
-log.debug("Loaded {} from .env file", key);
-log.debug("No .env file found or error loading it: {}", exception.getMessage(), exception);
-
-// ✅ INFO for result
-log.info("Loaded {} environment variables from .env file", count);
-```
-
-### Business operations
-```java
-// ✅ INFO for successful operations
-log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
-log.info("User '{}' successfully logged in", username);
-
-// ✅ WARN for validation problems
-log.warn("Password validation failed: {}", validationError);
-log.warn("Login failed for user '{}': {}", username, reason);
-```
-
-### Errors
-```java
-// ✅ ERROR with exception
-log.error("Failed to save user: id={}, username={}", user.getId(), user.getUsername(), exception);
-
-// ✅ WARN for expected problems
-log.warn("Password confirmation validation failed");
-```
+❌ **Removing logs for "cleanliness"**: `if (isEmpty()) return;` → ✅ `if (isEmpty()) { log.debug("..."); return; }`
+❌ **No context**: `log.info("User created");` → ✅ `log.info("User created: id={}, username={}", id, username);`
+❌ **Concatenation in loop**: `log.debug("User: " + user);` → ✅ `log.debug("User: username={}", username);`
 
 ## CHECKLIST
 
-Before removing or changing a log, ask yourself:
-
-- [ ] Does this log help understand what's happening in the system?
-- [ ] Is it used for diagnosing problems?
-- [ ] Does it contain important context (userId, entityId, operation)?
-- [ ] Is this a business event or error?
-
-**If at least one answer is "yes" - do NOT remove the log.**
+Before removing/changing a log: Does it help understand the system? Used for diagnostics? Contains context (userId, entityId, operation)? Business event or error? **If yes → keep it.**
 
 ## SUMMARY
 
-1. **Observability First** - logs are critical for understanding the system
-2. **Structured Logging** - always parameterized messages
-3. **Context Matters** - always log important context
-4. **Security** - never log secrets
-5. **Don't Remove Logs** - if a log helps understand the system, keep it
-6. **Use Right Level** - DEBUG/INFO/WARN/ERROR as appropriate
-7. **MDC for Tracing** - use MDC for request tracing
-8. **Audit for Business** - use audit.log for business events
+1. Observability First | 2. Structured Logging (parameterized) | 3. Context Matters | 4. Security (no secrets) | 5. Don't Remove Logs | 6. Use Right Level (DEBUG/INFO/WARN/ERROR) | 7. MDC for Tracing | 8. Audit for Business
