@@ -18,26 +18,37 @@ version: "1.0.0"
 ✅ Clone: `gh repo clone <owner>/<repo>`
 
 ## COMMITS
-✅ ALWAYS use Conventional Commits format
+✅ ALWAYS use Conventional Commits format (see `@conventional-commits.mdc`)
 ✅ Format: `<type>[scope]: <description>`
 ✅ Types: feat, fix, docs, refactor, test, chore, perf, style
+✅ Scopes: jmix, vaadin, entity, view, service, security, liquibase, ui, api, db, config, test
 ✅ Examples:
   - `feat(vaadin): add flashcard creation view`
   - `fix(service): resolve null pointer`
   - `refactor(service): extract payment calculation logic`
+✅ Enforced via commitlint in GitHub Actions
 
 ## BRANCH WORKFLOW
-1. Create branch: `git checkout -b feat/my-feature`
-2. Make changes and commit: `git commit -m "feat: description"`
-3. Push branch: `git push -u origin feat/my-feature`
-4. Create PR: `gh pr create --title "feat: description" --body "Details"`
+1. Create branch: `git checkout -b feat/scope-description` (see `@branch-naming.mdc`)
+2. Make changes and commit: `git commit -m "feat(scope): description"` (see `@conventional-commits.mdc`)
+3. Push branch: `git push -u origin feat/scope-description`
+4. Create PR: `./scripts/create-pr.sh` (auto-generates description from diff)
 5. After review: `gh pr merge --squash`
 
+## BRANCH NAMING
+✅ Format: `<type>/<scope>-<description>` (see `@branch-naming.mdc`)
+✅ Types: feat, fix, docs, refactor, perf, test, build, chore, revert
+✅ Scopes: jmix, vaadin, entity, view, service, security, liquibase, ui, api, db, config, test, ci, deps
+✅ Examples: `feat/vaadin-add-login-form`, `fix/jmix-resolve-npe`
+❌ Enforced in GitHub Actions (blocks merge if invalid)
+
 ## PULL REQUESTS
-✅ Create: `gh pr create --title "Title" --body "Description"`
+✅ Create: `./scripts/create-pr.sh` (auto-generates description from diff)
+✅ Create manual: `gh pr create --title "Title" --body "Description"`
 ✅ List: `gh pr list`
 ✅ View: `gh pr view <number>`
 ✅ Merge: `gh pr merge <number> --squash`
+✅ SpotBugs review: Added automatically when PR is opened (see `.github/workflows/pr-spotbugs-review.yml`)
 
 ## DEPENDABOT
 ✅ One PR per ecosystem (gradle, github-actions, docker) with groups

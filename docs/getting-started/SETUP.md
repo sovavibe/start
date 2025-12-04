@@ -1,6 +1,8 @@
 # Setup Guide
 
-This guide provides step-by-step instructions for setting up the Start project for development.
+> **Quick Start**: Run `make setup` - it does everything automatically!
+
+This guide provides detailed setup instructions. For quick start, see [Quick Start Guide](../QUICK_START.md).
 
 ## Prerequisites
 

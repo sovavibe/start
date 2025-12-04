@@ -51,7 +51,10 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
 **Formatting**: Use `./gradlew format` (Palantir Baseline format task) or `./gradlew spotlessApply` (Spotless only). Palantir Baseline automatically configures Spotless with import order, unused imports removal, and other formatting rules.
 
 ## CI/CD BEST PRACTICES
-**GitHub Actions**: Use latest stable versions, pin major versions (v5, v6), enable caching | **Parallelization**: Split jobs (format-check, code-quality, test, build) for faster execution | **Timeouts**: Set timeouts for all jobs (10-30 min) | **Dependabot**: Group updates, limit PRs, monthly schedule, auto-merge safe updates | **Security**: Use GITHUB_TOKEN, scan dependencies (Trivy, OWASP), upload SARIF reports
+**GitHub Actions**: Use latest stable versions, pin major versions (v5, v6), enable caching | **Parallelization**: Split jobs (format-check, code-quality, test, build) for faster execution | **Timeouts**: Set timeouts for all jobs (10-30 min) | **Dependabot**: Group updates, limit PRs, monthly schedule, auto-merge safe updates | **Security**: Use GITHUB_TOKEN, scan dependencies (Trivy, OWASP), upload SARIF reports | **Commitlint**: Enforced via GitHub Actions (see `@conventional-commits.mdc`) | **Branch naming**: Enforced via GitHub Actions (see `@branch-naming.mdc`) | **PR creation**: Use `./scripts/create-pr.sh` for auto-generated descriptions
 
 ## CONTEXT
 Search codebase first | Follow existing patterns | Use context7 MCP docs | Maintain consistency | See `@context-management.mdc` for details | See `@rules.mdc` for security, logging, testing, prohibitions, metrics
+
+## GIT WORKFLOW
+**Branches**: See `@branch-naming.mdc` for naming conventions | **Commits**: See `@conventional-commits.mdc` for format | **PRs**: See `@github.mdc` for workflow | **Auto PR**: Use `./scripts/create-pr.sh` to create PR with auto-generated description from diff

@@ -1,0 +1,85 @@
+name: Commit & Branch Linting
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint-commits:
+    name: Lint Commits
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate commit messages
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # For PRs, check all commits in the PR
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+            npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+          else
+            # For pushes, check only the last commit
+            npx commitlint --from HEAD~1 --to HEAD --verbose
+          fi
+
+  lint-branch:
+    name: Lint Branch Name
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          
+          # Skip validation for protected branches
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" == "master" ]]; then
+            echo "✅ Protected branch, skipping validation"
+            exit 0
+          fi
+          
+          # Validate branch name format: <type>/<scope>-<description>
+          if ! echo "$BRANCH_NAME" | grep -qE '^(feat|fix|docs|refactor|perf|test|build|chore|revert)/(jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test|ci|deps)-[a-z0-9-]+$'; then
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo ""
+            echo "Branch name must follow format: <type>/<scope>-<description>"
+            echo ""
+            echo "Types: feat, fix, docs, refactor, perf, test, build, chore, revert"
+            echo "Scopes: jmix, vaadin, entity, view, service, security, liquibase, ui, api, db, config, test, ci, deps"
+            echo ""
+            echo "Examples:"
+            echo "  ✅ feat/vaadin-add-login-form"
+            echo "  ✅ fix/jmix-resolve-datamanager-npe"
+            echo "  ✅ refactor/service-extract-payment-logic"
+            echo ""
+            echo "See .cursor/rules/branch-naming.mdc for details"
+            exit 1
+          fi
+          
+          echo "✅ Branch name is valid: $BRANCH_NAME"
+

@@ -2,15 +2,21 @@
 
 This directory contains all project documentation organized by category for easy navigation.
 
+## 🚀 Start Here
+
+- **[Quick Start Guide](QUICK_START.md)** ⭐ - Get started in 5 minutes (for Analysts & Developers)
+
 ## 📚 Documentation Structure
 
 ### 🚀 Getting Started
-- **[Setup Guide](getting-started/SETUP.md)** - Step-by-step installation and setup instructions
+- **[Quick Start](QUICK_START.md)** ⭐ - Essential commands and workflows
+- **[Roles Guide](ROLES.md)** ⭐ - Quick reference for Analysts, Developers, Reviewers
+- **[Setup Guide](getting-started/SETUP.md)** - Detailed installation and setup instructions
 - **[Local Development](getting-started/LOCAL_DEVELOPMENT.md)** - Local development environment setup and workflow
 
 ### 🏗️ Architecture & Development
 - **[Architecture](architecture/ARCHITECTURE.md)** - System architecture, design patterns, and C4 Model diagrams
-- **[SDLC](development/SDLC.md)** - Software Development Life Cycle for Vibe Coding
+- **[SDLC](development/SDLC.md)** - Software Development Life Cycle for Vibe Coding (with Mermaid diagrams)
 
 ### 🔍 Quality & CI/CD
 - **[Quality Gates](quality/QUALITY_GATES.md)** - Comprehensive quality gates documentation and thresholds

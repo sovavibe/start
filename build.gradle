@@ -669,6 +669,40 @@ tasks.register("buildInfo") {
     }
 }
 
+// Baseline Configuration Tasks
+tasks.named("baselineUpdateConfig").configure {
+    doLast {
+        // Add custom FQN check rule after Baseline updates config
+        def checkstyleXml = file(".baseline/checkstyle/checkstyle.xml")
+        if (checkstyleXml.exists()) {
+            def content = checkstyleXml.text
+            // Check if FQN rule already exists
+            if (!content.contains("Avoid fully qualified names")) {
+                // Find the position after TODO rule (before "<!-- Stricter checks end -->")
+                def marker = "<module name=\"RegexpSinglelineJava\"> <!-- Custom: Avoid fully qualified names (FQN) -->"
+                if (!content.contains(marker)) {
+                    // Insert after TODO rule
+                    def insertAfter = "<property name=\"ignoreCase\" value=\"true\"/>\n        </module>"
+                    def fqnRule = """        <module name="RegexpSinglelineJava"> <!-- Custom: Avoid fully qualified names (FQN) -->
+            <property name="format" value="[a-z][a-zA-Z0-9]*\\.[a-z][a-zA-Z0-9]*\\.[a-zA-Z][a-zA-Z0-9]*"/>
+            <property name="message" value="Avoid fully qualified names. Use imports instead."/>
+            <property name="ignoreComments" value="true"/>
+            <property name="ignoreStrings" value="true"/>
+        </module>
+"""
+                    def newContent = content.replace(insertAfter, insertAfter + "\n" + fqnRule)
+                    checkstyleXml.text = newContent
+                    println("✅ Added AvoidFullyQualifiedNames rule to checkstyle.xml")
+                } else {
+                    println("✅ AvoidFullyQualifiedNames rule already exists in checkstyle.xml")
+                }
+            } else {
+                println("✅ AvoidFullyQualifiedNames rule already exists in checkstyle.xml")
+            }
+        }
+    }
+}
+
 // ============================================================================
 // BASELINE CLASS UNIQUENESS
 // ============================================================================

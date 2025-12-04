@@ -23,7 +23,7 @@ env:
   DOCKER_HUB_USERNAME: sovavibe
 
 jobs:
-  # Быстрая проверка форматирования (параллельно с другими)
+  # Fast formatting check (runs in parallel with other jobs)
   format-check:
     name: Format Check
     runs-on: ubuntu-latest
@@ -49,7 +49,7 @@ jobs:
         run: ./gradlew spotlessCheck --no-daemon
         # Strict: formatting violations block merge
 
-  # Проверка качества кода (параллельно)
+  # Code quality checks (runs in parallel)
   code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
@@ -70,15 +70,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Verify Checkstyle config exists
-        run: |
-          if [ ! -f ".baseline/checkstyle/checkstyle.xml" ]; then
-            echo "❌ checkstyle.xml not found!"
-            echo "Files in .baseline/checkstyle/:"
-            ls -la .baseline/checkstyle/ || echo "Directory doesn't exist"
-            exit 1
-          fi
-          echo "✅ checkstyle.xml found"
+      - name: Generate Baseline configuration
+        run: ./gradlew baselineUpdateConfig --no-daemon
+        # Baseline generates .baseline/checkstyle/checkstyle.xml and other config files
+        # This ensures config files exist even if not committed or if Baseline version changed
 
       - name: Clean build
         run: ./gradlew clean --no-daemon
@@ -96,7 +91,7 @@ jobs:
           path: build/reports/
           retention-days: 30
 
-  # Тесты (параллельно)
+  # Tests (runs in parallel)
   test:
     name: Tests
     runs-on: ubuntu-latest
@@ -171,7 +166,7 @@ jobs:
         # Project: sovavibe_start (organization: sovavibe)
         # Automatic Analysis is disabled - CI analysis is now required and blocking
 
-  # Сборка приложения (после тестов)
+  # Build application (runs after tests)
   build:
     name: Build Application
     runs-on: ubuntu-latest
@@ -226,7 +221,7 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      # OWASP и Trivy выполняются параллельно
+      # OWASP and Trivy run in parallel
       - name: OWASP Dependency Check
         run: ./gradlew dependencyCheckAnalyze --no-daemon
 
@@ -267,8 +262,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          cache-backend: 'gha' # Используем GitHub Actions cache для Docker
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
