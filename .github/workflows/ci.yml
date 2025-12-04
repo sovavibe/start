@@ -150,6 +150,7 @@ jobs:
         run: ./gradlew sonar --no-daemon
         # SonarCloud quality gate will block merge if quality gate fails
         # Requires jacocoTestReport.xml at build/reports/jacoco/test/jacocoTestReport.xml
+        # Project: sovavibe_start (organization: sovavibe)
 
   # Сборка приложения (после тестов)
   build:
