@@ -232,17 +232,28 @@ public class UserDetailView extends StandardDetailView<User> {
         final User user = getEditedEntity();
         final boolean isNew = entityStates.isNew(user);
         wasNewOnSave = isNew; // Store state for use in onAfterSave
-        if (isNew) {
-            userService.prepareUserForSave(user, passwordField.getValue(), true);
-            log.debug("Preparing new user for save: username={}", user.getUsername());
-        } else {
-            final String newPassword = passwordField.getValue();
-            userService.prepareUserForSave(user, newPassword, false);
-            log.debug(
-                    "Preparing user update: id={}, username={}, passwordChanged={}",
+        try {
+            if (isNew) {
+                userService.prepareUserForSave(user, passwordField.getValue(), true);
+                log.debug("Preparing new user for save: username={}", user.getUsername());
+            } else {
+                final String newPassword = passwordField.getValue();
+                userService.prepareUserForSave(user, newPassword, false);
+                log.debug(
+                        "Preparing user update: id={}, username={}, passwordChanged={}",
+                        user.getId(),
+                        user.getUsername(),
+                        SecurityConstants.isNotNullOrEmpty(newPassword));
+            }
+        } catch (final Exception exception) {
+            log.error(
+                    "Failed to prepare user for save: id={}, username={}, isNew={}, error={}",
                     user.getId(),
                     user.getUsername(),
-                    SecurityConstants.isNotNullOrEmpty(newPassword));
+                    isNew,
+                    exception.getMessage(),
+                    exception);
+            throw exception; // Re-throw to let framework handle it
         }
     }
 
@@ -250,6 +261,7 @@ public class UserDetailView extends StandardDetailView<User> {
     public void onAfterSave(final AfterSaveEvent _event) {
         final User user = getEditedEntity();
         if (wasNewOnSave) {
+            log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
             auditService.logUserCreated(user.getId(), user.getUsername());
             notifications
                     .create(messageBundle.getMessage("noAssignedRolesNotification"))
@@ -258,7 +270,17 @@ public class UserDetailView extends StandardDetailView<User> {
                     .show();
             wasNewOnSave = false; // Reset after use
         } else {
+            final String newPassword = passwordField.getValue();
+            final boolean passwordChanged = SecurityConstants.isNotNullOrEmpty(newPassword);
+            log.info(
+                    "User updated successfully: id={}, username={}, passwordChanged={}",
+                    user.getId(),
+                    user.getUsername(),
+                    passwordChanged);
             auditService.logUserUpdated(user.getId(), user.getUsername());
+            if (passwordChanged) {
+                auditService.logPasswordChanged(user.getId(), user.getUsername());
+            }
         }
     }
 }
