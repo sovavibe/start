@@ -157,8 +157,8 @@ graph TB
         StartApp[StartApplication<br/>Main entry point]
     end
     
-    subgraph DB["PostgreSQL Database"]
-        UserTable[USER_ table<br/>SEC_ROLE<br/>SEC_ROLE_ASSIGNMENT]
+    subgraph Database["PostgreSQL Database"]
+        DB[(PostgreSQL<br/>Tables: USER_, SEC_ROLE, SEC_ROLE_ASSIGNMENT)]
     end
     
     LoginView --> UserService
@@ -171,8 +171,8 @@ graph TB
     
     DataManager --> UserEntity
     UserEntity --> EclipseLink
-    EclipseLink --> UserTable
-    Liquibase --> UserTable
+    EclipseLink --> DB
+    Liquibase --> DB
     
     UserRepo --> DataManager
     SecurityConfig --> UserRepo
