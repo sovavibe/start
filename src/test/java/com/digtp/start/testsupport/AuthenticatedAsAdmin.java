@@ -5,6 +5,7 @@
 package com.digtp.start.testsupport;
 
 import io.jmix.core.security.SystemAuthenticator;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -21,7 +22,7 @@ import org.springframework.test.context.TestContextManager;
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
 // - PMD.LongVariable
-@SuppressWarnings("PMD.EmptyCatchBlock") // Test: idempotent operations may throw if already executed
+@Slf4j
 public final class AuthenticatedAsAdmin implements BeforeEachCallback, AfterEachCallback {
 
     /**
@@ -56,15 +57,17 @@ public final class AuthenticatedAsAdmin implements BeforeEachCallback, AfterEach
         final Object testInstance = context.getRequiredTestInstance();
         try {
             testContextManager.prepareTestInstance(testInstance);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // If already prepared by SpringExtension, ignore - this is expected behavior
-            // PMD.EmptyCatchBlock: Exception is intentionally ignored (idempotent operation)
+            // (idempotent operation)
+            log.debug("TestContextManager already prepared by SpringExtension: {}", e.getMessage());
         }
         try {
             testContextManager.beforeTestMethod(testInstance, context.getRequiredTestMethod());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // If already called by SpringExtension, ignore - this is expected behavior
-            // PMD.EmptyCatchBlock: Exception is intentionally ignored (idempotent operation)
+            // (idempotent operation)
+            log.debug("beforeTestMethod already called by SpringExtension: {}", e.getMessage());
         }
         return testContextManager.getTestContext().getApplicationContext();
     }

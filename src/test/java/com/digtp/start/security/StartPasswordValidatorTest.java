@@ -49,11 +49,9 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     void testValidateValidPassword() {
         // Arrange
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        when(passwordContext.getPassword()).thenReturn(validPassword);
-        when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
-        assertThatCode(() -> passwordValidator.validate(passwordContext)).doesNotThrowAnyException();
+        verifyValidPasswordAccepted(validPassword, null);
     }
 
     @Test
@@ -64,11 +62,9 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
         savedUser = dataManager.save(user);
 
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        when(passwordContext.getPassword()).thenReturn(validPassword);
-        when(passwordContext.getUser()).thenReturn(user);
 
         // Act & Assert
-        assertThatCode(() -> passwordValidator.validate(passwordContext)).doesNotThrowAnyException();
+        verifyValidPasswordAccepted(validPassword, user);
     }
 
     @Test
@@ -132,15 +128,18 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
         assertThatCode(() -> passwordValidator.validate(passwordContext)).doesNotThrowAnyException();
     }
 
-    @Test
-    @SuppressWarnings("java:S4144") // Test method has similar structure but tests different scenario (null user)
-    void testValidatePasswordWithNullUser() {
-        // Arrange
-        final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        when(passwordContext.getPassword()).thenReturn(validPassword);
-        when(passwordContext.getUser()).thenReturn(null);
 
-        // Act & Assert
+    /**
+     * Helper method to verify that a valid password is accepted by the validator.
+     *
+     * <p>Used by multiple tests to avoid code duplication while testing different scenarios.
+     *
+     * @param password password to validate
+     * @param user user context (can be null)
+     */
+    private void verifyValidPasswordAccepted(final String password, final User user) {
+        when(passwordContext.getPassword()).thenReturn(password);
+        when(passwordContext.getUser()).thenReturn(user);
         assertThatCode(() -> passwordValidator.validate(passwordContext)).doesNotThrowAnyException();
     }
 

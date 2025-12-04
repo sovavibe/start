@@ -8,11 +8,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.assertj.core.api.Assertions;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
@@ -20,19 +19,17 @@ import org.springframework.core.env.MutablePropertySources;
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
 // - PMD.LongVariable
-@SuppressWarnings("PMD.SingularField")
 class DotenvConfigTest {
 
     private DotenvConfig dotenvConfig;
     private ApplicationEnvironmentPreparedEvent event;
     private ConfigurableEnvironment environment;
-    private MutablePropertySources propertySources;
 
     @BeforeEach
     void beforeEach() {
         dotenvConfig = new DotenvConfig();
         environment = Mockito.mock(ConfigurableEnvironment.class);
-        propertySources = new MutablePropertySources();
+        final MutablePropertySources propertySources = new MutablePropertySources();
         event = Mockito.mock(ApplicationEnvironmentPreparedEvent.class);
         when(event.getEnvironment()).thenReturn(environment);
         when(environment.getPropertySources()).thenReturn(propertySources);

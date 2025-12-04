@@ -217,14 +217,9 @@ class MainViewTest extends AbstractIntegrationTest {
     @Test
     // java:S5853 excluded via config/sonar-project.properties
     void testUserMenuButtonRendererWithUser() throws ReflectiveOperationException {
-        viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
-        final View<?> currentView = getCurrentViewAsView();
-        viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component = invokeMethod(
-                Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = invokeRendererMethod("userMenuButtonRenderer", user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
@@ -244,16 +239,10 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("java:S4144") // Test method has similar structure but tests different scenario
     void testUserMenuHeaderRendererWithUser() throws ReflectiveOperationException {
-        viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
-        final View<?> currentView = getCurrentViewAsView();
-        viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component = invokeMethod(
-                Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = invokeRendererMethod("userMenuHeaderRenderer", user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
@@ -296,6 +285,26 @@ class MainViewTest extends AbstractIntegrationTest {
         user.setFirstName(firstName);
         user.setLastName(lastName);
         return user;
+    }
+
+    /**
+     * Helper method to navigate to MainView and invoke a renderer method via reflection.
+     *
+     * <p>Used by multiple tests to avoid code duplication while testing different renderer methods.
+     *
+     * @param methodName name of the renderer method to invoke
+     * @param userDetails user details to pass to the renderer method
+     * @return component returned by the renderer method
+     * @throws ReflectiveOperationException if reflection fails
+     */
+    private Component invokeRendererMethod(final String methodName, final UserDetails userDetails)
+            throws ReflectiveOperationException {
+        viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
+        final View<?> currentView = getCurrentViewAsView();
+        viewNavigators.view(currentView, MainView.class).navigate();
+        final View<?> mainView = getCurrentViewAsView();
+        return invokeMethod(
+                Component.class, mainView, methodName, new Class<?>[] {UserDetails.class}, userDetails);
     }
 
     @AfterEach

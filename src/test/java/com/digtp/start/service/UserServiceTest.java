@@ -135,14 +135,14 @@ class UserServiceTest extends AbstractIntegrationTest {
     void testValidatePasswordStrengthBoundary() {
         final String boundaryPassword = TestFixtures.shortPassword();
         assertThatThrownBy(() -> userService.validatePasswordStrength(boundaryPassword))
-                .isInstanceOf(SafeIllegalArgumentException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
     @Test
     void testValidatePasswordStrengthTooShort() {
         assertThatThrownBy(() -> userService.validatePasswordStrength(TestFixtures.SHORT_PASSWORD))
-                .isInstanceOf(SafeIllegalArgumentException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
@@ -172,7 +172,7 @@ class UserServiceTest extends AbstractIntegrationTest {
         user.setUsername(TestFixtures.uniqueUsername());
 
         assertThatThrownBy(() -> userService.prepareUserForSave(user, TestFixtures.SHORT_PASSWORD, true))
-                .isInstanceOf(SafeIllegalArgumentException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
@@ -184,7 +184,7 @@ class UserServiceTest extends AbstractIntegrationTest {
         savedUser = dataManager.save(user);
 
         assertThatThrownBy(() -> userService.prepareUserForSave(user, TestFixtures.SHORT_PASSWORD, false))
-                .isInstanceOf(SafeIllegalArgumentException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 

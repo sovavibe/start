@@ -28,8 +28,6 @@ import org.springframework.core.env.MapPropertySource;
  * not be committed to version control (already in .gitignore).
  */
 @Slf4j
-@SuppressWarnings("PMD.AvoidCatchingGenericException")
-// PMD.AvoidCatchingGenericException: Dotenv throws RuntimeException, catching is necessary
 public final class DotenvConfig implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
     /**
@@ -38,7 +36,6 @@ public final class DotenvConfig implements ApplicationListener<ApplicationEnviro
     private static final int ORDER_OFFSET = 10;
 
     @Override
-    // PMD.AvoidCatchingGenericException: Catching generic Exception is acceptable for configuration loading
     public void onApplicationEvent(final ApplicationEnvironmentPreparedEvent event) {
         try {
             final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();

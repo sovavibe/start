@@ -1,11 +1,36 @@
 #!/bin/bash
 # Create PR with auto-generated description from git diff
-# Usage: ./scripts/create-pr.sh [base-branch] [title]
+# Usage: ./scripts/create-pr.sh [base-branch] [title] [--generate-only]
+#   --generate-only: Only generate description file, don't create PR
 
 set -e
 
-BASE_BRANCH="${1:-main}"
-TITLE="${2:-}"
+GENERATE_ONLY=false
+BASE_BRANCH="main"
+TITLE=""
+
+# Parse arguments
+for arg in "$@"; do
+  if [ "$arg" = "--generate-only" ]; then
+    GENERATE_ONLY=true
+  elif [ -z "$BASE_BRANCH" ] || [ "$BASE_BRANCH" = "main" ]; then
+    if [ "$arg" != "main" ] && [ "$arg" != "--generate-only" ]; then
+      # Check if it looks like a branch name (not a title with spaces)
+      if echo "$arg" | grep -qv " "; then
+        BASE_BRANCH="$arg"
+      else
+        TITLE="$arg"
+      fi
+    fi
+  elif [ -z "$TITLE" ] && [ "$arg" != "--generate-only" ]; then
+    TITLE="$arg"
+  fi
+done
+
+# Default base branch
+if [ -z "$BASE_BRANCH" ] || [ "$BASE_BRANCH" = "main" ]; then
+  BASE_BRANCH="main"
+fi
 
 # Get current branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
@@ -202,6 +227,25 @@ if [ -z "$TITLE" ]; then
   TITLE=$(echo "$CURRENT_BRANCH" | sed -E 's|^[^/]+/[^/]+-||' | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')
   # Add type prefix
   TITLE="$PR_TYPE: $TITLE"
+fi
+
+# If generate-only mode, save to file and exit
+if [ "$GENERATE_ONLY" = true ]; then
+  OUTPUT_FILE="pr_description.md"
+  cp "$TEMP_DESC" "$OUTPUT_FILE"
+  echo "📝 PR description generated successfully!"
+  echo "📄 Saved to: $OUTPUT_FILE"
+  echo ""
+  echo "Title: $TITLE"
+  echo "Base: $BASE_BRANCH"
+  echo "Head: $CURRENT_BRANCH"
+  echo ""
+  echo "📊 Changes: $STATS"
+  echo "📝 Commits: $COMMIT_COUNT"
+  echo ""
+  echo "To create PR, use:"
+  echo "  gh pr create --title \"$TITLE\" --body-file $OUTPUT_FILE --base $BASE_BRANCH --head $CURRENT_BRANCH"
+  exit 0
 fi
 
 echo "🚀 Creating PR..."
