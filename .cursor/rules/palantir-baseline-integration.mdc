@@ -37,7 +37,6 @@ version: "1.1.0"
 ## COPYRIGHT
 - **Templates**: `.baseline/copyright/*.txt` | Largest file (lexicographically) used for new files
 - **Current**: `999_apache-minimal.txt` - Minimal Apache License 2.0 format (2 lines), Digital Technologies and Platforms LLC
-- **Format**: `Copyright ${today.year} Digital Technologies and Platforms LLC` + `Licensed under the Apache License, Version 2.0`
 - **Update**: `./gradlew format` auto-updates copyright headers
 
 ## UPDATE

@@ -41,11 +41,10 @@ import org.springframework.stereotype.Component;
 @Order(1) // Execute early, before security filters
 @Slf4j
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.SignatureDeclareThrowsException
 // PMD.AtLeastOneConstructor: Filter classes don't need explicit constructor (Spring creates instances)
 // PMD.CommentRequired: All methods have JavaDoc comments
 // PMD.GuardLogStatement: SLF4J handles log level checks internally (PMD recognizes this)
-@SuppressWarnings("PMD.SignatureDeclareThrowsException")
+// PMD.SignatureDeclareThrowsException: Filter interface requires throws IOException, ServletException (PMD recognizes this)
 public final class LoggingMdcFilter implements Filter {
 
     private static final String REQUEST_ID_KEY = "requestId";
