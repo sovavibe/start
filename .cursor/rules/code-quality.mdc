@@ -23,13 +23,15 @@ Virtual threads, pattern matching, records (5+ params → Builder), text blocks
 
 ## FQN (FULLY QUALIFIED NAMES) CHECK
 - **Rule**: `AvoidFullyQualifiedNames` (Checkstyle RegexpSinglelineJava)
-- **Location**: `.baseline/checkstyle/checkstyle.xml` (TreeWalker section)
+- **Status**: ⚠️ **NOT ENABLED BY DEFAULT** in Palantir Baseline
+- **Location**: `.baseline/checkstyle/checkstyle.xml` (TreeWalker section) - needs to be added manually
 - **Pattern**: Universal - catches any FQN pattern `package.subpackage.Class` (minimum 2 dots)
 - **Example violations**: 
   - `io.jmix.flowui.view.View<?> loginView` → should use `View<?> loginView` with import
   - `java.lang.reflect.Method method` → should use `Method method` with import
 - **Exclusions**: Imports and package declarations automatically excluded
 - **Suppression**: `@SuppressWarnings("checkstyle:avoidfullyqualifiednames")` if truly necessary (rare)
+- **Note**: This rule is enforced via AI rules (`@ai-rules.mdc`) and code review, not by Checkstyle
 
 ## FORMATTING
 - **Command**: `./gradlew format` (Palantir Baseline format task)

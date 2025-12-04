@@ -23,7 +23,7 @@ Java 21 (virtual threads, pattern matching, records) | Jmix 2.7.1 | Vaadin FlowU
 Linters run at end only | Use `make analyze-full` (not `./gradlew codeQualityFull`) | Format: `./gradlew format` (Palantir Baseline) | Fix root causes, not symptoms | Production-ready, maintainable, testable | See `@ai-rules.mdc` for AI workflow
 
 ## PALANTIR BASELINE
-See `@palantir-baseline-integration.mdc` for details | Format: `./gradlew format` | Suppressions: `@suppress-policy.mdc`
+**CRITICAL**: Use Baseline out-of-the-box, do NOT customize unless absolutely necessary | Baseline manages versions, configurations, and defaults | ❌ Do NOT override Baseline-managed versions (Error Prone, Checkstyle, PMD, SpotBugs) | ✅ Let Baseline manage everything | See `@palantir-baseline-integration.mdc` for details | Format: `./gradlew format` | Suppressions: `@suppress-policy.mdc`
 
 ## DATABASE
 See `@jmix-data-access.mdc` | DataManager: `create()`, `save()`, `load()`, `remove()` | ❌ `new Entity()` → ✅ `dataManager.create()`
