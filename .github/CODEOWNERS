@@ -1,25 +1,10 @@
-# Code owners for automatic review assignment
+# Code owners for the Start project
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-# Default owners for everything
-* @sovavibe
+# Global owners - all files
+# Repository owner and code owners
+* @sovavibe @apolenkov
 
-# Documentation
-/docs/ @sovavibe
-*.md @sovavibe
-README.md @sovavibe
-CONTRIBUTING.md @sovavibe
-
-# CI/CD
-/.github/ @sovavibe
-/.github/workflows/ @sovavibe
-
-# Configuration
-/build.gradle @sovavibe
-/gradle.properties @sovavibe
-/config/ @sovavibe
-
-# Security
-/security/ @sovavibe
-/SECURITY.md @sovavibe
-
+# Specific paths (if needed in future)
+# /src/main/java/com/digtp/start/security/ @security-team
+# /docs/ @docs-team
