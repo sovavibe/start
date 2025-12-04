@@ -86,24 +86,21 @@ public class UserService {
      * passwords to be at least 8 characters long.
      *
      * @param password password to validate, must not be null
-     * @throws IllegalArgumentException if password length is less than minimum required length
+     * @throws SafeIllegalArgumentException if password length is less than minimum required length
      * @see SecurityConstants#MIN_PASSWORD_LENGTH
      * <p>Example:
      * <pre>{@code
      * try {
      *     userService.validatePasswordStrength("short");
-     * } catch (IllegalArgumentException e) {
+     * } catch (SafeIllegalArgumentException e) {
      *     // Password too short
      * }
      * }</pre>
      * @since 1.0
      */
-    // PreferSafeLoggableExceptions suppressed: SafeIllegalArgumentException requires compile-time constant,
-    // but message needs dynamic formatting with MIN_PASSWORD_LENGTH
-    @SuppressWarnings("PreferSafeLoggableExceptions")
     public void validatePasswordStrength(@NonNull final String password) {
         if (password.length() < SecurityConstants.MIN_PASSWORD_LENGTH) {
-            throw new IllegalArgumentException(
+            throw new SafeIllegalArgumentException(
                     "Password must be at least %d characters long".formatted(SecurityConstants.MIN_PASSWORD_LENGTH));
         }
     }

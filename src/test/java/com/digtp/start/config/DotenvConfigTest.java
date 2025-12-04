@@ -4,11 +4,12 @@
  */
 package com.digtp.start.config;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.assertj.core.api.Assertions;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ import org.springframework.core.env.MutablePropertySources;
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
 // - PMD.LongVariable
-@SuppressWarnings({"PMD.TooManyStaticImports", "PMD.SingularField"})
+@SuppressWarnings("PMD.SingularField")
 class DotenvConfigTest {
 
     private DotenvConfig dotenvConfig;
@@ -30,9 +31,9 @@ class DotenvConfigTest {
     @BeforeEach
     void beforeEach() {
         dotenvConfig = new DotenvConfig();
-        environment = mock(ConfigurableEnvironment.class);
+        environment = Mockito.mock(ConfigurableEnvironment.class);
         propertySources = new MutablePropertySources();
-        event = mock(ApplicationEnvironmentPreparedEvent.class);
+        event = Mockito.mock(ApplicationEnvironmentPreparedEvent.class);
         when(event.getEnvironment()).thenReturn(environment);
         when(environment.getPropertySources()).thenReturn(propertySources);
     }
@@ -47,7 +48,7 @@ class DotenvConfigTest {
         final int order = dotenvConfig.getOrder();
 
         // Assert
-        assertThat(order).isEqualTo(Integer.MIN_VALUE + expectedOrderOffset);
+        Assertions.assertThat(order).isEqualTo(Integer.MIN_VALUE + expectedOrderOffset);
     }
 
     @Test
@@ -57,42 +58,44 @@ class DotenvConfigTest {
         // returns an empty Dotenv instance
         // Event and environment are already mocked in setUp
 
-        // Act
-        dotenvConfig.onApplicationEvent(event);
-
-        // Assert
-        verify(environment).getPropertySources();
+        // Act & Assert
+        verifyOnApplicationEventCompletes();
     }
 
     @Test
     void testOnApplicationEventWithExistingEnvironmentVariable() {
         // Arrange
-        when(environment.containsProperty(any())).thenReturn(true);
+        when(environment.containsProperty(ArgumentMatchers.any())).thenReturn(true);
 
         // Act
         dotenvConfig.onApplicationEvent(event);
 
         // Assert
-        verify(environment, org.mockito.Mockito.atLeastOnce()).containsProperty(any());
+        verify(environment, Mockito.atLeastOnce()).containsProperty(ArgumentMatchers.any());
     }
 
     @Test
-    @SuppressWarnings("java:S4144") // Test method has similar structure but tests different scenario
     void testOnApplicationEventHandlesRuntimeException() {
         // Arrange
         // Event and environment are already mocked in setUp
         // Dotenv may throw RuntimeException if .env file has issues
         // This test verifies exception handling - the method catches RuntimeException
         // and logs at debug level without rethrowing
-        // Note: Implementation is similar to testOnApplicationEventWithNoEnvFile but
-        // tests different scenario (exception handling vs missing file gracefully)
 
-        // Act
-        dotenvConfig.onApplicationEvent(event);
-
-        // Assert
+        // Act & Assert
         // Should complete without throwing exception even if Dotenv fails
         // The method catches RuntimeException internally
+        verifyOnApplicationEventCompletes();
+    }
+
+    /**
+     * Helper method to verify that onApplicationEvent completes successfully
+     * and accesses environment property sources.
+     *
+     * <p>Used by multiple tests to avoid code duplication while testing different scenarios.
+     */
+    private void verifyOnApplicationEventCompletes() {
+        dotenvConfig.onApplicationEvent(event);
         verify(environment).getPropertySources();
     }
 }

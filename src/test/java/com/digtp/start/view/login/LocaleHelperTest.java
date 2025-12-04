@@ -4,11 +4,13 @@
  */
 package com.digtp.start.view.login;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import org.mockito.ArgumentMatchers;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.server.VaadinSession;
@@ -23,7 +25,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
@@ -36,7 +37,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 // - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
 // - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
 // - PMD.LawOfDemeter, PMD.ShortVariable
-@SuppressWarnings("PMD.TooManyStaticImports")
 class LocaleHelperTest {
 
     @Mock
@@ -78,7 +78,7 @@ class LocaleHelperTest {
         when(vaadinSession.getLocale()).thenReturn(currentLocale);
 
         // Act
-        try (MockedStatic<VaadinSession> vaadinSessionMock = mockStatic(VaadinSession.class)) {
+        try (MockedStatic<VaadinSession> vaadinSessionMock = Mockito.mockStatic(VaadinSession.class)) {
             vaadinSessionMock.when(VaadinSession::getCurrent).thenReturn(vaadinSession);
             localeHelper.initLocales(login);
         }
@@ -97,14 +97,14 @@ class LocaleHelperTest {
         when(vaadinSession.getLocale()).thenReturn(Locale.ENGLISH);
 
         // Act
-        try (MockedStatic<VaadinSession> vaadinSessionMock = mockStatic(VaadinSession.class)) {
+        try (MockedStatic<VaadinSession> vaadinSessionMock = Mockito.mockStatic(VaadinSession.class)) {
             vaadinSessionMock.when(VaadinSession::getCurrent).thenReturn(vaadinSession);
             localeHelper.initLocales(login);
         }
 
         // Assert
         verify(coreProperties).getAvailableLocales();
-        verify(messageTools, never()).getLocaleDisplayName(any());
+        verify(messageTools, never()).getLocaleDisplayName(ArgumentMatchers.any());
         verify(login).setSelectedLocale(Locale.ENGLISH);
     }
 
@@ -147,6 +147,6 @@ class LocaleHelperTest {
         verify(messageBundle).getMessage("loginForm.badCredentials");
         verify(messageBundle).getMessage("loginForm.errorUsername");
         verify(messageBundle).getMessage("loginForm.errorPassword");
-        verify(login).setI18n(any(JmixLoginI18n.class));
+        verify(login).setI18n(ArgumentMatchers.any(JmixLoginI18n.class));
     }
 }
