@@ -1,4 +1,4 @@
-         /*
+/*
  * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,93 +13,93 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-         package com.digtp.start.config;
+package com.digtp.start.config;
 
-         import io.github.cdimascio.dotenv.Dotenv;
-         import java.util.HashMap;
-         import java.util.Map;
-         import lombok.extern.slf4j.Slf4j;
-         import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
-         import org.springframework.context.ApplicationListener;
-         import org.springframework.core.Ordered;
-         import org.springframework.core.env.ConfigurableEnvironment;
-         import org.springframework.core.env.MapPropertySource;
+import io.github.cdimascio.dotenv.Dotenv;
+import java.util.HashMap;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
+import org.springframework.context.ApplicationListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.env.ConfigurableEnvironment;
+import org.springframework.core.env.MapPropertySource;
 
-         /**
-          * Configuration for loading .env file support.
-          *
-          * <p>Loads environment variables from .env file in the project root directory
-          * before Spring Boot loads application.properties. This ensures that variables
-          * from .env are available during property resolution.
-          *
-          * <p>Variables from .env file are loaded into Spring Environment with lowest
-          * precedence (environment variables and system properties take precedence).
-          *
-          * <p>The .env file should be placed in the project root directory and should
-          * not be committed to version control (already in .gitignore).
-          */
-         @Slf4j
-         @SuppressWarnings({
-             "PMD.CommentSize",
-             "PMD.AtLeastOneConstructor",
-             "PMD.LawOfDemeter",
-             "PMD.UseConcurrentHashMap",
-             "PMD.GuardLogStatement",
-             "PMD.AvoidCatchingGenericException"
-         })
+/**
+ * Configuration for loading .env file support.
+ *
+ * <p>Loads environment variables from .env file in the project root directory
+ * before Spring Boot loads application.properties. This ensures that variables
+ * from .env are available during property resolution.
+ *
+ * <p>Variables from .env file are loaded into Spring Environment with lowest
+ * precedence (environment variables and system properties take precedence).
+ *
+ * <p>The .env file should be placed in the project root directory and should
+ * not be committed to version control (already in .gitignore).
+ */
+@Slf4j
+@SuppressWarnings({
+    "PMD.CommentSize",
+    "PMD.AtLeastOneConstructor",
+    "PMD.LawOfDemeter",
+    "PMD.UseConcurrentHashMap",
+    "PMD.GuardLogStatement",
+    "PMD.AvoidCatchingGenericException"
+})
 // PMD.CommentSize: Copyright header is standard and required
 // PMD.AtLeastOneConstructor: Lombok @RequiredArgsConstructor generates constructor
 // PMD.LawOfDemeter: Framework event pattern requires chaining (event.getEnvironment())
 // PMD.UseConcurrentHashMap: HashMap is sufficient for single-threaded initialization phase
 // PMD.GuardLogStatement: SLF4J handles log level checks internally
 // PMD.AvoidCatchingGenericException: Dotenv throws RuntimeException, catching is necessary
-         public final class DotenvConfig implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
+public final class DotenvConfig implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
-             /**
-              * Order offset for loading .env variables early, but after system properties.
-              */
-             private static final int ORDER_OFFSET = 10;
+    /**
+     * Order offset for loading .env variables early, but after system properties.
+     */
+    private static final int ORDER_OFFSET = 10;
 
-             @Override
-             // PMD.AvoidCatchingGenericException: Catching generic Exception is acceptable for configuration loading
-             public void onApplicationEvent(final ApplicationEnvironmentPreparedEvent event) {
-                 try {
-                     final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
+    @Override
+    // PMD.AvoidCatchingGenericException: Catching generic Exception is acceptable for configuration loading
+    public void onApplicationEvent(final ApplicationEnvironmentPreparedEvent event) {
+        try {
+            final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
-                     final ConfigurableEnvironment environment = event.getEnvironment();
-                     final Map<String, Object> dotenvProperties = new HashMap<>();
+            final ConfigurableEnvironment environment = event.getEnvironment();
+            final Map<String, Object> dotenvProperties = new HashMap<>();
 
-                     // Load .env variables into Spring Environment
-                     dotenv.entries().forEach(entry -> {
-                         final String key = entry.getKey();
-                         final String value = entry.getValue();
+            // Load .env variables into Spring Environment
+            dotenv.entries().forEach(entry -> {
+                final String key = entry.getKey();
+                final String value = entry.getValue();
 
-                         // Only add if not already present (environment variables take precedence)
-                         if (!environment.containsProperty(key)) {
-                             dotenvProperties.put(key, value);
-                             log.debug("Loaded {} from .env file", key);
-                         }
-                     });
+                // Only add if not already present (environment variables take precedence)
+                if (!environment.containsProperty(key)) {
+                    dotenvProperties.put(key, value);
+                    log.debug("Loaded {} from .env file", key);
+                }
+            });
 
-                     if (dotenvProperties.isEmpty()) {
-                         // No variables to load - .env file not found or all variables already set
-                         return;
-                     }
+            if (dotenvProperties.isEmpty()) {
+                // No variables to load - .env file not found or all variables already set
+                return;
+            }
 
-                     environment.getPropertySources().addLast(new MapPropertySource("dotenv", dotenvProperties));
-                     log.info("Loaded {} environment variables from .env file", dotenvProperties.size());
-                 } catch (final RuntimeException exception) {
-                     // Dotenv library throws RuntimeException for various errors (file not found, parsing errors, etc.)
-                     // .env file is optional (ignoreIfMissing() is configured), so we log at debug level
-                     // Catching RuntimeException is necessary as Dotenv doesn't declare specific checked exceptions
-                     // and wraps various exceptions (IOException, parsing errors) as RuntimeException
-                     log.debug("No .env file found or error loading it: {}", exception.getMessage(), exception);
-                 }
-             }
+            environment.getPropertySources().addLast(new MapPropertySource("dotenv", dotenvProperties));
+            log.info("Loaded {} environment variables from .env file", dotenvProperties.size());
+        } catch (final RuntimeException exception) {
+            // Dotenv library throws RuntimeException for various errors (file not found, parsing errors, etc.)
+            // .env file is optional (ignoreIfMissing() is configured), so we log at debug level
+            // Catching RuntimeException is necessary as Dotenv doesn't declare specific checked exceptions
+            // and wraps various exceptions (IOException, parsing errors) as RuntimeException
+            log.debug("No .env file found or error loading it: {}", exception.getMessage(), exception);
+        }
+    }
 
-             @Override
-             public int getOrder() {
-                 // Load early, but after system properties and environment variables
-                 return HIGHEST_PRECEDENCE + ORDER_OFFSET;
-             }
-         }
+    @Override
+    public int getOrder() {
+        // Load early, but after system properties and environment variables
+        return HIGHEST_PRECEDENCE + ORDER_OFFSET;
+    }
+}
