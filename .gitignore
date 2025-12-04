@@ -28,6 +28,7 @@ out/
 # But commit important configuration files
 !.baseline/copyright/
 !.baseline/checkstyle/custom-suppressions.xml
+!.baseline/checkstyle/checkstyle.xml
 
 # VS Code
 .vscode/
