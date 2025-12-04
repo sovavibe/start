@@ -165,4 +165,3 @@ public final class TestFixtures {
      */
     public record Credentials(String username, String password) {}
 }
-

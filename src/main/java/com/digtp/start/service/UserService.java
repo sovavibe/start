@@ -4,19 +4,16 @@
  */
 package com.digtp.start.service;
 
+import com.digtp.start.config.SecurityConstants;
+import com.digtp.start.entity.User;
+import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import java.util.Objects;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.digtp.start.config.SecurityConstants;
-import com.digtp.start.entity.User;
-import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service for user management operations.
@@ -189,5 +186,4 @@ public class UserService {
         final String encodedPassword = encodePassword(password);
         user.setPassword(encodedPassword);
     }
-
 }
