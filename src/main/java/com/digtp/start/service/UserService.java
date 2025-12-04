@@ -103,7 +103,7 @@ public class UserService {
     public void validatePasswordStrength(@NonNull final String password) {
         if (password.length() < SecurityConstants.MIN_PASSWORD_LENGTH) {
             throw new SafeIllegalArgumentException(
-                    "Password must be at least %d characters long".formatted(SecurityConstants.MIN_PASSWORD_LENGTH));
+                    String.format("Password must be at least %d characters long", SecurityConstants.MIN_PASSWORD_LENGTH));
         }
     }
 

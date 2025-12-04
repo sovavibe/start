@@ -63,9 +63,8 @@ public class LocaleHelper {
      *
      * @param login         the login form component
      * @param messageBundle the message bundle for translations
+     * @param _event        locale change event (unused, required by framework interface)
      */
-    // Framework pattern: LocaleChangeEvent parameter required by framework interface, may be unused
-    @SuppressWarnings("java:S1172")
     public void updateLoginI18n(
             final JmixLoginForm login,
             final MessageBundle messageBundle,
