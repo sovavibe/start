@@ -14,6 +14,10 @@ import java.util.UUID;
  * <p>Provides reusable test data to avoid hard-coded values in tests.
  * Reduces SpotBugs HARD_CODE_PASSWORD warnings and improves test maintainability.
  */
+@SuppressWarnings({
+    "PMD.AvoidDuplicateLiterals", // Test fixtures intentionally use repeated string literals
+    "PMD.TestClassWithoutTestCases" // Utility class for test data, not a test class itself
+})
 public final class TestFixtures {
 
     /**

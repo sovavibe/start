@@ -4,16 +4,19 @@
  */
 package com.digtp.start.service;
 
-import com.digtp.start.config.SecurityConstants;
-import com.digtp.start.entity.User;
-import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import java.util.Objects;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.digtp.start.config.SecurityConstants;
+import com.digtp.start.entity.User;
+import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Service for user management operations.
@@ -100,10 +103,13 @@ public class UserService {
      * }</pre>
      * @since 1.0
      */
+    // PreferSafeLoggableExceptions suppressed: SafeIllegalArgumentException requires compile-time constant,
+    // but message needs dynamic formatting with MIN_PASSWORD_LENGTH
+    @SuppressWarnings("PreferSafeLoggableExceptions")
     public void validatePasswordStrength(@NonNull final String password) {
         if (password.length() < SecurityConstants.MIN_PASSWORD_LENGTH) {
-            throw new SafeIllegalArgumentException(
-                    String.format("Password must be at least %d characters long", SecurityConstants.MIN_PASSWORD_LENGTH));
+            throw new IllegalArgumentException(
+                    "Password must be at least %d characters long".formatted(SecurityConstants.MIN_PASSWORD_LENGTH));
         }
     }
 

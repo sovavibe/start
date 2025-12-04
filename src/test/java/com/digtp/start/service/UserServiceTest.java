@@ -13,6 +13,7 @@ import com.digtp.start.entity.User;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
 import com.digtp.start.testsupport.TestFixtures;
+import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import io.jmix.core.DataManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -151,7 +152,7 @@ class UserServiceTest extends AbstractIntegrationTest {
         user.setUsername(TestFixtures.uniqueUsername());
 
         assertThatThrownBy(() -> userService.prepareUserForSave(user, "", true))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(SafeIllegalArgumentException.class)
                 .hasMessageContaining("Password is required for new users");
     }
 
@@ -161,7 +162,7 @@ class UserServiceTest extends AbstractIntegrationTest {
         user.setUsername(TestFixtures.uniqueUsername());
 
         assertThatThrownBy(() -> userService.prepareUserForSave(user, null, true))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(SafeIllegalArgumentException.class)
                 .hasMessageContaining("Password is required for new users");
     }
 

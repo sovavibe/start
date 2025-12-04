@@ -4,22 +4,25 @@
  */
 package com.digtp.start.view.login;
 
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Component;
+
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.server.VaadinSession;
+
 import io.jmix.core.CoreProperties;
 import io.jmix.core.MessageTools;
 import io.jmix.flowui.component.loginform.JmixLoginForm;
 import io.jmix.flowui.kit.component.ComponentUtils;
 import io.jmix.flowui.kit.component.loginform.JmixLoginI18n;
 import io.jmix.flowui.view.MessageBundle;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 /**
  * Helper class for locale management in login view.
