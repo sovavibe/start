@@ -15,17 +15,19 @@
  */
 package com.digtp.start.config;
 
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
 import java.util.Collection;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
+
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Configuration for cache metrics with Micrometer.
@@ -86,7 +88,10 @@ public class CacheMetricsConfig implements ApplicationListener<ApplicationReadyE
                 final Cache cache = cacheManager.getCache(cacheName);
                 if (cache != null
                         && cache.getNativeCache()
+                                // CHECKSTYLE:OFF: AvoidFullyQualifiedNames - FQN required to resolve name conflict:
+                                // com.github.benmanes.caffeine.cache.Cache vs org.springframework.cache.Cache
                                 instanceof com.github.benmanes.caffeine.cache.Cache<?, ?> caffeineCache) {
+                    // CHECKSTYLE:ON: AvoidFullyQualifiedNames
                     // Register metrics for Caffeine cache
                     CaffeineCacheMetrics.monitor(meterRegistry, caffeineCache, cacheName);
                     registeredCount++;
