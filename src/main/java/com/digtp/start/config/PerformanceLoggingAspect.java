@@ -15,13 +15,12 @@
  */
 package com.digtp.start.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * AOP aspect for logging slow operations.
@@ -40,7 +39,14 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentSize, PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.GuardLogStatement
-@SuppressWarnings({"PMD.CommentSize", "PMD.AtLeastOneConstructor", "PMD.CommentRequired", "PMD.GuardLogStatement"})
+// - IllegalThrows: AOP @Around requires Throwable for proper exception propagation
+@SuppressWarnings({
+    "PMD.CommentSize",
+    "PMD.AtLeastOneConstructor",
+    "PMD.CommentRequired",
+    "PMD.GuardLogStatement",
+    "checkstyle:IllegalThrows"
+})
 public class PerformanceLoggingAspect {
 
     /**
