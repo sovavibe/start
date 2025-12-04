@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.entity;
 
 import io.jmix.core.HasTimeZone;
@@ -19,7 +34,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.EqualsAndHashCode;
@@ -44,6 +59,14 @@ import org.springframework.security.core.GrantedAuthority;
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD rules handled by Baseline: CommentSize, CommentRequired, LongVariable, ShortClassName,
+//   AtLeastOneConstructor, ShortVariable
+// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
+//   MissingSerialVersionUID, MissingJavadocMethod
+// - SpotBugs rules excluded via config/spotbugs/exclude.xml:
+//   ES, EI, EI2, EI_EXPOSE_REP, EI_EXPOSE_REP2 (EclipseLink/Lombok)
+@SuppressWarnings("PMD.MissingSerialVersionUID") // Jmix entities don't need serialVersionUID (framework-managed)
 public class User implements JmixUserDetails, HasTimeZone {
 
     private static final int USERNAME_MAX_LENGTH = 100;
@@ -97,11 +120,12 @@ public class User implements JmixUserDetails, HasTimeZone {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities != null ? authorities : Collections.emptyList();
+        return authorities != null ? List.copyOf(authorities) : List.of();
     }
 
     @Override
-    @SuppressWarnings("checkstyle:HiddenField") // Interface method signature requires parameter name matching field
+    // checkstyle:HiddenField suppressed via .baseline/checkstyle/custom-suppressions.xml
+    // Interface method signature requires parameter name matching field
     public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
     }
@@ -128,13 +152,12 @@ public class User implements JmixUserDetails, HasTimeZone {
 
     @InstanceName
     @DependsOnProperties({"firstName", "lastName", "username"})
+    // SpotBugs FS_FORMAT_STRING_USE_NEWLINE: Text block uses actual newlines, not escape sequences - false positive
+    // Workaround: Use String.format with %n instead of text block to avoid SpotBugs false positive
     public String getDisplayName() {
         final String firstNameSafe = Objects.requireNonNullElse(firstName, "");
         final String lastNameSafe = Objects.requireNonNullElse(lastName, "");
-        return """
-                %s %s [%s]
-                """
-                .formatted(firstNameSafe, lastNameSafe, username)
+        return String.format("%s %s [%s]%n", firstNameSafe, lastNameSafe, username)
                 .trim();
     }
 

@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,8 +21,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
-import com.digtp.start.test_support.AbstractIntegrationTest;
-import com.digtp.start.test_support.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.AbstractIntegrationTest;
+import com.digtp.start.testsupport.AuthenticatedAsAdmin;
 import io.jmix.core.DataManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -15,12 +30,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
+@ExtendWith(AuthenticatedAsAdmin.class)
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
+// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
+// - PMD.LawOfDemeter, PMD.TooManyMethods
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Test data uses duplicate string literals for clarity
 class UserServiceTest extends AbstractIntegrationTest {
+
+    private static final String TEST_USER_PREFIX = "test-user-";
+    private static final String EXISTING_ENCODED_PASSWORD = "existing-encoded-password";
+    private static final String AT_LEAST = "at least ";
 
     @Autowired
     UserService userService;
@@ -58,7 +81,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("nullness:argument") // Intentionally testing null edge case - Objects.equals handles null
+    // nullness:argument excluded via build.gradle (NullAway:ExcludedClasses for tests)
     void testValidatePasswordConfirmation() {
         // Arrange
         final String password = "password";
@@ -87,7 +110,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     void testPrepareUserForSaveNewUser() {
         // Arrange
         final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
+        user.setUsername(TEST_USER_PREFIX + System.currentTimeMillis());
         final String password = "test-password";
 
         // Act
@@ -101,8 +124,8 @@ class UserServiceTest extends AbstractIntegrationTest {
     @Test
     void testPrepareUserForSaveExistingUser() {
         final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
-        user.setPassword("existing-encoded-password");
+        user.setUsername(TEST_USER_PREFIX + System.currentTimeMillis());
+        user.setPassword(EXISTING_ENCODED_PASSWORD);
         savedUser = dataManager.save(user);
 
         final String originalPassword = user.getPassword();
@@ -124,7 +147,7 @@ class UserServiceTest extends AbstractIntegrationTest {
         final String boundaryPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH - 1);
         assertThatThrownBy(() -> userService.validatePasswordStrength(boundaryPassword))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
+                .hasMessageContaining(AT_LEAST + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
     @Test
@@ -190,7 +213,7 @@ class UserServiceTest extends AbstractIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
             savedUser = null; // NOPMD - NullAssignment: prevents accidental reuse of removed entity

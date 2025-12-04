@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.view.user;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -5,8 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.digtp.start.StartApplication;
 import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
-import com.digtp.start.test_support.AbstractIntegrationTest;
-import com.digtp.start.test_support.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.AbstractIntegrationTest;
+import com.digtp.start.testsupport.AuthenticatedAsAdmin;
+import com.digtp.start.view.login.LoginView;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.PasswordField;
 import io.jmix.core.DataManager;
@@ -16,19 +32,32 @@ import io.jmix.flowui.kit.component.button.JmixButton;
 import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
 import io.jmix.flowui.testassist.UiTest;
 import io.jmix.flowui.testassist.UiTestUtils;
+import io.jmix.flowui.view.View;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
-@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
+// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
+// - PMD.LawOfDemeter, PMD.TooManyMethods, PMD.AvoidDuplicateLiterals
+@SuppressWarnings({
+    "PMD.AvoidAccessibilityAlteration", // Test: reflection via invokeMethod helper
+    "PMD.AvoidDuplicateLiterals" // Test: "getEditedEntity" string literal repeated for clarity
+})
+@ExtendWith(AuthenticatedAsAdmin.class)
 class UserDetailViewTest extends AbstractIntegrationTest {
+
+    private static final String TEST_USER_PREFIX = "test-user-";
+    private static final String USERNAME_FIELD = "usernameField";
+    private static final String PASSWORD_FIELD = "passwordField";
+    private static final String CONFIRM_PASSWORD_FIELD = "confirmPasswordField";
 
     @Autowired
     private ViewNavigators viewNavigators;
@@ -39,15 +68,16 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     private User savedUser;
 
     @Test
-    void testUserDetailViewInit() {
+    void testUserDetailViewInit() throws ReflectiveOperationException {
         // Arrange
+        viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
-        final UserListView listView = UiTestUtils.getCurrentView();
+        final View<?> listView = getCurrentViewAsView();
         final JmixButton createButton = UiTestUtils.getComponent(listView, "createButton");
 
         // Act
         createButton.click();
-        final UserDetailView view = UiTestUtils.getCurrentView();
+        final View<?> view = getCurrentViewAsView();
 
         // Assert
         assertThat(view).isNotNull();
@@ -57,14 +87,14 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void testValidationNewUserWithValidPassword() {
+    void testValidationNewUserWithValidPassword() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
 
         // Act
@@ -73,18 +103,19 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword);
 
         // Assert
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
     }
 
     @Test
-    void testValidationNewUserWithNullPassword() {
+    void testValidationNewUserWithNullPassword() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
 
         // Act
         usernameField.setValue(username);
@@ -92,18 +123,19 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(null);
 
         // Assert - validation should fail but view should still exist
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
     }
 
     @Test
-    void testValidationNewUserWithValidPasswordAndMatchingConfirmation() {
+    void testValidationNewUserWithValidPasswordAndMatchingConfirmation() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH + 5);
 
         // Act
@@ -112,7 +144,8 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword);
 
         // Assert - validation should pass
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
     }
 
     // Note: Validation error scenarios are tested through UserServiceTest
@@ -123,14 +156,14 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     // Focus on new user creation which provides better coverage
 
     @Test
-    void testBeforeSaveNewUser() {
+    void testBeforeSaveNewUser() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
         usernameField.setValue(username);
         passwordField.setValue(validPassword);
@@ -152,14 +185,14 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     // The onBeforeSave logic for existing users is covered by UserServiceTest
 
     @Test
-    void testAfterSaveNewUser() {
+    void testAfterSaveNewUser() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
         usernameField.setValue(username);
         passwordField.setValue(validPassword);
@@ -177,14 +210,14 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void testValidationNewUserWithEmptyPassword() {
+    void testValidationNewUserWithEmptyPassword() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
 
         // Act
         usernameField.setValue(username);
@@ -192,18 +225,19 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue("");
 
         // Assert - validation should fail but view should still exist
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
     }
 
     @Test
-    void testValidationNewUserWithMismatchedPasswords() {
+    void testValidationNewUserWithMismatchedPasswords() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
 
         // Act
@@ -212,18 +246,19 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword + "different");
 
         // Assert - validation should fail but view should still exist
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
     }
 
     @Test
-    void testValidationNewUserWithShortPassword() {
+    void testValidationNewUserWithShortPassword() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
         final String shortPassword = "short";
 
         // Act
@@ -232,18 +267,19 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(shortPassword);
 
         // Assert - validation should fail but view should still exist
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
     }
 
     @Test
-    void testValidationNewUserWithValidPasswordPassesValidation() {
+    void testValidationNewUserWithValidPasswordPassesValidation() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+        final String username = TEST_USER_PREFIX + System.currentTimeMillis();
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH + 5);
 
         // Act - set valid values that will pass validation
@@ -257,16 +293,17 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         assertThat(saveButton).isNotNull();
 
         // Assert - view should be valid and ready to save
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
         assertThat(usernameField.getValue()).isEqualTo(username);
         assertThat(passwordField.getValue()).isEqualTo(validPassword);
     }
 
     @Test
-    void testOnReadyForNewUser() {
+    void testOnReadyForNewUser() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
+        final View<?> view = getCurrentViewAsView();
 
         // Act & Assert - onReady should be called during view initialization
         // The focus() call is tested implicitly through view initialization
@@ -274,10 +311,10 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void testOnInitEntity() {
+    void testOnInitEntity() throws ReflectiveOperationException {
         // Arrange
         navigateToNewUserView();
-        final UserDetailView view = UiTestUtils.getCurrentView();
+        final View<?> view = getCurrentViewAsView();
 
         // Act & Assert - onInitEntity should be called during view initialization
         // Fields should be visible and editable
@@ -293,7 +330,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void testOnReadyForExistingUser() {
+    void testOnReadyForExistingUser() throws ReflectiveOperationException {
         // Arrange
         final User user = dataManager.create(User.class);
         user.setUsername("test-user-" + System.currentTimeMillis());
@@ -301,18 +338,21 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         savedUser = dataManager.save(user);
 
         // Navigate to list view first, then to existing user view using editEntity (Jmix best practice)
+        viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         viewNavigators
                 .detailView(UiTestUtils.getCurrentView(), User.class)
                 .editEntity(savedUser)
                 .navigate();
-        final UserDetailView view = UiTestUtils.getCurrentView();
+        final View<?> view = getCurrentViewAsView();
 
         // Act & Assert - onReady should be called during view initialization
         // The else branch (existing user) should be executed
         assertThat(view).isNotNull();
-        assertThat(view.getEditedEntity()).isNotNull();
-        assertThat(view.getEditedEntity().getId()).isEqualTo(savedUser.getId());
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
+        final User editedEntity2 = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity2.getId()).isEqualTo(savedUser.getId());
     }
 
     // Note: testSaveExistingUserWithPasswordChange removed due to optimistic locking issues in UI tests
@@ -322,7 +362,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     // 3. testOnReadyForExistingUser - covers onReady else branch
 
     @Test
-    void testValidationExistingUserWithPasswordChange() {
+    void testValidationExistingUserWithPasswordChange() throws ReflectiveOperationException {
         // Arrange
         final User user = dataManager.create(User.class);
         user.setUsername("test-user-" + System.currentTimeMillis());
@@ -330,12 +370,13 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         savedUser = dataManager.save(user);
 
         // Navigate to list view first, then to existing user view using editEntity (Jmix best practice)
+        viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         viewNavigators
                 .detailView(UiTestUtils.getCurrentView(), User.class)
                 .editEntity(savedUser)
                 .navigate();
-        final UserDetailView view = UiTestUtils.getCurrentView();
+        final View<?> view = getCurrentViewAsView();
         final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
         final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
         final String newPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
@@ -346,7 +387,8 @@ class UserDetailViewTest extends AbstractIntegrationTest {
 
         // Act & Assert - validation should pass for existing user with password change
         // This covers the else if branch in onValidation for existing users
-        assertThat(view.getEditedEntity()).isNotNull();
+        final User editedEntity = invokeMethod(view, "getEditedEntity", new Class<?>[0]);
+        assertThat(editedEntity).isNotNull();
         assertThat(passwordField.getValue()).isEqualTo(newPassword);
     }
 
@@ -354,14 +396,15 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     // The onAfterSave logic for existing users is covered by UserServiceTest
 
     private void navigateToNewUserView() {
+        viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
-        final UserListView listView = UiTestUtils.getCurrentView();
+        final View<?> listView = getCurrentViewAsView();
         final JmixButton createButton = UiTestUtils.getComponent(listView, "createButton");
         createButton.click();
     }
 
     @AfterEach
-    void tearDown() {
+    void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
             savedUser = null; // NOPMD - NullAssignment: prevents accidental reuse of removed entity
