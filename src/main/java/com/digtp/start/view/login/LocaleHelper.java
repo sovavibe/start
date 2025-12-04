@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.view.login;
 
 import com.vaadin.flow.component.login.LoginI18n;
@@ -11,6 +26,7 @@ import io.jmix.flowui.kit.component.loginform.JmixLoginI18n;
 import io.jmix.flowui.view.MessageBundle;
 import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +39,18 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD.CommentSize, PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.FormalParameterNamingConventions
 public class LocaleHelper {
 
+    /**
+     * Core properties for locale configuration.
+     */
     private final CoreProperties coreProperties;
+
+    /**
+     * Message tools for locale display names.
+     */
     private final MessageTools messageTools;
 
     /**
@@ -33,11 +58,12 @@ public class LocaleHelper {
      *
      * @param login the login form component
      */
-    @SuppressWarnings("PMD.LooseCoupling") // LinkedHashMap needed to preserve insertion order
     public void initLocales(final JmixLoginForm login) {
-        final LinkedHashMap<Locale, String> locales = coreProperties.getAvailableLocales().stream()
+        // Use LinkedHashMap to preserve locale insertion order for UI display
+        // ComponentUtils.setItemsMap requires Map, but order matters for locale selection
+        final Map<Locale, String> locales = coreProperties.getAvailableLocales().stream()
                 .collect(Collectors.toMap(
-                        Function.identity(), messageTools::getLocaleDisplayName, (s1, s2) -> s1, LinkedHashMap::new));
+                        Function.identity(), messageTools::getLocaleDisplayName, (s1, _s2) -> s1, LinkedHashMap::new));
 
         ComponentUtils.setItemsMap(login, locales);
         login.setSelectedLocale(VaadinSession.getCurrent().getLocale());
@@ -46,12 +72,15 @@ public class LocaleHelper {
     /**
      * Updates login form internationalization for locale change.
      *
-     * @param login the login form component
+     * @param login         the login form component
      * @param messageBundle the message bundle for translations
-     * @param event the locale change event
      */
+    // Framework pattern: LocaleChangeEvent parameter required by framework interface, may be unused
+    @SuppressWarnings("java:S1172")
     public void updateLoginI18n(
-            final JmixLoginForm login, final MessageBundle messageBundle, final LocaleChangeEvent event) {
+            final JmixLoginForm login,
+            final MessageBundle messageBundle,
+            @SuppressWarnings("unused") final LocaleChangeEvent _event) {
         final JmixLoginI18n loginI18n = JmixLoginI18n.createDefault();
 
         final JmixLoginI18n.JmixForm form = new JmixLoginI18n.JmixForm();

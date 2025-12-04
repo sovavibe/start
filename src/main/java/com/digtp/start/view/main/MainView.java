@@ -1,6 +1,22 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.view.main;
 
 import com.digtp.start.entity.User;
+import com.google.common.annotations.VisibleForTesting;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.avatar.AvatarVariant;
@@ -17,6 +33,7 @@ import io.jmix.flowui.view.ViewDescriptor;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetails;
 
 /**
@@ -30,17 +47,35 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
 @Slf4j
-@SuppressWarnings(
-        "java:S1948") // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint
-// plugin.
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD rules handled by Baseline: CommentSize, AtLeastOneConstructor, CommentRequired, GuardLogStatement
+// - PMD rules handled by Baseline: LawOfDemeter, FormalParameterNamingConventions, LongVariable, OnlyOneReturn
+// - Sonar rules excluded via config/sonar-project.properties: java:S110, java:S2177, java:S1948
+// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
+//   MissingSerialVersionUID, NonSerializableClass
+// - Error Prone: UnusedMethod enabled - framework methods (@Install, @Subscribe)
+//   automatically excluded via ExcludedAnnotations
+@SuppressWarnings({
+    "PMD.MissingSerialVersionUID", // Jmix views don't need serialVersionUID (framework-managed)
+    "PMD.NonSerializableClass" // Views contain framework-managed non-serializable beans (expected)
+})
 public class MainView extends StandardMainView {
+
+    /**
+     * Tabindex value to exclude element from keyboard navigation.
+     *
+     * <p>Standard HTML/ARIA value for non-interactive decorative elements.
+     */
+    private static final String TABINDEX_EXCLUDED = "-1";
 
     private final transient Messages messages;
     private final transient UiComponents uiComponents;
     private final transient CurrentUserSubstitution currentUserSubstitution;
 
     @Install(to = "userMenu", subject = "buttonRenderer")
-    private Component userMenuButtonRenderer(final UserDetails userDetails) {
+    @Nullable
+    @VisibleForTesting
+    Component userMenuButtonRenderer(final UserDetails userDetails) {
         if (!(userDetails instanceof User user)) {
             log.debug("User menu button renderer: user is not instance of User entity");
             return null;
@@ -72,7 +107,9 @@ public class MainView extends StandardMainView {
     }
 
     @Install(to = "userMenu", subject = "headerRenderer")
-    private Component userMenuHeaderRenderer(final UserDetails userDetails) {
+    @Nullable
+    @VisibleForTesting
+    Component userMenuHeaderRenderer(final UserDetails userDetails) {
         if (!(userDetails instanceof User user)) {
             return null;
         }
@@ -91,7 +128,7 @@ public class MainView extends StandardMainView {
 
         content.add(avatar, text);
 
-        if (user.getUsername() != null && name.equals(user.getUsername())) {
+        if (Objects.equals(user.getUsername(), name)) {
             text.addClassNames("user-menu-text-subtext");
         } else {
             final Span subtext = uiComponents.create(Span.class);
@@ -104,24 +141,29 @@ public class MainView extends StandardMainView {
         return content;
     }
 
-    private Avatar createAvatar(final String fullName) {
+    @VisibleForTesting
+    Avatar createAvatar(final String fullName) {
         final Avatar avatar = uiComponents.create(Avatar.class);
         avatar.setName(fullName);
-        avatar.getElement().setAttribute("tabindex", "-1");
+        avatar.getElement().setAttribute("tabindex", TABINDEX_EXCLUDED);
         avatar.setClassName("user-menu-avatar");
 
         return avatar;
     }
 
-    private String generateUserName(final User user) {
+    @VisibleForTesting
+    String generateUserName(final User user) {
         final String firstName = Objects.requireNonNullElse(user.getFirstName(), "");
         final String lastName = Objects.requireNonNullElse(user.getLastName(), "");
-        final String userName = String.format("%s %s", firstName, lastName).trim();
+        final String userName = "%s %s".formatted(firstName, lastName).trim();
 
-        return userName.isEmpty() ? user.getUsername() : userName;
+        return userName.isBlank() ? user.getUsername() : userName;
     }
 
-    private boolean isSubstituted(final User user) {
+    // SpotBugs RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE excluded via config/spotbugs/exclude.xml
+    // The null check is intentional for defensive programming - getAuthenticatedUser() can return null
+    @VisibleForTesting
+    boolean isSubstituted(final User user) {
         if (user == null) {
             return false;
         }
@@ -129,11 +171,12 @@ public class MainView extends StandardMainView {
         if (authenticatedUser == null) {
             return false;
         }
-        final boolean isSubstituted = !authenticatedUser.getUsername().equals(user.getUsername());
+        final String authenticatedUsername = authenticatedUser.getUsername();
+        final boolean isSubstituted = !Objects.equals(authenticatedUsername, user.getUsername());
         if (isSubstituted) {
             log.debug(
                     "User substitution detected: authenticated={}, displayed={}",
-                    authenticatedUser.getUsername(),
+                    authenticatedUsername,
                     user.getUsername());
         }
         return isSubstituted;

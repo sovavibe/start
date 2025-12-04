@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -12,6 +27,10 @@ import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEven
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
+// - PMD.LongVariable
+@SuppressWarnings({"PMD.TooManyStaticImports", "PMD.SingularField"})
 class DotenvConfigTest {
 
     private DotenvConfig dotenvConfig;
@@ -20,7 +39,7 @@ class DotenvConfigTest {
     private MutablePropertySources propertySources;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         dotenvConfig = new DotenvConfig();
         environment = mock(ConfigurableEnvironment.class);
         propertySources = new MutablePropertySources();
@@ -69,7 +88,7 @@ class DotenvConfigTest {
     }
 
     @Test
-    @SuppressWarnings("java:S4144") // Intentional: Tests different scenario (exception handling vs missing file)
+    @SuppressWarnings("java:S4144") // Test method has similar structure but tests different scenario
     void testOnApplicationEventHandlesRuntimeException() {
         // Arrange
         // Event and environment are already mocked in setUp
