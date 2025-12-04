@@ -61,6 +61,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     @ViewComponent
     // Framework pattern: @ViewComponent fields are framework-managed, not serializable (expected)
+    // java:S1948: Suppressed inline for SonarLint compatibility (also excluded centrally in sonar-project.properties
+    // for SonarCloud)
     @SuppressWarnings("java:S1948")
     private MessageBundle messageBundle;
 

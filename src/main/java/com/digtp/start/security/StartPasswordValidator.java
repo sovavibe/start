@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentRequired, PMD.GuardLogStatement
 // - PMD.AtLeastOneConstructor, PMD.LawOfDemeter
-@SuppressWarnings("PMD.MissingSerialVersionUID")
+// PMD.MissingSerialVersionUID: Component classes don't need serialVersionUID (PMD recognizes this)
 public final class StartPasswordValidator implements PasswordValidator<User> {
 
     @Override

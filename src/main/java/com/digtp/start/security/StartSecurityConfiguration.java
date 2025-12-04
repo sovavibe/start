@@ -43,14 +43,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 @Slf4j
 // : Copyright header is standard and required
-// PMD.AtLeastOneConstructor: Lombok @RequiredArgsConstructor generates constructor
-@SuppressWarnings({
-    "PMD.AtLeastOneConstructor",
-    "PMD.CommentRequired",
-    "PMD.GuardLogStatement",
-    "PMD.SignatureDeclareThrowsException",
-    "PMD.CommentDefaultAccessModifier"
-})
+// PMD.AtLeastOneConstructor: Lombok @RequiredArgsConstructor generates constructor (PMD recognizes this)
+// PMD.CommentRequired: All methods have JavaDoc comments
+// PMD.GuardLogStatement: SLF4J handles log level checks internally (PMD recognizes this)
+@SuppressWarnings({"PMD.SignatureDeclareThrowsException", "PMD.CommentDefaultAccessModifier"})
 public class StartSecurityConfiguration {
 
     /**

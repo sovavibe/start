@@ -22,7 +22,7 @@ import io.jmix.securityflowui.role.annotation.ViewPolicy;
 @ResourceRole(name = "Full Access", code = FullAccessRole.CODE)
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentRequired
-@SuppressWarnings("PMD.MissingSerialVersionUID")
+// PMD.MissingSerialVersionUID: Interfaces don't need serialVersionUID (PMD recognizes this)
 public interface FullAccessRole {
 
     String CODE = "system-full-access";

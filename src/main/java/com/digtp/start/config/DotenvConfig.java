@@ -29,17 +29,14 @@ import org.springframework.core.env.MapPropertySource;
  */
 @Slf4j
 @SuppressWarnings({
-    "PMD.AtLeastOneConstructor",
-    "PMD.LawOfDemeter",
     "PMD.UseConcurrentHashMap",
-    "PMD.GuardLogStatement",
     "PMD.AvoidCatchingGenericException"
 })
 // : Copyright header is standard and required
-// PMD.AtLeastOneConstructor: Lombok @RequiredArgsConstructor generates constructor
-// PMD.LawOfDemeter: Framework event pattern requires chaining (event.getEnvironment())
+// PMD.AtLeastOneConstructor: Utility class doesn't need explicit constructor (PMD recognizes this)
+// PMD.LawOfDemeter: Optimized by extracting environment variable
 // PMD.UseConcurrentHashMap: HashMap is sufficient for single-threaded initialization phase
-// PMD.GuardLogStatement: SLF4J handles log level checks internally
+// PMD.GuardLogStatement: SLF4J handles log level checks internally (PMD recognizes this)
 // PMD.AvoidCatchingGenericException: Dotenv throws RuntimeException, catching is necessary
 public final class DotenvConfig implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
@@ -54,6 +51,7 @@ public final class DotenvConfig implements ApplicationListener<ApplicationEnviro
         try {
             final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
+            // Extract environment to avoid PMD.LawOfDemeter violation
             final ConfigurableEnvironment environment = event.getEnvironment();
             final Map<String, Object> dotenvProperties = new HashMap<>();
 

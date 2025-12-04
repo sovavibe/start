@@ -31,8 +31,9 @@ import org.springframework.lang.Nullable;
 @RequiredArgsConstructor
 @Slf4j
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.GuardLogStatement
-@SuppressWarnings({"PMD.AtLeastOneConstructor", "PMD.CommentRequired", "PMD.GuardLogStatement"})
+// PMD.AtLeastOneConstructor: Lombok @RequiredArgsConstructor generates constructor (PMD recognizes this)
+// PMD.CommentRequired: All methods have JavaDoc comments
+// PMD.GuardLogStatement: SLF4J handles log level checks internally (PMD recognizes this)
 public class CacheMetricsConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final MeterRegistry meterRegistry;

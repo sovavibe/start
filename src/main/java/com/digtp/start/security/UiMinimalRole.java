@@ -19,7 +19,7 @@ import io.jmix.securityflowui.role.annotation.ViewPolicy;
 @ResourceRole(name = "UI: minimal access", code = UiMinimalRole.CODE, scope = SecurityScope.UI)
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentRequired
-@SuppressWarnings("PMD.MissingSerialVersionUID")
+// PMD.MissingSerialVersionUID: Interfaces don't need serialVersionUID (PMD recognizes this)
 public interface UiMinimalRole extends UiMinimalPolicies {
 
     String CODE = "ui-minimal";

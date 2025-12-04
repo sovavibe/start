@@ -37,9 +37,9 @@ import org.springframework.core.env.Environment;
 @RequiredArgsConstructor
 // Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
 // - PMD.CommentDefaultAccessModifier, PMD.CommentRequired
-// - java:S1948 excluded via config/sonar-project.properties
+// - java:S1948 excluded via config/sonar-project.properties (e4) for SonarCloud, but suppressed inline for SonarLint
 @SuppressWarnings({
-    "java:S1948",
+    "java:S1948", // Suppressed inline for SonarLint (also excluded centrally for SonarCloud)
     "PMD.MissingSerialVersionUID",
     "PMD.LongVariable",
     "PMD.FormalParameterNamingConventions"
@@ -50,6 +50,8 @@ public class StartApplication implements AppShellConfigurator {
      * Spring environment for accessing application properties.
      */
     // Framework pattern: Environment is Spring framework dependency, not serializable (expected)
+    // java:S1948: Suppressed inline for SonarLint compatibility (also excluded centrally in sonar-project.properties
+    // for SonarCloud)
     @SuppressWarnings("java:S1948")
     private final Environment environment;
 

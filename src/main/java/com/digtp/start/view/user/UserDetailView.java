@@ -50,7 +50,6 @@ import lombok.extern.slf4j.Slf4j;
 // - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
 //   MissingSerialVersionUID, NonSerializableClass
 @SuppressWarnings({
-    "PMD.AvoidDuplicateLiterals", // Framework: "UnusedMethod" string repeated for Jmix lifecycle methods
     "PMD.MissingSerialVersionUID", // Jmix views don't need serialVersionUID (framework-managed)
     "PMD.NonSerializableClass", // Views contain framework-managed non-serializable beans (expected)
     "PMD.FieldDeclarationsShouldBeAtStartOfClass" // @ViewComponent fields after constructor-injected fields
@@ -79,6 +78,8 @@ public class UserDetailView extends StandardDetailView<User> {
 
     @ViewComponent
     // Framework pattern: @ViewComponent fields are framework-managed, not serializable (expected)
+    // java:S1948: Suppressed inline for SonarLint compatibility (also excluded centrally in sonar-project.properties
+    // for SonarCloud)
     @SuppressWarnings("java:S1948")
     private MessageBundle messageBundle;
 
