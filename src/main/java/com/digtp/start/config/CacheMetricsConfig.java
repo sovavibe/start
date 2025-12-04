@@ -15,19 +15,17 @@
  */
 package com.digtp.start.config;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
 import java.util.Collection;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
-
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.binder.cache.CaffeineCacheMetrics;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Configuration for cache metrics with Micrometer.
@@ -77,21 +75,21 @@ public class CacheMetricsConfig implements ApplicationListener<ApplicationReadyE
      * for Caffeine caches. Logs successful registrations and skips caches
      * that don't support metrics.
      *
-     * @param cacheManager Spring CacheManager
+     * @param manager Spring CacheManager (renamed to avoid hiding field)
      */
-    private void registerCacheMetrics(final CacheManager cacheManager) {
-        final Collection<String> cacheNames = cacheManager.getCacheNames();
+    private void registerCacheMetrics(final CacheManager manager) {
+        final Collection<String> cacheNames = manager.getCacheNames();
         int registeredCount = 0;
 
         for (final String cacheName : cacheNames) {
             try {
-                final Cache cache = cacheManager.getCache(cacheName);
+                final Cache cache = manager.getCache(cacheName);
                 if (cache != null
                         && cache.getNativeCache()
                                 // CHECKSTYLE:OFF: AvoidFullyQualifiedNames - FQN required to resolve name conflict:
                                 // com.github.benmanes.caffeine.cache.Cache vs org.springframework.cache.Cache
                                 instanceof com.github.benmanes.caffeine.cache.Cache<?, ?> caffeineCache) {
-                    // CHECKSTYLE:ON: AvoidFullyQualifiedNames 
+                    // CHECKSTYLE:ON: AvoidFullyQualifiedNames
                     // Register metrics for Caffeine cache
                     CaffeineCacheMetrics.monitor(meterRegistry, caffeineCache, cacheName);
                     registeredCount++;

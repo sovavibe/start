@@ -60,7 +60,7 @@ import org.springframework.stereotype.Component;
     "PMD.GuardLogStatement",
     "PMD.SignatureDeclareThrowsException"
 })
-public class LoggingMdcFilter implements Filter {
+public final class LoggingMdcFilter implements Filter {
 
     private static final String REQUEST_ID_KEY = "requestId";
     private static final String USER_ID_KEY = "userId";
