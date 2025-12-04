@@ -139,8 +139,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     // Error Prone for compile-time bug detection
-    implementation 'com.google.errorprone:error_prone_annotations:2.45.0'
-    annotationProcessor 'com.google.errorprone:error_prone_core:2.45.0'
+    // Version managed by Palantir Baseline (baseline-error-prone plugin)
+    implementation 'com.google.errorprone:error_prone_annotations'
+    annotationProcessor 'com.google.errorprone:error_prone_core'
 
     // Nullaway for null-safety static analysis
     annotationProcessor 'com.uber.nullaway:nullaway:0.12.13'

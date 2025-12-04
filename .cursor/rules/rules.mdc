@@ -41,7 +41,18 @@ See `@vaadin-best-practices.mdc` | Quick: @Route lifecycle, @UIScope patterns
 **Logging**: Structured `log.info("key={}", value)` | DEBUG/INFO/WARN/ERROR | ❌ Concat, passwords/tokens | **Testing**: See `@testing-policy.mdc`
 
 ## COMMITS & COMM
-Conventional: `type(scope): description` | Types: feat|fix|docs|refactor|perf|test|build|chore | Scopes: jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test | See `@conventional-commits.mdc` for details | **Communication**: English code/docs, Russian chat, brevity
+Conventional: `type(scope): description` | Types: feat|fix|docs|refactor|perf|test|build|chore | Scopes: jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test | See `@conventional-commits.mdc` for details
+
+## COMMUNICATION LANGUAGE
+**CRITICAL**: Language usage is strict and context-dependent:
+- **Code & Documentation**: ALWAYS English (comments, JavaDoc, README, code, commit messages)
+- **Chat with User**: ALWAYS Russian (explanations, questions, responses, discussions)
+- **Brevity**: Be concise, avoid verbose explanations unless requested
+- **Examples**: 
+  - ✅ Code comment: `// Loads user from database`
+  - ✅ Chat: "Создал сервис для логирования"
+  - ❌ Code comment: `// Загружает пользователя из базы`
+  - ❌ Chat: "Created service for logging"
 
 ## PROHIBITIONS
 System.out.println → SLF4J | System.getenv() → @Value | @Autowired fields → constructor (tests: allowed) | Dead code → remove | Workarounds → refactor | @SuppressWarnings → document why
