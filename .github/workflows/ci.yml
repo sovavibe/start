@@ -70,6 +70,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Clean build
+        run: ./gradlew clean --no-daemon
+
       - name: Run code quality checks
         run: ./gradlew codeQualityFull --no-daemon -x test
         # Strict mode: fail on any violations (ignoreFailures=false in build.gradle)
@@ -103,6 +106,9 @@ jobs:
 
       - name: Make gradlew executable
         run: chmod +x gradlew
+
+      - name: Clean build
+        run: ./gradlew clean --no-daemon
 
       - name: Run tests
         run: ./gradlew test --no-daemon
