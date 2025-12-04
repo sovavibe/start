@@ -62,9 +62,6 @@ plugins {
     // Utilities
     id 'com.github.ben-manes.versions' version '0.53.0'
 
-    // Mutation testing
-    id 'info.solidsoft.pitest' version '1.15.0'
-
     // SonarQube/SonarCloud integration
     id 'org.sonarqube' version '6.3.1.5724'
 
