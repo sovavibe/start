@@ -17,6 +17,7 @@ package com.digtp.start.view.user;
 
 import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
+import com.digtp.start.service.AuditService;
 import com.digtp.start.service.UserService;
 import com.digtp.start.view.main.MainView;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -73,6 +74,7 @@ public class UserDetailView extends StandardDetailView<User> {
     private final transient Notifications notifications;
     private final transient EntityStates entityStates;
     private final transient UserService userService;
+    private final transient AuditService auditService;
 
     @ViewComponent
     private TypedTextField<String> usernameField;
@@ -248,7 +250,7 @@ public class UserDetailView extends StandardDetailView<User> {
     public void onAfterSave(final AfterSaveEvent _event) {
         final User user = getEditedEntity();
         if (wasNewOnSave) {
-            log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
+            auditService.logUserCreated(user.getId(), user.getUsername());
             notifications
                     .create(messageBundle.getMessage("noAssignedRolesNotification"))
                     .withThemeVariant(NotificationVariant.LUMO_WARNING)
@@ -256,7 +258,7 @@ public class UserDetailView extends StandardDetailView<User> {
                     .show();
             wasNewOnSave = false; // Reset after use
         } else {
-            log.info("User updated successfully: id={}, username={}", user.getId(), user.getUsername());
+            auditService.logUserUpdated(user.getId(), user.getUsername());
         }
     }
 }

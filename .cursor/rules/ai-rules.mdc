@@ -11,8 +11,25 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
 
 **Vibe Coding**: Minimal suppressions, maximum code quality | **Token Economy**: Optimize rule usage | See `@suppress-policy.mdc` for suppression guidelines
 
+## RULE SELECTION & TOKEN ECONOMY
+**CRITICAL**: When choosing which rules to apply, prioritize token efficiency and applicability:
+- **Applicability First**: Only apply rules relevant to current task/context | Skip irrelevant rules even if they exist
+- **Token Efficiency**: Reference rules by name (`@rule-name.mdc`) instead of copying content | Use `@rules.mdc` for quick lookup
+- **Rule Logic**: Understand WHY rules exist before applying | Don't blindly follow rules that don't fit the context
+- **Selective Application**: 
+  - ✅ Apply `@jmix-best-practices.mdc` when working with Jmix entities/views
+  - ✅ Apply `@logging-policy.mdc` when working with logging
+  - ❌ Don't load all rules for simple tasks
+  - ❌ Don't copy entire rule content into context
+- **Examples**:
+  - Simple fix: Reference `@rules.mdc` → find relevant section → apply
+  - Complex task: Load specific rule file (`@jmix-data-access.mdc`) → apply relevant parts
+  - Don't: Load 10 rule files for a 5-line change
+
 ## CODE GENERATION
 **Spring**: @Service in service/, @Component in config/ | **Jmix**: See `@jmix-best-practices.mdc` | **Lombok**: @Slf4j, @RequiredArgsConstructor, @Getter/@Setter, @FieldDefaults, @EqualsAndHashCode(onlyExplicitlyIncluded=true) | **Validation**: @NonNull/@Nullable, service layer, Bean Validation | **Copyright**: Apache License 2.0, Digital Technologies and Platforms LLC | `./gradlew format` auto-adds copyright headers
+
+**Imports**: ❌ NEVER use FQN (Fully Qualified Names) in code | ✅ ALWAYS use imports | **Exception**: FQN allowed only for name conflicts (e.g., `com.github.benmanes.caffeine.cache.Cache` vs `org.springframework.cache.Cache`) | Example: `org.springframework.cache.Cache cache` → `import org.springframework.cache.Cache; Cache cache` | See `@code-quality.mdc` FQN section
 
 ## ERRORS
 **Compilation**: Fix immediately, check imports, verify annotations | **Linters**: Fix all before completion, use `make analyze-full` | **Suppressions**: See `@suppress-policy.mdc` for comprehensive guidelines | **Quick decision**: See `@ai-false-positives.mdc` for false positives

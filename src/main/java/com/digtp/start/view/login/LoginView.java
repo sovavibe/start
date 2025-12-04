@@ -15,6 +15,7 @@
  */
 package com.digtp.start.view.login;
 
+import com.digtp.start.service.AuditService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -64,6 +65,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private final transient LoginViewSupport loginViewSupport;
     private final transient LocaleHelper localeHelper;
+    private final transient AuditService auditService;
 
     @ViewComponent
     private JmixLoginForm login;
@@ -102,7 +104,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
             loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
                     .withLocale(login.getSelectedLocale())
                     .withRememberMe(login.isRememberMe()));
-            log.info("User '{}' successfully logged in", event.getUsername());
+            auditService.logLogin(event.getUsername());
         } catch (final BadCredentialsException
                 | DisabledException
                 | LockedException
@@ -113,7 +115,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private void handleLoginFailure(final LoginEvent event, final Exception exception) {
         final String reason = getLoginFailureReason(exception);
-        log.warn("Login failed for user '{}': {}", event.getUsername(), reason);
+        auditService.logLoginFailed(event.getUsername(), reason);
         event.getSource().setError(true);
     }
 
