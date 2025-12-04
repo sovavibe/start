@@ -43,14 +43,8 @@ import lombok.extern.slf4j.Slf4j;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD rules handled by Baseline: CommentSize, AtLeastOneConstructor, CommentRequired, GuardLogStatement
-// - PMD rules handled by Baseline: LawOfDemeter, FormalParameterNamingConventions, LongVariable
-// - Sonar rules excluded via config/sonar-project.properties: java:S110, java:S2177, java:S1948
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
-//   MissingSerialVersionUID, NonSerializableClass
+// Framework patterns: PMD rules handled by Baseline, Sonar/Checkstyle rules excluded centrally
 @SuppressWarnings({
-    "PMD.MissingSerialVersionUID", // Jmix views don't need serialVersionUID (framework-managed)
     "PMD.NonSerializableClass", // Views contain framework-managed non-serializable beans (expected)
     "PMD.FieldDeclarationsShouldBeAtStartOfClass" // @ViewComponent fields after constructor-injected fields
 })
@@ -58,6 +52,8 @@ import lombok.extern.slf4j.Slf4j;
 // ExcludedFieldAnnotations in build.gradle
 // NOSONAR java:S110 - Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
 public class UserDetailView extends StandardDetailView<User> {
+
+    private static final long serialVersionUID = 1L;
 
     private final transient Notifications notifications;
     private final transient EntityStates entityStates;

@@ -55,9 +55,9 @@ import org.springframework.security.core.GrantedAuthority;
 //   MissingSerialVersionUID, MissingJavadocMethod
 // - SpotBugs rules excluded via config/spotbugs/exclude.xml:
 //   ES, EI, EI2, EI_EXPOSE_REP, EI_EXPOSE_REP2 (EclipseLink/Lombok)
-@SuppressWarnings("PMD.MissingSerialVersionUID") // Jmix entities don't need serialVersionUID (framework-managed)
 public class User implements JmixUserDetails, HasTimeZone {
 
+    private static final long serialVersionUID = 1L;
     private static final int USERNAME_MAX_LENGTH = 100;
     private static final int DEFAULT_STRING_LENGTH = 255;
 

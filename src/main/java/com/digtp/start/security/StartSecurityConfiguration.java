@@ -42,12 +42,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-// : Copyright header is standard and required
-// PMD.AtLeastOneConstructor: Lombok @RequiredArgsConstructor generates constructor (PMD recognizes this)
-// PMD.CommentRequired: All methods have JavaDoc comments
-// PMD.GuardLogStatement: SLF4J handles log level checks internally (PMD recognizes this)
-// PMD.SignatureDeclareThrowsException: Spring Security HttpSecurity API requires throws Exception (PMD recognizes this)
-// PMD.CommentDefaultAccessModifier: All methods are public @Bean methods (PMD recognizes this)
+// Framework patterns: PMD rules (AtLeastOneConstructor, CommentRequired, GuardLogStatement, etc.) handled by Baseline
 public class StartSecurityConfiguration {
 
     /**

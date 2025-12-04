@@ -20,9 +20,7 @@ import io.jmix.securityflowui.role.annotation.ViewPolicy;
  * This role should be assigned only to system administrators.
  */
 @ResourceRole(name = "Full Access", code = FullAccessRole.CODE)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired
-// PMD.MissingSerialVersionUID: Interfaces don't need serialVersionUID (PMD recognizes this)
+// Framework patterns: PMD rules handled by Baseline
 public interface FullAccessRole {
 
     String CODE = "system-full-access";

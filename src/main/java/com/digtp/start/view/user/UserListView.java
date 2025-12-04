@@ -44,14 +44,12 @@ import lombok.extern.slf4j.Slf4j;
 @LookupComponent("usersDataGrid")
 @DialogMode(width = "64em")
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.GuardLogStatement
-// - PMD.FormalParameterNamingConventions
-// - PMD.OnlyOneReturn (excluded for *View classes via violationSuppressXPath)
+// Framework patterns: PMD rules (AtLeastOneConstructor, CommentRequired, GuardLogStatement, etc.) handled by Baseline
 // - java:S110 excluded via config/sonar-project.properties
-// NOSONAR java:S110 - Framework: Jmix views extend multiple framework classes (StandardListView, etc.)
-@SuppressWarnings({"PMD.MissingSerialVersionUID", "PMD.NonSerializableClass"})
+@SuppressWarnings("PMD.NonSerializableClass")
 public class UserListView extends StandardListView<User> {
+
+    private static final long serialVersionUID = 1L;
 
     @Subscribe
     public void onInit(final InitEvent _event) {

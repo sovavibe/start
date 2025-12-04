@@ -24,9 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.AtLeastOneConstructor, PMD.CommentRequired
-// - PMD.GuardLogStatement, PMD.LawOfDemeter
+// Framework patterns: PMD rules handled by Baseline
 public class UserService {
 
     private final PasswordEncoder passwordEncoder;

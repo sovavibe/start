@@ -64,10 +64,11 @@ public abstract class AbstractIntegrationTest {
      * Invokes a method on an object using reflection.
      *
      * <p>Helper method to invoke private/protected methods in tests using reflection
-     * to avoid ClassCastException with Jmix class loaders. Centralizes the unchecked
-     * cast operation.
+     * to avoid ClassCastException with Jmix class loaders. Uses type-safe cast via
+     * {@code Class.cast()} to avoid unchecked warnings.
      *
      * @param <T> return type of the method
+     * @param returnType class of the return type (for type-safe casting)
      * @param object object on which to invoke the method
      * @param methodName name of the method to invoke
      * @param paramTypes parameter types of the method
@@ -75,9 +76,13 @@ public abstract class AbstractIntegrationTest {
      * @return result of method invocation
      * @throws ReflectiveOperationException if method cannot be found or invoked
      */
-    @SuppressWarnings({"unchecked", "PMD.AvoidAccessibilityAlteration"}) // Test: reflection to access private methods
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods
     protected static <T> T invokeMethod(
-            final Object object, final String methodName, final Class<?>[] paramTypes, final Object... args)
+            final Class<T> returnType,
+            final Object object,
+            final String methodName,
+            final Class<?>[] paramTypes,
+            final Object... args)
             throws ReflectiveOperationException {
         // Try getDeclaredMethod first (for private/protected methods), then getMethod (for public/inherited methods)
         Method method;
@@ -87,6 +92,7 @@ public abstract class AbstractIntegrationTest {
         } catch (NoSuchMethodException e) {
             method = object.getClass().getMethod(methodName, paramTypes);
         }
-        return (T) method.invoke(object, args);
+        final Object result = method.invoke(object, args);
+        return returnType.cast(result);
     }
 }

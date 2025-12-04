@@ -24,8 +24,7 @@ import org.springframework.stereotype.Component;
 @Component("userRepository")
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.GuardLogStatement
+// Framework patterns: PMD rules handled by Baseline
 public class DatabaseUserRepository extends AbstractDatabaseUserRepository<User> {
 
     @Override

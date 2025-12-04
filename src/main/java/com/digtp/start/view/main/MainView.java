@@ -36,19 +36,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD rules handled by Baseline: CommentSize, AtLeastOneConstructor, CommentRequired, GuardLogStatement
-// - PMD rules handled by Baseline: LawOfDemeter, FormalParameterNamingConventions, LongVariable, OnlyOneReturn
-// - Sonar rules excluded via config/sonar-project.properties: java:S110, java:S2177, java:S1948
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
-//   MissingSerialVersionUID, NonSerializableClass
-// - Error Prone: UnusedMethod enabled - framework methods (@Install, @Subscribe)
-//   automatically excluded via ExcludedAnnotations
+// Framework patterns: PMD rules handled by Baseline, Sonar/Checkstyle rules excluded centrally
 @SuppressWarnings({
-    "PMD.MissingSerialVersionUID", // Jmix views don't need serialVersionUID (framework-managed)
     "PMD.NonSerializableClass" // Views contain framework-managed non-serializable beans (expected)
 })
 public class MainView extends StandardMainView {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Tabindex value to exclude element from keyboard navigation.

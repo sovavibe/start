@@ -93,7 +93,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword);
 
         // Assert
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -113,7 +113,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(null);
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -134,7 +134,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword);
 
         // Assert - validation should pass
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -215,7 +215,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue("");
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -236,7 +236,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword + "different");
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -257,7 +257,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(shortPassword);
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -283,7 +283,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         assertThat(saveButton).isNotNull();
 
         // Assert - view should be valid and ready to save
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
         assertThat(usernameField.getValue()).isEqualTo(username);
         assertThat(passwordField.getValue()).isEqualTo(validPassword);
@@ -339,9 +339,9 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         // Act & Assert - onReady should be called during view initialization
         // The else branch (existing user) should be executed
         assertThat(view).isNotNull();
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
-        final User editedEntity2 = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity2 = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity2.getId()).isEqualTo(savedUser.getId());
     }
 
@@ -377,7 +377,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
 
         // Act & Assert - validation should pass for existing user with password change
         // This covers the else if branch in onValidation for existing users
-        final User editedEntity = invokeMethod(view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
         assertThat(passwordField.getValue()).isEqualTo(newPassword);
     }

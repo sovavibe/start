@@ -28,8 +28,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.FormalParameterNamingConventions
+// Framework patterns: PMD rules handled by Baseline
 public class LocaleHelper {
 
     /**

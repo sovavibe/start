@@ -17,9 +17,7 @@ import io.jmix.securityflowui.role.annotation.ViewPolicy;
  * This role is typically used for anonymous or restricted users.
  */
 @ResourceRole(name = "UI: minimal access", code = UiMinimalRole.CODE, scope = SecurityScope.UI)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired
-// PMD.MissingSerialVersionUID: Interfaces don't need serialVersionUID (PMD recognizes this)
+// Framework patterns: PMD rules handled by Baseline
 public interface UiMinimalRole extends UiMinimalPolicies {
 
     String CODE = "ui-minimal";

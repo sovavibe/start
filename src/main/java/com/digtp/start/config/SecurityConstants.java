@@ -10,8 +10,6 @@ package com.digtp.start.config;
  * <p>Centralizes security configuration values and common validation patterns
  * to ensure consistency and ease of maintenance.
  */
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.LongVariable
 public final class SecurityConstants {
 
     /**

@@ -35,16 +35,16 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication(exclude = ProjectInfoAutoConfiguration.class)
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentDefaultAccessModifier, PMD.CommentRequired
-// - java:S1948 excluded via config/sonar-project.properties (e4) for SonarCloud, but suppressed inline for SonarLint
+// Framework patterns: PMD rules handled by Baseline
+// java:S1948: Suppressed inline for SonarLint (also excluded centrally for SonarCloud)
 @SuppressWarnings({
     "java:S1948", // Suppressed inline for SonarLint (also excluded centrally for SonarCloud)
-    "PMD.MissingSerialVersionUID",
     "PMD.LongVariable",
     "PMD.FormalParameterNamingConventions"
 })
 public class StartApplication implements AppShellConfigurator {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Spring environment for accessing application properties.

@@ -72,7 +72,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final String userName = invokeMethod(mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName =
+                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_FIRST_NAME + " " + TEST_LAST_NAME);
     }
@@ -85,7 +86,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, null);
 
-        final String userName = invokeMethod(mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName =
+                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_FIRST_NAME);
     }
@@ -98,7 +100,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, null, TEST_LAST_NAME);
 
-        final String userName = invokeMethod(mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName =
+                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_LAST_NAME);
     }
@@ -111,7 +114,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, null, null);
 
-        final String userName = invokeMethod(mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName =
+                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_USERNAME);
     }
@@ -125,7 +129,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
         // Authenticated user is "admin" (from AuthenticatedAsAdmin), user is different
         // So isSubstituted should return true
-        final boolean isSubstituted = invokeMethod(mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted =
+                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
 
         assertThat(isSubstituted).isTrue();
     }
@@ -141,7 +146,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final User user = (User) adminUserDetails;
 
         // No substitution - authenticated user is the same as the user
-        final boolean isSubstituted = invokeMethod(mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted =
+                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
 
         assertThat(isSubstituted).isFalse();
     }
@@ -155,7 +161,7 @@ class MainViewTest extends AbstractIntegrationTest {
 
         // When user is null, isSubstituted should return false
         final boolean isSubstituted =
-                invokeMethod(mainView, "isSubstituted", new Class<?>[] {User.class}, (Object) null);
+                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, (Object) null);
 
         assertThat(isSubstituted).isFalse();
     }
@@ -172,7 +178,8 @@ class MainViewTest extends AbstractIntegrationTest {
         // The method checks authenticatedUser == null, which should return false
         // In normal flow, authenticatedUser is always set by AuthenticatedAsAdmin, so this branch
         // is hard to test without mocking CurrentUserSubstitution
-        final boolean isSubstituted = invokeMethod(mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted =
+                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
         // In test context, authenticatedUser is always set, so this should return true (user != admin)
         assertThat(isSubstituted).isTrue();
     }
@@ -186,8 +193,8 @@ class MainViewTest extends AbstractIntegrationTest {
         // When name does not equal username, else branch is taken (adds subtext with username)
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component =
-                invokeMethod(mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = invokeMethod(
+                Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
@@ -200,7 +207,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
 
         final String expectedName = TEST_FIRST_NAME + " " + TEST_LAST_NAME;
-        final Avatar avatar = invokeMethod(mainView, "createAvatar", new Class<?>[] {String.class}, expectedName);
+        final Avatar avatar =
+                invokeMethod(Avatar.class, mainView, "createAvatar", new Class<?>[] {String.class}, expectedName);
 
         assertThat(avatar).isNotNull();
         assertThat(avatar.getName()).isEqualTo(expectedName);
@@ -215,8 +223,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component =
-                invokeMethod(mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = invokeMethod(
+                Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
@@ -229,8 +237,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final UserDetails nonUser = mock(UserDetails.class);
 
-        final Component component =
-                invokeMethod(mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, nonUser);
+        final Component component = invokeMethod(
+                Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, nonUser);
 
         assertThat(component).isNull();
     }
@@ -244,8 +252,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component =
-                invokeMethod(mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = invokeMethod(
+                Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
@@ -260,8 +268,8 @@ class MainViewTest extends AbstractIntegrationTest {
         // When name equals username, different branch is taken (adds subtext class)
         final User user = createTestUser(TEST_USERNAME, null, null);
 
-        final Component component =
-                invokeMethod(mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = invokeMethod(
+                Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull();
     }
@@ -275,8 +283,8 @@ class MainViewTest extends AbstractIntegrationTest {
         // Create user different from authenticated user (admin) to trigger substitution
         final User user = createTestUser("substituted.user", "Substituted", "User");
 
-        final Component component =
-                invokeMethod(mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = invokeMethod(
+                Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
         // Component should include substitution indicator

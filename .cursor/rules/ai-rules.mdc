@@ -27,7 +27,7 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
   - Don't: Load 10 rule files for a 5-line change
 
 ## CODE GENERATION
-**Spring**: @Service in service/, @Component in config/ | **Jmix**: See `@jmix-best-practices.mdc` | **Lombok**: @Slf4j, @RequiredArgsConstructor, @Getter/@Setter, @FieldDefaults, @EqualsAndHashCode(onlyExplicitlyIncluded=true) | **Validation**: @NonNull/@Nullable, service layer, Bean Validation | **Copyright**: Apache License 2.0, Digital Technologies and Platforms LLC | `./gradlew format` auto-adds copyright headers
+**Spring**: @Service in service/, @Component in config/ | **Jmix**: See `@jmix-best-practices.mdc` | **Lombok**: @Slf4j, @RequiredArgsConstructor, @Getter/@Setter, @FieldDefaults, @EqualsAndHashCode(onlyExplicitlyIncluded=true) | **Validation**: @NonNull/@Nullable, service layer, Bean Validation | **Copyright**: Apache License 2.0, Digital Technologies and Platforms LLC
 
 **Imports**: ❌ NEVER use FQN (Fully Qualified Names) in code | ✅ ALWAYS use imports | **Exception**: FQN allowed only for name conflicts (e.g., `com.github.benmanes.caffeine.cache.Cache` vs `org.springframework.cache.Cache`) | Example: `org.springframework.cache.Cache cache` → `import org.springframework.cache.Cache; Cache cache` | See `@code-quality.mdc` FQN section
 
@@ -48,7 +48,7 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
 5. ✅ Production-ready quality (no workarounds, proper error handling)
 6. ✅ All tests pass (if applicable)
 
-**Formatting**: Use `./gradlew format` (Palantir Baseline format task) or `./gradlew spotlessApply` (Spotless only). Palantir Baseline automatically configures Spotless with import order, unused imports removal, and other formatting rules.
+**Formatting**: See `@palantir-baseline-integration.mdc` → FORMATTING
 
 ## CI/CD BEST PRACTICES
 **GitHub Actions**: Use latest stable versions, pin major versions (v5, v6), enable caching | **Parallelization**: Split jobs (format-check, code-quality, test, build) for faster execution | **Timeouts**: Set timeouts for all jobs (10-30 min) | **Dependabot**: Group updates, limit PRs, monthly schedule, auto-merge safe updates | **Security**: Use GITHUB_TOKEN, scan dependencies (Trivy, OWASP), upload SARIF reports | **Commitlint**: Enforced via GitHub Actions (see `@conventional-commits.mdc`) | **Branch naming**: Enforced via GitHub Actions (see `@branch-naming.mdc`) | **PR creation**: Use `./scripts/create-pr.sh` for auto-generated descriptions

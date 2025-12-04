@@ -28,15 +28,7 @@ import org.springframework.core.env.MapPropertySource;
  * not be committed to version control (already in .gitignore).
  */
 @Slf4j
-@SuppressWarnings({
-    "PMD.UseConcurrentHashMap",
-    "PMD.AvoidCatchingGenericException"
-})
-// : Copyright header is standard and required
-// PMD.AtLeastOneConstructor: Utility class doesn't need explicit constructor (PMD recognizes this)
-// PMD.LawOfDemeter: Optimized by extracting environment variable
-// PMD.UseConcurrentHashMap: HashMap is sufficient for single-threaded initialization phase
-// PMD.GuardLogStatement: SLF4J handles log level checks internally (PMD recognizes this)
+@SuppressWarnings("PMD.AvoidCatchingGenericException")
 // PMD.AvoidCatchingGenericException: Dotenv throws RuntimeException, catching is necessary
 public final class DotenvConfig implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 

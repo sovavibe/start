@@ -45,8 +45,8 @@ graph LR
     C --> D[Technical Plan]
     D --> E[Hand-off to Developer]
     
-    style A fill:#fff4e1
-    style E fill:#e8f5e9
+    style A fill:#8b6914,stroke:#b8860b,stroke-width:2px,color:#fff
+    style E fill:#2d5a2d,stroke:#3d6b3d,stroke-width:2px,color:#fff
 ```
 
 ### Deliverables
@@ -109,8 +109,8 @@ graph LR
     E --> F[Address Feedback]
     F --> G[Merge]
     
-    style A fill:#e1f5ff
-    style G fill:#c8e6c9
+    style A fill:#1e3a5f,stroke:#2c5a8a,stroke-width:2px,color:#fff
+    style G fill:#1e5a1e,stroke:#2d6b2d,stroke-width:2px,color:#fff
 ```
 
 ### Branch Naming
@@ -235,10 +235,10 @@ graph TD
     G -->|Yes| H[Developer: Merge]
     H --> I[Production]
     
-    style A fill:#fff4e1
-    style B fill:#e8f5e9
-    style F fill:#f3e5f5
-    style I fill:#c8e6c9
+    style A fill:#8b6914,stroke:#b8860b,stroke-width:2px,color:#fff
+    style B fill:#2d5a2d,stroke:#3d6b3d,stroke-width:2px,color:#fff
+    style F fill:#5a3d5a,stroke:#6b4d6b,stroke-width:2px,color:#fff
+    style I fill:#1e5a1e,stroke:#2d6b2d,stroke-width:2px,color:#fff
 ```
 
 ## 📚 Full Documentation

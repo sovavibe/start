@@ -20,16 +20,16 @@ Java 21 (virtual threads, pattern matching, records) | Jmix 2.7.1 | Vaadin FlowU
 **Limits**: 250 lines/file, 10 cyclomatic, 10 cognitive complexity | **Refactor** if exceeded: extract methods, split files | See `@code-quality.mdc` for details
 
 ## WORKFLOW
-Linters run at end only | Use `make analyze-full` (not `./gradlew codeQualityFull`) | Format: `./gradlew format` (Palantir Baseline) | Fix root causes, not symptoms | Production-ready, maintainable, testable | See `@ai-rules.mdc` for AI workflow
+Linters run at end only | Use `make analyze-full` (not `./gradlew codeQualityFull`) | Fix root causes, not symptoms | Production-ready, maintainable, testable | See `@ai-rules.mdc` for AI workflow | See `@palantir-baseline-integration.mdc` → FORMATTING
 
 ## PALANTIR BASELINE
-**CRITICAL**: Use Baseline out-of-the-box, do NOT customize unless absolutely necessary | Baseline manages versions, configurations, and defaults | ❌ Do NOT override Baseline-managed versions (Error Prone, Checkstyle, PMD, SpotBugs) | ✅ Let Baseline manage everything | See `@palantir-baseline-integration.mdc` for details | Format: `./gradlew format` | Suppressions: `@suppress-policy.mdc`
+See `@palantir-baseline-integration.mdc` | Suppressions: `@suppress-policy.mdc`
 
 ## DATABASE
-See `@jmix-data-access.mdc` | DataManager: `create()`, `save()`, `load()`, `remove()` | ❌ `new Entity()` → ✅ `dataManager.create()`
+See `@jmix-data-access.mdc`
 
 ## JMIX
-See `@jmix-best-practices.mdc` | Quick: `dataManager.create()` not `new Entity()`
+See `@jmix-best-practices.mdc`
 
 ## VAADIN
 See `@vaadin-best-practices.mdc` | Quick: @Route lifecycle, @UIScope patterns
