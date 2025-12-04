@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.security;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -7,8 +22,8 @@ import static org.mockito.Mockito.when;
 
 import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
-import com.digtp.start.test_support.AbstractIntegrationTest;
-import com.digtp.start.test_support.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.AbstractIntegrationTest;
+import com.digtp.start.testsupport.AuthenticatedAsAdmin;
 import io.jmix.core.DataManager;
 import io.jmix.securityflowui.password.PasswordValidationContext;
 import io.jmix.securityflowui.password.PasswordValidationException;
@@ -22,6 +37,10 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
+// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
+// - PMD.LawOfDemeter, PMD.AvoidDuplicateLiterals
 class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -32,12 +51,20 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
     private User savedUser;
 
+    /**
+     * Creates a typed mock for PasswordValidationContext to avoid unchecked warnings.
+     * This is a helper method that centralizes the unchecked cast in one place.
+     */
+    @SuppressWarnings("unchecked") // Generic type erasure requires unchecked cast
+    private PasswordValidationContext<User> createPasswordContext() {
+        return mock(PasswordValidationContext.class);
+    }
+
     @Test
-    @SuppressWarnings("unchecked") // Mockito mock requires unchecked cast
     void testValidateValidPassword() {
         // Arrange
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn(validPassword);
         when(context.getUser()).thenReturn(null);
 
@@ -46,7 +73,6 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked") // Mockito mock requires unchecked cast
     void testValidateValidPasswordWithUser() {
         // Arrange
         final User user = dataManager.create(User.class);
@@ -54,7 +80,7 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
         savedUser = dataManager.save(user);
 
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn(validPassword);
         when(context.getUser()).thenReturn(user);
 
@@ -63,10 +89,9 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked") // Mockito mock requires unchecked cast
     void testValidateNullPassword() {
         // Arrange
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn(null);
         when(context.getUser()).thenReturn(null);
 
@@ -77,10 +102,9 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked") // Mockito mock requires unchecked cast
     void testValidateEmptyPassword() {
         // Arrange
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn("");
         when(context.getUser()).thenReturn(null);
 
@@ -91,11 +115,10 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked") // Mockito mock requires unchecked cast
     void testValidatePasswordTooShort() {
         // Arrange
         final String shortPassword = "short";
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn(shortPassword);
         when(context.getUser()).thenReturn(null);
 
@@ -106,11 +129,10 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked") // Mockito mock requires unchecked cast
     void testValidatePasswordBoundary() {
         // Arrange
         final String boundaryPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH - 1);
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn(boundaryPassword);
         when(context.getUser()).thenReturn(null);
 
@@ -121,11 +143,10 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked") // Mockito mock requires unchecked cast
     void testValidatePasswordExactMinimumLength() {
         // Arrange
         final String exactPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn(exactPassword);
         when(context.getUser()).thenReturn(null);
 
@@ -134,12 +155,11 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "java:S4144"
-    }) // Mockito mock requires unchecked cast; Intentional: Tests null user scenario
+    @SuppressWarnings("java:S4144") // Test method has similar structure but tests different scenario (null user)
     void testValidatePasswordWithNullUser() {
         // Arrange
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
+        final PasswordValidationContext<User> context = createPasswordContext();
         when(context.getPassword()).thenReturn(validPassword);
         when(context.getUser()).thenReturn(null);
 
@@ -148,7 +168,7 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     }
 
     @AfterEach
-    void tearDown() {
+    void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
             savedUser = null; // NOPMD - NullAssignment: prevents accidental reuse of removed entity

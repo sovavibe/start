@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.view.user;
 
 import com.digtp.start.entity.User;
@@ -40,12 +55,17 @@ import lombok.extern.slf4j.Slf4j;
 @LookupComponent("usersDataGrid")
 @DialogMode(width = "64em")
 @Slf4j
-@SuppressWarnings(
-        "java:S110") // Framework pattern: Jmix views extend multiple classes. Required for Gradle SonarLint plugin.
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD.CommentSize, PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.GuardLogStatement
+// - PMD.FormalParameterNamingConventions
+// - PMD.OnlyOneReturn (excluded for *View classes via violationSuppressXPath)
+// - java:S110 excluded via config/sonar-project.properties
+// NOSONAR java:S110 - Framework: Jmix views extend multiple framework classes (StandardListView, etc.)
+@SuppressWarnings({"PMD.MissingSerialVersionUID", "PMD.NonSerializableClass"})
 public class UserListView extends StandardListView<User> {
 
     @Subscribe
-    public void onInit(final InitEvent event) {
+    public void onInit(final InitEvent _event) {
         log.debug("User list view initialized");
     }
 }

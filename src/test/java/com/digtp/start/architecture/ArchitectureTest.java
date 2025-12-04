@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.architecture;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -9,6 +24,9 @@ import com.tngtech.archunit.core.importer.ImportOption;
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition;
+import io.jmix.core.metamodel.annotation.JmixEntity;
+import jakarta.persistence.Entity;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -24,12 +42,25 @@ import org.junit.jupiter.api.Test;
  * </ul>
  */
 @AnalyzeClasses(packages = "com.digtp.start", importOptions = ImportOption.DoNotIncludeTests.class)
-@SuppressWarnings("PMD.FieldNamingConventions") // ArchUnit convention uses snake_case for rule names
+// Test patterns: ArchUnit test conventions require snake_case rule names and ArchRule types
+// - PMD rules handled by Baseline: CommentSize, CommentRequired, CommentDefaultAccessModifier,
+//   AtLeastOneConstructor, LongVariable
+// - ArchUnit-specific: FieldNamingConventions (snake_case), LooseCoupling (ArchRule type required)
+// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml: ConstantName (ArchUnit convention)
+@SuppressWarnings({
+    "PMD.CommentSize", // Copyright header is standard and required (Apache License)
+    "PMD.CommentRequired", // Test class documentation
+    "PMD.CommentDefaultAccessModifier", // ArchUnit test rules use package-private
+    "PMD.FieldNamingConventions", // ArchUnit convention uses snake_case for rule names
+    "PMD.AtLeastOneConstructor", // Test class doesn't need explicit constructor
+    "PMD.LongVariable", // ArchUnit rule names are descriptive
+    "PMD.LooseCoupling" // ArchUnit requires ArchRule type (not interface)
+})
 class ArchitectureTest {
 
     @ArchTest
-    @SuppressWarnings({"Checkstyle:ConstantName", "PMD.FieldNamingConventions"})
-    // ArchUnit convention uses snake_case for rule names
+    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
+    // PMD.FieldNamingConventions suppressed at class level (ArchUnit snake_case convention)
     static final ArchRule services_should_not_access_views = noClasses()
             .that()
             .resideInAPackage("..service..")
@@ -39,8 +70,8 @@ class ArchitectureTest {
             .because("Services should not depend on presentation layer (Views)");
 
     @ArchTest
-    @SuppressWarnings({"Checkstyle:ConstantName", "PMD.FieldNamingConventions"})
-    // ArchUnit convention uses snake_case for rule names
+    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
+    // PMD.FieldNamingConventions suppressed at class level (ArchUnit snake_case convention)
     static final ArchRule views_should_not_access_repositories_directly = noClasses()
             .that()
             .resideInAPackage("..view..")
@@ -50,30 +81,28 @@ class ArchitectureTest {
             .because("Views should access data through services, not repositories directly");
 
     @ArchTest
-    @SuppressWarnings({"Checkstyle:ConstantName", "PMD.FieldNamingConventions"})
-    // ArchUnit convention uses snake_case for rule names
+    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
+    // PMD.FieldNamingConventions suppressed at class level (ArchUnit snake_case convention)
     static final ArchRule entities_should_be_in_entity_package = classes()
             .that()
-            .areAnnotatedWith("io.jmix.core.entity.annotation.JmixEntity")
+            .areAnnotatedWith(JmixEntity.class)
             .or()
-            .areAnnotatedWith("jakarta.persistence.Entity")
+            .areAnnotatedWith(Entity.class)
             .should()
             .resideInAPackage("..entity..")
             .because("Entities must be located in entity package for consistency");
 
     @ArchTest
-    @SuppressWarnings({"Checkstyle:ConstantName", "PMD.FieldNamingConventions", "PMD.LooseCoupling"})
-    // ArchUnit convention uses snake_case for rule names, which conflicts with Java naming
-    // LooseCoupling: ArchRule uses generic types from framework
-    static final ArchRule no_cycles_between_packages =
-            com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices()
-                    .matching("com.digtp.start.(*)..")
-                    .should()
-                    .beFreeOfCycles()
-                    .because("Cyclic dependencies between packages indicate architectural problems");
+    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
+    // PMD.FieldNamingConventions, PMD.LooseCoupling suppressed at class level (ArchUnit conventions)
+    static final ArchRule no_cycles_between_packages = SlicesRuleDefinition.slices()
+            .matching("com.digtp.start.(*)..")
+            .should()
+            .beFreeOfCycles()
+            .because("Cyclic dependencies between packages indicate architectural problems");
 
     @Test
-    @SuppressWarnings("PMD.LooseCoupling") // ArchUnit JavaClasses is a framework type, not a standard collection
+    // PMD.LooseCoupling suppressed at class level (ArchUnit ArchRule type required)
     void architectureRulesAreDefined() {
         // This test ensures ArchUnit rules are loaded and executed
         // Individual rules are tested via @ArchTest annotations above

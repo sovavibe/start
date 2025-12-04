@@ -2,14 +2,16 @@
 <configuration>
     <!-- Use LOGGING_FILE_PATH from environment, fallback to 'logs' -->
     <property name="LOG_PATH" value="${LOGGING_FILE_PATH:-logs}"/>
-    
+
     <!-- Console appender with professional color highlighting -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%15.15thread] %highlight(%-5level) %cyan(%-50.50logger{49}) [%yellow(%X{requestId:-})] [%blue(%X{userId:-})] : %m%n%ex</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%15.15thread] %highlight(%-5level) %cyan(%-50.50logger{49})
+                [%yellow(%X{requestId:-})] [%blue(%X{userId:-})] : %m%n%ex
+            </pattern>
         </encoder>
     </appender>
-    
+
     <!-- Async file appender for better performance -->
     <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="FILE"/>
@@ -17,7 +19,7 @@
         <discardingThreshold>0</discardingThreshold>
         <includeCallerData>false</includeCallerData>
     </appender>
-    
+
     <!-- Main application log file -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/application.log</file>
@@ -28,10 +30,12 @@
             <totalSizeCap>3GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] -
+                %msg%n
+            </pattern>
         </encoder>
     </appender>
-    
+
     <!-- SQL queries log (separate from main log) -->
     <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/sql.log</file>
@@ -42,10 +46,12 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] -
+                %msg%n
+            </pattern>
         </encoder>
     </appender>
-    
+
     <!-- Security events log -->
     <appender name="SECURITY_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/security.log</file>
@@ -55,10 +61,12 @@
             <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%X{requestId:-}] [%X{userId:-}] - %msg%n%ex{full}</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%X{requestId:-}] [%X{userId:-}] -
+                %msg%n%ex{full}
+            </pattern>
         </encoder>
     </appender>
-    
+
     <!-- Errors and warnings log -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/errors.log</file>
@@ -72,10 +80,12 @@
             <totalSizeCap>2GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%X{requestId:-}] [%X{userId:-}] - %msg%n%ex{full}</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} [%X{requestId:-}] [%X{userId:-}] -
+                %msg%n%ex{full}
+            </pattern>
         </encoder>
     </appender>
-    
+
     <!-- Warnings log -->
     <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/warnings.log</file>
@@ -91,10 +101,12 @@
             <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] -
+                %msg%n
+            </pattern>
         </encoder>
     </appender>
-    
+
     <!-- Audit log for security and business events -->
     <appender name="AUDIT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_PATH}/audit.log</file>
@@ -104,7 +116,9 @@
             <totalSizeCap>5GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{60} [%X{requestId:-}] [%X{userId:-}] -
+                %msg%n
+            </pattern>
         </encoder>
     </appender>
 
@@ -112,30 +126,37 @@
     <appender name="OpenTelemetry" class="io.opentelemetry.instrumentation.logback.appender.v1_0.OpenTelemetryAppender">
         <captureMdcAttributes>*</captureMdcAttributes>
     </appender>
-    
+
     <!-- Application logger - only application logs -->
     <logger name="com.digtp.start" level="INFO" additivity="false">
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
         <appender-ref ref="CONSOLE"/>
-        <springProfile name="docker,kubernetes">
-            <appender-ref ref="OpenTelemetry"/>
-        </springProfile>
     </logger>
-    
+
+    <!-- Application logger with OpenTelemetry for docker/kubernetes profiles -->
+    <springProfile name="docker,kubernetes">
+        <logger name="com.digtp.start" level="INFO" additivity="false">
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="OpenTelemetry"/>
+        </logger>
+    </springProfile>
+
     <!-- Audit logger - security and business events -->
     <logger name="com.digtp.start.audit" level="INFO" additivity="false">
         <appender-ref ref="AUDIT_FILE"/>
         <appender-ref ref="ASYNC_FILE"/>
     </logger>
-    
+
     <!-- Application Security logger - brute-force detection, suspicious activity -->
     <logger name="com.digtp.start.security" level="INFO" additivity="false">
         <appender-ref ref="SECURITY_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
-    
+
     <!-- Spring Security logger - authentication and authorization -->
     <logger name="org.springframework.security" level="INFO" additivity="false">
         <appender-ref ref="SECURITY_FILE"/>
@@ -143,50 +164,51 @@
         <appender-ref ref="ERROR_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
-    
+
     <!-- EclipseLink SQL logger - separate from main logs -->
     <logger name="org.eclipse.persistence" level="INFO" additivity="false">
         <appender-ref ref="SQL_FILE"/>
     </logger>
-    
+
     <!-- Jmix DataStore logger -->
     <logger name="io.jmix.core.datastore" level="INFO" additivity="false">
         <appender-ref ref="SQL_FILE"/>
     </logger>
-    
+
     <!-- Jmix Access Logger -->
     <logger name="io.jmix.core.AccessLogger" level="DEBUG" additivity="false">
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
-    
+
     <!-- Vaadin logger - reduce noise -->
     <logger name="com.vaadin" level="WARN" additivity="false">
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="WARN_FILE"/>
         <appender-ref ref="CONSOLE"/>
     </logger>
-    
+
     <!-- Suppress Tomcat session loading errors -->
     <logger name="org.apache.catalina.session.StandardManager" level="WARN" additivity="false">
         <appender-ref ref="WARN_FILE"/>
     </logger>
-    
+
     <!-- Suppress Vaadin Push warnings (race condition on startup, not critical) -->
     <logger name="com.vaadin.flow.server.communication.PushAtmosphereHandler" level="ERROR" additivity="false">
         <appender-ref ref="ERROR_FILE"/>
     </logger>
-    
+
     <!-- Suppress Spring Security warning about web.ignoring() for VAADIN/push (comes from Jmix framework) -->
-    <logger name="org.springframework.security.config.annotation.web.builders.WebSecurity" level="ERROR" additivity="false">
+    <logger name="org.springframework.security.config.annotation.web.builders.WebSecurity" level="ERROR"
+            additivity="false">
         <appender-ref ref="WARN_FILE"/>
     </logger>
-    
+
     <!-- Suppress Vaadin dev server warnings about file paths (generated files from Jmix) -->
     <logger name="com.vaadin.flow.server.frontend.TaskUpdateImports" level="ERROR" additivity="false">
         <appender-ref ref="WARN_FILE"/>
     </logger>
-    
+
     <!-- Production profile - reduce logging overhead -->
     <springProfile name="prod">
         <!-- Application logging - INFO only (no DEBUG) -->
@@ -194,29 +216,35 @@
             <appender-ref ref="ASYNC_FILE"/>
             <appender-ref ref="ERROR_FILE"/>
         </logger>
-        
+
         <!-- Minimal SQL logging in production (security + performance) -->
         <logger name="org.eclipse.persistence" level="WARN" additivity="false">
             <appender-ref ref="SQL_FILE"/>
         </logger>
-        
+
         <logger name="io.jmix.core.datastore" level="WARN" additivity="false">
             <appender-ref ref="SQL_FILE"/>
         </logger>
-        
+
         <!-- Minimal Spring logs -->
         <logger name="org.springframework" level="WARN"/>
-        
+
         <!-- Minimal Jmix logs -->
         <logger name="io.jmix" level="WARN"/>
     </springProfile>
-    
+
     <!-- Root logger - minimal output -->
     <root level="INFO">
         <appender-ref ref="ASYNC_FILE"/>
         <appender-ref ref="ERROR_FILE"/>
-        <springProfile name="docker,kubernetes">
-            <appender-ref ref="OpenTelemetry"/>
-        </springProfile>
     </root>
+
+    <!-- Root logger with OpenTelemetry for docker/kubernetes profiles -->
+    <springProfile name="docker,kubernetes">
+        <root level="INFO">
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="ERROR_FILE"/>
+            <appender-ref ref="OpenTelemetry"/>
+        </root>
+    </springProfile>
 </configuration>

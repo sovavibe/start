@@ -1,3 +1,18 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.view.login;
 
 import com.vaadin.flow.component.UI;
@@ -37,9 +52,14 @@ import org.springframework.security.authentication.LockedException;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings(
-        "java:S1948") // Framework pattern: Vaadin views contain non-serializable deps. Required for Gradle SonarLint
-// plugin.
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD.CommentSize, PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.GuardLogStatement
+// - PMD.LawOfDemeter, PMD.FormalParameterNamingConventions, PMD.LongVariable
+// - PMD.OnlyOneReturn (excluded for *View classes via violationSuppressXPath)
+// - java:S1948 excluded via config/sonar-project.properties
+@SuppressWarnings({"PMD.MissingSerialVersionUID", "PMD.NonSerializableClass", "PMD.UnnecessaryAnnotationValueElement"})
+// Note: NullAway suppressions removed - @ViewComponent and @Value fields are excluded via
+// ExcludedFieldAnnotations in build.gradle
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private final transient LoginViewSupport loginViewSupport;
@@ -49,6 +69,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private JmixLoginForm login;
 
     @ViewComponent
+    // Framework pattern: @ViewComponent fields are framework-managed, not serializable (expected)
+    @SuppressWarnings("java:S1948")
     private MessageBundle messageBundle;
 
     @Value("${ui.login.defaultUsername:}")
@@ -58,7 +80,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private String defaultPassword;
 
     @Subscribe
-    public void onInit(final InitEvent event) {
+    public void onInit(final InitEvent _event) {
         log.debug("Login view initialized");
         localeHelper.initLocales(login);
         initDefaultCredentials();
@@ -81,19 +103,22 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
                     .withLocale(login.getSelectedLocale())
                     .withRememberMe(login.isRememberMe()));
             log.info("User '{}' successfully logged in", event.getUsername());
-        } catch (final BadCredentialsException | DisabledException | LockedException | AccessDeniedException e) {
-            handleLoginFailure(event, e);
+        } catch (final BadCredentialsException
+                | DisabledException
+                | LockedException
+                | AccessDeniedException exception) {
+            handleLoginFailure(event, exception);
         }
     }
 
-    private void handleLoginFailure(final LoginEvent event, final Exception e) {
-        final String reason = getLoginFailureReason(e);
+    private void handleLoginFailure(final LoginEvent event, final Exception exception) {
+        final String reason = getLoginFailureReason(exception);
         log.warn("Login failed for user '{}': {}", event.getUsername(), reason);
         event.getSource().setError(true);
     }
 
-    private String getLoginFailureReason(final Exception e) {
-        return switch (e) {
+    private String getLoginFailureReason(final Exception exception) {
+        return switch (exception) {
             case BadCredentialsException ignored -> "invalid credentials";
             case DisabledException ignored -> "account disabled";
             case LockedException ignored -> "account locked";

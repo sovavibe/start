@@ -1,5 +1,21 @@
+/*
+ * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.digtp.start.view.user;
 
+import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
 import com.digtp.start.service.UserService;
 import com.digtp.start.view.main.MainView;
@@ -37,9 +53,26 @@ import lombok.extern.slf4j.Slf4j;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({"java:S1948", "java:S110", "java:S2177"
-}) // Framework patterns: Vaadin views. Required for Gradle SonarLint plugin.
+// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
+// - PMD rules handled by Baseline: CommentSize, AtLeastOneConstructor, CommentRequired, GuardLogStatement
+// - PMD rules handled by Baseline: LawOfDemeter, FormalParameterNamingConventions, LongVariable
+// - Sonar rules excluded via config/sonar-project.properties: java:S110, java:S2177, java:S1948
+// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
+//   MissingSerialVersionUID, NonSerializableClass
+@SuppressWarnings({
+    "PMD.AvoidDuplicateLiterals", // Framework: "UnusedMethod" string repeated for Jmix lifecycle methods
+    "PMD.MissingSerialVersionUID", // Jmix views don't need serialVersionUID (framework-managed)
+    "PMD.NonSerializableClass", // Views contain framework-managed non-serializable beans (expected)
+    "PMD.FieldDeclarationsShouldBeAtStartOfClass" // @ViewComponent fields after constructor-injected fields
+})
+// Note: NullAway suppressions removed - @ViewComponent fields are excluded via
+// ExcludedFieldAnnotations in build.gradle
+// NOSONAR java:S110 - Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
 public class UserDetailView extends StandardDetailView<User> {
+
+    private final transient Notifications notifications;
+    private final transient EntityStates entityStates;
+    private final transient UserService userService;
 
     @ViewComponent
     private TypedTextField<String> usernameField;
@@ -54,19 +87,44 @@ public class UserDetailView extends StandardDetailView<User> {
     private ComboBox<String> timeZoneField;
 
     @ViewComponent
+    // Framework pattern: @ViewComponent fields are framework-managed, not serializable (expected)
+    @SuppressWarnings("java:S1948")
     private MessageBundle messageBundle;
 
-    private final transient Notifications notifications;
-    private final transient EntityStates entityStates;
-    private final transient UserService userService;
-
-    private boolean newEntity;
+    /**
+     * Tracks whether entity was new when saved.
+     *
+     * <p>Used to determine if notification should be shown after save.
+     * Set in onBeforeSave, checked in onAfterSave, then reset.
+     * Transient to avoid serialization issues.
+     */
+    private transient boolean wasNewOnSave;
 
     @Subscribe
-    public void onInit(final InitEvent event) {
-        timeZoneField.setItems(List.of(TimeZone.getAvailableIDs()));
+    public void onInit(final InitEvent _event) {
+        timeZoneField.setItems(getAvailableTimeZoneIds());
         log.debug("User detail view initialized");
     }
+
+    /**
+     * Returns cached list of available timezone IDs.
+     *
+     * <p>TimeZone IDs are static and don't change, so we cache them to avoid
+     * repeated calls to TimeZone.getAvailableIDs() which creates a new array each time.
+     *
+     * @return immutable list of timezone IDs
+     */
+    private static List<String> getAvailableTimeZoneIds() {
+        return AVAILABLE_TIME_ZONE_IDS;
+    }
+
+    /**
+     * Cached list of available timezone IDs.
+     *
+     * <p>Initialized once at class load time to avoid repeated calls to
+     * TimeZone.getAvailableIDs() which is expensive and creates new arrays.
+     */
+    private static final List<String> AVAILABLE_TIME_ZONE_IDS = List.of(TimeZone.getAvailableIDs());
 
     @Subscribe
     public void onInitEntity(final InitEntityEvent<User> event) {
@@ -77,11 +135,12 @@ public class UserDetailView extends StandardDetailView<User> {
         log.debug(
                 "User entity initialized: isNew={}, username={}",
                 entityStates.isNew(user),
-                user.getUsername() != null ? user.getUsername() : "not set");
+                Objects.toString(user.getUsername(), "not set"));
     }
 
     @Subscribe
-    public void onReady(final ReadyEvent event) {
+    // NOSONAR java:S2177 - Framework: lifecycle method name matches parent private method (Jmix framework pattern)
+    public void onReady(final ReadyEvent _event) {
         final User user = getEditedEntity();
         if (entityStates.isNew(user)) {
             usernameField.focus();
@@ -99,8 +158,8 @@ public class UserDetailView extends StandardDetailView<User> {
         final String confirmPassword = confirmPasswordField.getValue();
 
         if (isNew) {
-            validateNewUserPassword(event, password, confirmPassword);
-        } else if (password != null && !password.isEmpty()) {
+            validatePasswordForNewUser(event, password, confirmPassword);
+        } else if (SecurityConstants.isNotNullOrEmpty(password)) {
             validatePasswordChange(event, password, confirmPassword);
         }
 
@@ -112,9 +171,9 @@ public class UserDetailView extends StandardDetailView<User> {
         }
     }
 
-    private void validateNewUserPassword(
+    private void validatePasswordForNewUser(
             final ValidationEvent event, final String password, final String confirmPassword) {
-        if (password == null || password.isEmpty()) {
+        if (SecurityConstants.isNullOrEmpty(password)) {
             log.warn("Password validation failed: password is required for new user");
             event.getErrors().add(messageBundle.getMessage("passwordRequired"));
             return;
@@ -136,7 +195,7 @@ public class UserDetailView extends StandardDetailView<User> {
      * <p>Delegates to UserService for password strength validation.
      * Adds validation errors to the event if validation fails.
      *
-     * @param event validation event to add errors to
+     * @param event    validation event to add errors to
      * @param password password to validate
      */
     private void validatePasswordStrength(final ValidationEvent event, final String password) {
@@ -154,8 +213,8 @@ public class UserDetailView extends StandardDetailView<User> {
      * <p>Delegates to UserService for password confirmation validation.
      * Adds validation errors to the event if passwords do not match.
      *
-     * @param event validation event to add errors to
-     * @param password password value
+     * @param event           validation event to add errors to
+     * @param password        password value
      * @param confirmPassword confirmation password value
      */
     private void validatePasswordConfirmation(
@@ -167,35 +226,35 @@ public class UserDetailView extends StandardDetailView<User> {
     }
 
     @Subscribe
-    public void onBeforeSave(final BeforeSaveEvent event) {
+    public void onBeforeSave(final BeforeSaveEvent _event) {
         final User user = getEditedEntity();
         final boolean isNew = entityStates.isNew(user);
+        wasNewOnSave = isNew; // Store state for use in onAfterSave
         if (isNew) {
             userService.prepareUserForSave(user, passwordField.getValue(), true);
-            newEntity = true;
             log.debug("Preparing new user for save: username={}", user.getUsername());
         } else {
             final String newPassword = passwordField.getValue();
             userService.prepareUserForSave(user, newPassword, false);
             log.debug(
-                    "Preparing user update for save: id={}, username={}, passwordChanged={}",
+                    "Preparing user update: id={}, username={}, passwordChanged={}",
                     user.getId(),
                     user.getUsername(),
-                    newPassword != null && !newPassword.isEmpty());
+                    SecurityConstants.isNotNullOrEmpty(newPassword));
         }
     }
 
     @Subscribe
-    public void onAfterSave(final AfterSaveEvent event) {
+    public void onAfterSave(final AfterSaveEvent _event) {
         final User user = getEditedEntity();
-        if (newEntity) {
+        if (wasNewOnSave) {
             log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
             notifications
                     .create(messageBundle.getMessage("noAssignedRolesNotification"))
                     .withThemeVariant(NotificationVariant.LUMO_WARNING)
                     .withPosition(Notification.Position.TOP_END)
                     .show();
-            newEntity = false;
+            wasNewOnSave = false; // Reset after use
         } else {
             log.info("User updated successfully: id={}, username={}", user.getId(), user.getUsername());
         }
