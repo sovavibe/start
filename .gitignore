@@ -72,3 +72,6 @@ logs/
 # Docker Compose override files
 docker-compose.override.yml
 .vscode/settings.json
+
+# Temporary PR description files
+pr_description.md
