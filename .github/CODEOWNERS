@@ -2,8 +2,8 @@
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
 # Global owners - all files
-# Repository owner and code owner
-* @sovavibe
+# Repository owner and code owners
+* @sovavibe @apolenkov
 
 # Specific paths (if needed in future)
 # /src/main/java/com/digtp/start/security/ @security-team
