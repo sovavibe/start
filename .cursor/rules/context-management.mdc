@@ -1,0 +1,30 @@
+---
+alwaysApply: true
+autoFix: false
+version: "1.0.0"
+---
+
+# CONTEXT MANAGEMENT
+
+## PRINCIPLES
+- Search codebase first before asking questions
+- Use context7 MCP docs for framework documentation
+- Maintain project context across sessions
+- Reference existing patterns and conventions
+
+## WORKFLOW
+1. **Understand**: Search codebase for similar patterns
+2. **Reference**: Use `@rules.mdc` and specialized rule files
+3. **Document**: Only when explicitly requested (see `@documentation-generation.mdc`)
+4. **Consistency**: Follow existing code style and architecture
+
+## TOOLS
+- **Context7 MCP**: For Jmix, Spring, Vaadin documentation
+- **Codebase search**: Semantic search for patterns
+- **Rule files**: Quick reference via `@filename.mdc` syntax
+
+## PATTERNS
+- **Before asking**: Search codebase for similar implementations
+- **Framework docs**: Use context7 MCP instead of external docs
+- **Rule lookup**: Reference `@rules.mdc` for project standards
+- **Code style**: Follow existing patterns in codebase

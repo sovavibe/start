@@ -115,7 +115,9 @@ jobs:
         # Explicitly generate XML report for SonarCloud
 
       - name: Verify test coverage
-        run: ./gradlew jacocoTestCoverageVerification --no-daemon || (echo "❌ Test coverage below 80%!" && exit 1)
+        run: ./gradlew jacocoTestCoverageVerification --no-daemon
+        # Strict: Coverage thresholds (85% instructions, 75% branches, 90% lines) must pass
+        # Fails build if coverage below thresholds (configured in build.gradle)
 
       - name: Upload test results
         if: always()

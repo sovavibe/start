@@ -1,5 +1,7 @@
 # DevOps Guide
 
+> **Note**: This guide covers DevOps and deployment. For general project documentation, see [README.md](../README.md). For local development setup, see [Local Development Guide](docs/getting-started/LOCAL_DEVELOPMENT.md).
+
 ## Quick Start
 
 ### 1. Start Application

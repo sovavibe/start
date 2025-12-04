@@ -1,0 +1,70 @@
+---
+globs: ["**/entity/**/*.java", "**/service/**/*.java", "**/view/**/*.java"]
+autoFix: true
+version: "1.0.0"
+---
+
+# REFACTORING PATTERNS
+
+## WHEN TO REFACTOR
+
+### Triggers (Code Smells)
+- **Long Method**: >20 lines → Extract Method
+- **Large Class**: >250 lines → Extract Class
+- **Long Parameter List**: >3 params → Parameter Object/Builder
+- **Duplicate Code**: 3+ occurrences → Extract Method/Class
+- **Feature Envy**: Method uses other class more → Move Method
+- **Data Clumps**: Same fields together → Extract Class
+
+### Metrics Triggers
+- Cyclomatic complexity >10 → Split method
+- Cognitive complexity >10 → Simplify logic
+- Deep nesting >3 levels → Early return, Extract Method
+
+## WHEN NOT TO REFACTOR
+❌ Working code without tests | ❌ Before deadline without buffer | ❌ "Just in case" without smell | ❌ During incident response
+
+## SAFE REFACTORING CHECKLIST
+1. ✅ Tests pass before refactoring
+2. ✅ Small incremental changes
+3. ✅ Run tests after each change
+4. ✅ Commit frequently
+5. ✅ Review diff before push
+
+## COMMON REFACTORINGS
+
+### Extract Method
+**Before**: Long method with commented sections
+**After**: Small methods with descriptive names
+**IDE**: Ctrl+Alt+M (IntelliJ)
+
+### Extract Class
+**Before**: Class with multiple responsibilities
+**After**: Focused classes, single responsibility
+**Pattern**: Move related fields + methods together
+
+### Replace Conditional with Polymorphism
+**Before**: Switch/if-else on type
+**After**: Interface + implementations
+**When**: >3 branches, type-based logic
+
+### Introduce Parameter Object
+**Before**: `method(a, b, c, d, e)`
+**After**: `method(Config config)`
+**When**: >3 related parameters
+
+## JMIX-SPECIFIC
+
+### View Refactoring
+- Extract complex UI logic to separate `*Helper` class
+- Move business logic from View to Service
+- Extract reusable components
+
+### Entity Refactoring
+- ⚠️ Requires Liquibase migration for DB changes
+- Use Studio refactoring tools
+- Test with existing data
+
+### Service Refactoring
+- Split by domain (UserService, OrderService)
+- Extract common logic to base/utility classes

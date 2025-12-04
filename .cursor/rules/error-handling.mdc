@@ -1,0 +1,42 @@
+---
+globs: ["**/service/**/*.java", "**/view/**/*.java", "**/rest/**/*.java", "**/exception/**/*.java"]
+autoFix: true
+version: "1.0.0"
+---
+
+# ERROR HANDLING
+
+## PRINCIPLES
+**Fail fast**: Validate early, throw specific exceptions | **No swallowing**: Always log or rethrow | **User-friendly**: Map technical errors to UI messages | **Specific exceptions**: Avoid generic Exception
+
+## EXCEPTION HIERARCHY
+
+### Jmix Built-in
+- `EntityAccessException` — security violation
+- `OptimisticLockException` — concurrent modification
+- `ConstraintViolationException` — validation failed
+- `NoResultException` — entity not found (use `.optional()`)
+
+### Custom Exceptions
+```java
+public class BusinessException extends RuntimeException {
+    public BusinessException(String message) { super(message); }
+}
+```
+
+## PATTERNS
+
+### Service Layer
+**@Transactional**: Rollback on RuntimeException (default) | **Checked**: Explicit rollback `@Transactional(rollbackFor = Exception.class)` | **Validation**: Throw `IllegalArgumentException` for invalid input
+
+### View Layer
+**OptimisticLock**: Reload entity, notify user, allow retry | **Validation**: Show field-level errors | **Security**: Redirect to error page
+
+### REST Controllers
+**@ExceptionHandler**: Map to HTTP status codes | **400**: Validation errors | **404**: Not found | **409**: Conflict (optimistic lock) | **500**: Internal error (log, don't expose)
+
+## ANTIPATTERNS
+❌ `catch (Exception e) { }` — silent swallowing | ❌ `e.printStackTrace()` → use `log.error()` | ❌ Generic `RuntimeException` → specific type | ❌ Exposing stack trace to user | ❌ Returning null instead of Optional/throwing
+
+## LOGGING
+`log.error("Operation failed: entity={}, error={}", entityId, e.getMessage(), e)` | Always include context | Include stack trace for unexpected errors

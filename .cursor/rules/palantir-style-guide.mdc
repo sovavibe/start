@@ -1,100 +1,53 @@
 ---
-globs: ["**/*.java"]
+globs: ["**/entity/**/*.java", "**/service/**/*.java", "**/view/**/*.java", "**/security/**/*.java"]
 alwaysApply: false
 autoFix: false
-version: "1.0.0"
+version: "1.2.0"
 ---
 
 # PALANTIR JAVA STYLE GUIDE
 
 ## OVERVIEW
-This project follows [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md), which is based on Google Java Style Guide with Palantir-specific modifications.
+Follows [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md) (based on Google Java Style Guide with Palantir modifications).
 
 ## KEY STANDARDS
 
-### Column Limit
-- **120 characters** (Palantir standard, not 100)
-- Configured in: `.editorconfig`, Palantir Baseline (Checkstyle), Spotless
+### Formatting
+- **Column limit**: 120 characters (Palantir standard)
+- **File length**: 300 lines max (project limit)
+- **Indentation**: 4 spaces (not tabs)
+- **Braces**: K&R style (opening on same line), always use braces
+- **Line ending**: LF (Unix), no trailing whitespace
 
-### File Length
-- **Project limit: 300 lines** (stricter for maintainability)
-- If exceeded: Refactor (extract methods, split files)
+### Import Order
+Palantir Baseline auto-configures via Spotless:
+1. `java.*` → `javax.*` → `jakarta.*` → `org.*` → `com.*` → Static imports
+2. Blank lines between groups, no blank lines within group
+3. Alphabetical within each group
+4. See `@import-order.mdc` for details
 
-### Import Order (Palantir Baseline Default)
-Palantir Baseline automatically configures import order via Spotless:
-1. `java.*` - Java standard library
-2. `javax.*` - Legacy Java extensions
-3. `jakarta.*` - Jakarta EE
-4. `org.*` - Third-party libraries (Spring, Jmix, etc.)
-5. `com.*` - All com.* imports grouped together (includes both third-party and project imports)
-6. Static imports (last)
-
-**Note**: Baseline groups all `com.*` imports together, which is acceptable and practical.
-The ideal order per Palantir Style Guide would separate `com.digtp.*` from other `com.*` imports,
-but Baseline's automatic grouping is a reasonable compromise that works well in practice.
-
-**Enforcement**: Automatically enforced by Palantir Baseline via Spotless
-
-### Block Indentation
-- **4 spaces** (not tabs)
-- Configured in: `.editorconfig`, Palantir Baseline
-
-### Braces
-- **K&R style**: Opening brace on same line
-- Always use braces, even for single statements
-
-### Whitespace
-- **Line ending: LF** (Unix)
-- **No trailing whitespace**
-- Blank lines between import groups
-- No blank lines within same import group
-
-### Naming Conventions
+### Naming
 - **Classes**: `UpperCamelCase` (e.g., `UserService`)
-- **Methods**: `lowerCamelCase` (e.g., `encodePassword`)
+- **Methods/Fields/Params**: `lowerCamelCase` (e.g., `encodePassword`)
 - **Constants**: `CONSTANT_CASE` (e.g., `MIN_PASSWORD_LENGTH`)
-- **Fields**: `lowerCamelCase` (e.g., `passwordEncoder`)
-- **Parameters**: `lowerCamelCase` (e.g., `password`, `confirmPassword`)
 
 ### Javadoc
-- Required for public classes and methods
-- Summary fragment: 3rd-person verb phrase (e.g., "Encodes a password")
+- Required for public classes/methods
+- Summary: 3rd-person verb phrase (e.g., "Encodes a password")
 - Use `<p>` for paragraphs
-- At-clauses order: `@param`, `@return`, `@throws`, `@deprecated`
+- Order: `@param`, `@return`, `@throws`, `@deprecated`
 
-## FORMATTING
+## FORMATTING COMMANDS
+- `./gradlew format` - Palantir Baseline format (recommended)
+- `./gradlew spotlessApply` - Spotless-only
 
-### Commands
-- `./gradlew format` - Palantir Baseline format task (recommended)
-- `./gradlew spotlessApply` - Spotless-only formatting
-
-### Auto-Configuration
-Palantir Baseline automatically configures:
-- Import order
-- Unused imports removal
-- Trailing whitespace removal
-- End with newline
-- Palantir Java Format (2.68.0)
+Baseline auto-configures: import order, unused imports removal, trailing whitespace, end with newline, Palantir Java Format (2.68.0)
 
 ## BEST PRACTICES
-
-### Code Quality
-- Prefer immutable objects
-- Avoid null (use `Optional` where appropriate)
-- Use `final` for fields and parameters when possible
+- Immutable objects, avoid null (use `Optional`), `final` fields/params
 - Constructor injection (not field injection)
-- SOLID principles, Clean Architecture, DRY, KISS
-
-### Testing
-- AAA/GWT pattern (Arrange-Act-Assert / Given-When-Then)
-- Test naming: `test<MethodUnderTest>_<state>`
-- Use `@testing-policy.mdc` for details
-
-### Code Reviews
-- Scope: narrow, well-defined, self-contained
-- Size: ~5 files max, 1-2 days work, ~20 min review
-- Complete, self-reviewed, self-tested before submission
-- See [Palantir Code Reviews Guide](https://github.com/palantir/gradle-baseline/blob/develop/docs/best-practices/code-reviews/readme.md)
+- SOLID, Clean Architecture, DRY, KISS
+- Testing: AAA/GWT pattern, see `@testing-policy.mdc`
 
 ## REFERENCE
 [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md)
