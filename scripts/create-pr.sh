@@ -9,28 +9,16 @@ GENERATE_ONLY=false
 BASE_BRANCH="main"
 TITLE=""
 
-# Parse arguments
+# Parse arguments (simple: first non-flag is base branch, second is title)
 for arg in "$@"; do
   if [ "$arg" = "--generate-only" ]; then
     GENERATE_ONLY=true
-  elif [ -z "$BASE_BRANCH" ] || [ "$BASE_BRANCH" = "main" ]; then
-    if [ "$arg" != "main" ] && [ "$arg" != "--generate-only" ]; then
-      # Check if it looks like a branch name (not a title with spaces)
-      if echo "$arg" | grep -qv " "; then
-        BASE_BRANCH="$arg"
-      else
-        TITLE="$arg"
-      fi
-    fi
+  elif [ "$BASE_BRANCH" = "main" ] && [ "$arg" != "--generate-only" ]; then
+    BASE_BRANCH="$arg"
   elif [ -z "$TITLE" ] && [ "$arg" != "--generate-only" ]; then
     TITLE="$arg"
   fi
 done
-
-# Default base branch
-if [ -z "$BASE_BRANCH" ] || [ "$BASE_BRANCH" = "main" ]; then
-  BASE_BRANCH="main"
-fi
 
 # Get current branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
