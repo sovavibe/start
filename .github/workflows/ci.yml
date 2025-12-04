@@ -70,6 +70,16 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Verify Checkstyle config exists
+        run: |
+          if [ ! -f ".baseline/checkstyle/checkstyle.xml" ]; then
+            echo "❌ checkstyle.xml not found!"
+            echo "Files in .baseline/checkstyle/:"
+            ls -la .baseline/checkstyle/ || echo "Directory doesn't exist"
+            exit 1
+          fi
+          echo "✅ checkstyle.xml found"
+
       - name: Clean build
         run: ./gradlew clean --no-daemon
 
