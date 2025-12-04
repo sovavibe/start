@@ -157,7 +157,7 @@ graph TB
         StartApp[StartApplication<br/>Main entry point]
     end
     
-    subgraph DB[(PostgreSQL Database)]
+    subgraph DB["PostgreSQL Database"]
         UserTable[USER_ table<br/>SEC_ROLE<br/>SEC_ROLE_ASSIGNMENT]
     end
     
