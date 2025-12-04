@@ -279,9 +279,9 @@ coverage: test ## Generate test coverage report
 
 ##@ Code Quality - Formatting
 
-format: ## Format code (Java, CSS, YAML)
+format: ## Format code (Java, CSS, YAML) - uses Palantir Baseline format task (includes copyright headers)
 	@echo "$(GREEN)Formatting code...$(RESET)"
-	./gradlew spotlessApply
+	./gradlew format
 	./gradlew lintCssFix
 	./gradlew lintYamlFix
 
@@ -291,9 +291,9 @@ format-check: ## Check code formatting (without fixing)
 	./gradlew lintCss
 	./gradlew lintYaml
 
-format-java: ## Format Java code only
+format-java: ## Format Java code only - uses Palantir Baseline format task (includes copyright headers)
 	@echo "$(GREEN)Formatting Java code...$(RESET)"
-	./gradlew spotlessApply
+	./gradlew format
 
 format-css: ## Format CSS code only
 	@echo "$(GREEN)Formatting CSS code...$(RESET)"

@@ -215,6 +215,13 @@ idea {
 }
 
 // Spotless
+// NOTE: Palantir Baseline automatically configures Spotless with:
+// - importOrder (Palantir Baseline default order: java.* → javax.* → jakarta.* → org.* → com.* → static)
+// - removeUnusedImports
+// - trimTrailingWhitespace
+// - endWithNewline
+// These are applied automatically by Baseline plugin, no need to configure explicitly.
+// Additional formatters below are added on top of Baseline's auto-configuration.
 spotless {
     java {
         target 'src/**/*.java'
@@ -224,10 +231,8 @@ spotless {
                 '**/build/**',
                 '**/.archive/**'
         )
-        // Palantir Baseline automatically configures:
-        // - importOrder (via Baseline's default order)
-        // - removeUnusedImports, trimTrailingWhitespace, endWithNewline
-        // Baseline applies importOrder automatically, but we can verify it works
+        // Baseline auto-configures: importOrder, removeUnusedImports, trimTrailingWhitespace, endWithNewline
+        // Additional formatters (applied after Baseline's auto-configuration):
         cleanthat().sourceCompatibility('21')
         formatAnnotations()
         lineEndings = 'UNIX'
