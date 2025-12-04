@@ -1,7 +1,8 @@
 # Code owners for the Start project
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-# Global owner - all files
+# Global owners - all files
+# Repository owner and code owner
 * @sovavibe
 
 # Specific paths (if needed in future)
