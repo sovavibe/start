@@ -1,9 +1,9 @@
 ---
-globs: ["**/view/**/*.java", "**/view/**/*.xml"]
+globs: ["**/view/**/*.xml"]
 autoFix: true
-version: "3.0.0"
+version: "4.0.0"
 ---
 
 # UI/UX
 
-Material Design-inspired, calm palette | Views: XML layout, Java logic | Components: Jmix UiComponents factory | Responsive: Mobile-first, breakpoints | Accessibility: ARIA labels, keyboard nav | Loading: Progress indicators, skeleton screens | Error: User-friendly messages, validation feedback | I18n: Messages service, externalize strings
+See `@vaadin-best-practices.mdc` → UI/UX section for complete guidelines.

@@ -1,0 +1,25 @@
+# Code owners for automatic review assignment
+# See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything
+* @sovavibe
+
+# Documentation
+/docs/ @sovavibe
+*.md @sovavibe
+README.md @sovavibe
+CONTRIBUTING.md @sovavibe
+
+# CI/CD
+/.github/ @sovavibe
+/.github/workflows/ @sovavibe
+
+# Configuration
+/build.gradle @sovavibe
+/gradle.properties @sovavibe
+/config/ @sovavibe
+
+# Security
+/security/ @sovavibe
+/SECURITY.md @sovavibe
+

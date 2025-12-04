@@ -1,101 +1,28 @@
 ---
-globs: ["**/*.java"]
+globs: ["**/entity/**/*.java", "**/service/**/*.java", "**/view/**/*.java", "**/security/**/*.java", "**/config/**/*.java"]
 autoFix: true
-version: "1.0.0"
+version: "1.2.0"
 ---
 
 # IMPORT ORDER
 
 ## STANDARD ORDER (Palantir Baseline)
-Order automatically enforced by `com.palantir.baseline` plugin via Spotless:
+Automatically enforced by `com.palantir.baseline` via Spotless:
 1. `java.*` - Java standard library
 2. `javax.*` - Legacy Java extensions
-3. `jakarta.*` - Jakarta EE (replaces javax)
+3. `jakarta.*` - Jakarta EE
 4. `org.*` - Third-party libraries (Spring, Jmix, etc.)
-5. `com.*` - Third-party libraries
-6. `com.digtp.*` - Project packages
-7. Static imports last
+5. `com.*` - All com.* imports grouped together (includes project imports)
+6. Static imports last
 
-**Note**: Palantir Baseline automatically configures `importOrder` in Spotless. No manual configuration needed.
-
-## DETAILED ORDERING WITHIN GROUPS
-
-### Java Standard Library
-- `java.util.*` (Collections, Lists, Maps, etc.)
-- `java.io.*` (I/O operations)
-- `java.time.*` (Date/time API)
-- Other `java.*` packages
-
-### Framework Imports
-- `org.springframework.*` - Spring Framework (Boot, Security, Test, etc.)
-- `io.jmix.*` - Jmix Framework (Core, FlowUI, Security, etc.)
-- `com.vaadin.*` - Vaadin Framework
-- Other `org.*` and `com.*` third-party libraries
-
-### Project Imports
-- `com.digtp.start.*` - Project-specific packages
-
-## EXAMPLES
-
-### ✅ CORRECT ORDER
-```java
-package com.digtp.start.service;
-
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import io.jmix.core.DataManager;
-import io.jmix.core.EntityStates;
-
-import com.digtp.start.entity.User;
-import com.digtp.start.config.AuditLogger;
-```
-
-### ✅ CORRECT ORDER (Test)
-```java
-package com.digtp.start.user;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.UUID;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.jmix.core.DataManager;
-
-import com.digtp.start.entity.User;
-import com.digtp.start.test_support.AuthenticatedAsAdmin;
-```
+**Note**: Baseline groups all `com.*` together (including `com.digtp.*`). This is acceptable per Baseline defaults.
 
 ## RULES
-- ✅ Java standard library imports first
-- ✅ Framework imports (Spring, Jmix) grouped together
-- ✅ Project imports last (before static imports)
-- ✅ Static imports always last
-- ✅ Blank line between import groups
-- ✅ No blank lines within same group
-- ✅ Alphabetical order within each group
+- ✅ Java stdlib → Framework (Spring/Jmix) → Project → Static imports
+- ✅ Blank line between groups, no blank lines within group
+- ✅ Alphabetical within each group
 
-## PALANTIR BASELINE ENFORCEMENT
-Import order is automatically enforced by Palantir Baseline via Spotless.
-- Run `./gradlew format` to auto-format all Java files (includes imports, unused imports removal, whitespace)
-- Run `./gradlew spotlessApply` for Spotless-only formatting
-- Palantir Baseline automatically configures: `importOrder`, `removeUnusedImports`, `trimTrailingWhitespace`, `endWithNewline`
-
-**Note**: Palantir Baseline's default import order groups all `com.*` imports together (including `com.digtp.*`).
-This is the standard Baseline behavior and is acceptable for this project.
-According to Palantir Java Style Guide, project imports (`com.digtp.*`) should ideally come after third-party `com.*` imports,
-but Baseline's automatic grouping is a practical compromise that works well in practice.
-
-**References**:
-- [Palantir Baseline Format](https://github.com/palantir/gradle-baseline#compalantirbaseline-format)
-- [Palantir Java Style Guide - Import Statements](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md#import-statements)
+## ENFORCEMENT
+- `./gradlew format` - Palantir Baseline format (recommended)
+- `./gradlew spotlessApply` - Spotless-only
+- Baseline auto-configures: `importOrder`, `removeUnusedImports`, `trimTrailingWhitespace`

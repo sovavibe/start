@@ -1,7 +1,7 @@
 ---
-globs: ["**/*.java", "**/*.yml", "**/*.properties", "**/*.yaml"]
+globs: ["**/entity/**/*.java", "**/service/**/*.java", "**/view/**/*.java", "**/security/**/*.java", "**/config/**/*.java", "application*.yml", "application*.properties"]
 autoFix: true
-version: "5.0.0"
+version: "5.2.0"
 ---
 
 # CODE QUALITY
@@ -14,37 +14,27 @@ Virtual threads, pattern matching, records (5+ params → Builder), text blocks
 
 **Reference**: [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md)
 
-## CHECKSTYLE SUPPRESSIONS (Palantir Baseline)
+## CHECKSTYLE SUPPRESSIONS
 - **Per-line/block**: `@SuppressWarnings("checkstyle:rulename")` (lowercase, without "Check" suffix)
-  - Example: `@SuppressWarnings("checkstyle:magicnumber")`
-- **Comments**: `// CHECKSTYLE:OFF` ... `// CHECKSTYLE:ON` (for checks like IllegalImport)
-- **File-level**: Add to `.baseline/checkstyle/custom-suppressions.xml` (NOT `checkstyle-suppressions.xml` - it's auto-generated)
+- **Comments**: `// CHECKSTYLE:OFF` ... `// CHECKSTYLE:ON` (for IllegalImport)
+- **File-level**: `.baseline/checkstyle/custom-suppressions.xml` (NOT `checkstyle-suppressions.xml` - auto-generated)
 - **Best practice**: Format code first, then suppress only if necessary
-- **Reference**: [Palantir Baseline Checkstyle](https://github.com/palantir/gradle-baseline#compalantirbaseline-checkstyle)
-- Use `@suppress-policy.mdc` for comprehensive suppression guidelines (PMD, SpotBugs, Sonar, Checkstyle)
+- See `@suppress-policy.mdc` for comprehensive guidelines
 
 ## FQN (FULLY QUALIFIED NAMES) CHECK
 - **Rule**: `AvoidFullyQualifiedNames` (Checkstyle RegexpSinglelineJava)
 - **Location**: `.baseline/checkstyle/checkstyle.xml` (TreeWalker section)
-- **Purpose**: Enforces use of imports instead of fully qualified names in code
-- **Pattern**: Universal - catches any FQN pattern `package.subpackage.Class` or `package.subpackage.method` (minimum 2 dots)
+- **Pattern**: Universal - catches any FQN pattern `package.subpackage.Class` (minimum 2 dots)
 - **Example violations**: 
   - `io.jmix.flowui.view.View<?> loginView` → should use `View<?> loginView` with import
   - `java.lang.reflect.Method method` → should use `Method method` with import
-  - `org.mockito.Mockito.mock(...)` → should use static import `mock(...)`
-- **Exclusions**: Imports and package declarations are automatically excluded via regex negative lookahead
+- **Exclusions**: Imports and package declarations automatically excluded
 - **Suppression**: `@SuppressWarnings("checkstyle:avoidfullyqualifiednames")` if truly necessary (rare)
 
-## FORMATTING (Palantir Baseline)
-- **Format command**: `./gradlew format` (Palantir Baseline format task)
-- **Auto-configuration**: Palantir Baseline configures Spotless with:
-  - `importOrder` (Palantir default order)
-  - `removeUnusedImports`
-  - `trimTrailingWhitespace`
-  - `endWithNewline`
-  - `palantirJavaFormat` (2.68.0)
-- **Additional**: `cleanthat()`, `formatAnnotations()`, `lineEndings = 'UNIX'`
-- **Reference**: [Palantir Baseline Format](https://github.com/palantir/gradle-baseline#compalantirbaseline-format)
+## FORMATTING
+- **Command**: `./gradlew format` (Palantir Baseline format task)
+- **Auto-configuration**: Baseline configures Spotless with `importOrder`, `removeUnusedImports`, `trimTrailingWhitespace`, `endWithNewline`, `palantirJavaFormat` (2.68.0)
+- See `@palantir-baseline-integration.mdc` for detailed Baseline configuration
 
 ## STANDARDS
 SOLID, Clean Architecture, DRY, KISS | Final fields, immutable | Constructor injection | @Nullable/@NonNull | Validation: @Email, @NotNull, @Size | Senior+ level: production-ready, maintainable, testable

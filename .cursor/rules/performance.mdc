@@ -1,0 +1,84 @@
+---
+globs: ["**/service/**/*.java", "**/entity/**/*.java", "**/view/**/*.java", "**/repository/**/*.java"]
+autoFix: true
+version: "1.0.0"
+---
+
+# PERFORMANCE
+
+## QUERY OPTIMIZATION
+
+### N+1 Problem
+**Symptom**: Many queries for related entities | **Solution**: FetchPlan with relationships
+
+```java
+FetchPlan plan = fetchPlans.builder(Order.class)
+    .add("items").add("customer").build();
+dataManager.load(Order.class).id(id).fetchPlan(plan).one();
+```
+
+### Query Performance
+- ✅ Index foreign keys and frequently filtered columns
+- ✅ Use `LIMIT` / `.maxResults()` for large datasets
+- ✅ Prefer `EXISTS` over `COUNT` for existence checks
+- ✅ Use query cache for read-heavy, rarely-changed data
+- ❌ `SELECT *` → select only needed fields
+
+## JMIX CACHING
+
+### Entity Cache
+**Config**: `jmix.core.entity-cache.enabled=true` | **Use**: Read-heavy entities
+
+### Query Cache
+```java
+dataManager.load(Entity.class).query("...").cacheable(true).list();
+```
+**Use**: Frequently executed, rarely changed queries
+
+### Invalidation
+Automatic on save/delete | Manual: `entityCache.evict(Entity.class, id)`
+
+## VIEW PERFORMANCE
+
+### Lazy Loading
+```java
+grid.setItems(query -> service.find(PageRequest.of(
+    query.getPage(), query.getPageSize())));
+```
+
+### Virtual Scrolling
+`grid.setPageSize(50)` — loads only visible + buffer
+
+### Avoid
+❌ `grid.setItems(dataManager.load().all().list())` — loads all | ❌ Heavy operations in UI thread
+
+## MEMORY
+
+### Large Collections
+- ✅ Pagination (DataGrid, REST)
+- ✅ Streaming for export (`Stream<Entity>`)
+- ✅ Batch processing (`saveAll`, `removeAll`)
+- ❌ Loading all entities to memory
+
+### Connection Pooling
+HikariCP default | Monitor: `jmix.data.hikari.*` metrics
+
+## MONITORING
+
+### Logging
+```yaml
+logging.level.org.eclipse.persistence.logging.sql: DEBUG
+```
+
+### Metrics
+- Micrometer + Prometheus/Grafana
+- JMX for JVM metrics
+- `jmix-micrometer` for Jmix-specific
+
+### Profiling
+- IntelliJ Profiler (CPU, Memory)
+- VisualVM for heap analysis
+- JFR (Java Flight Recorder) for production
+
+## QUICK CHECKLIST
+✅ FetchPlan for relationships | ✅ Indexes on FKs | ✅ Pagination for lists | ✅ Query cache for hot data | ✅ Lazy loading in grids | ❌ N+1 queries | ❌ Load all to memory | ❌ Heavy ops in UI

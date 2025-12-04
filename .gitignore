@@ -54,6 +54,7 @@ coverage/
 *.bak
 *.backup
 *~
+bin/
 
 # Archive (reports, research, subject documents)
 .archive/
@@ -68,3 +69,4 @@ logs/
 
 # Docker Compose override files
 docker-compose.override.yml
+.vscode/settings.json

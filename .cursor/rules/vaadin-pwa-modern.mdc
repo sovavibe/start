@@ -1,16 +1,9 @@
 ---
-globs: ["**/AppShell*.java", "**/App*.java", "**/*Application*.java"]
+globs: ["**/AppShell*.java"]
 autoFix: true
-version: "5.0.0"
+version: "6.0.0"
 ---
 
 # PWA
 
-## SETUP
-@PWA(name, shortName, iconPath, backgroundColor, themeColor, offlinePath) | AppShell implements AppShellConfigurator
-
-## REQUIREMENTS
-Icons: 192x192, 512x512 | HTTPS production (mandatory) | Offline: src/main/webapp/offline.html
-
-## ANTIPATTERNS
-No HTTPS → fails | Missing icons → no installation
+See `@vaadin-best-practices.mdc` → PWA section for complete guidelines.

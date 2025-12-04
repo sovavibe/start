@@ -41,5 +41,14 @@ The file `custom-ruleset.xml` previously existed but was removed because:
 - ❌ Loses all Baseline advantages
 - ❌ Duplicates rules and configurations
 
+## Why No Centralized Exclusions?
+
+**Palantir Baseline Limitation**: PMD is managed by Baseline, and using `ruleSetFiles` or `excludePattern` would completely override Baseline's curated defaults. This would:
+- Lose all Baseline advantages (optimized rules for Spring/enterprise)
+- Require manual maintenance of ruleset
+- Break automatic Baseline updates
+
+**Solution**: Use inline `@SuppressWarnings("PMD.RuleName")` for framework-specific false positives. This is the recommended approach by Baseline.
+
 See: `.cursor/rules/suppress-policy.mdc` for suppression guidelines.
 

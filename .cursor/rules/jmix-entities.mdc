@@ -1,76 +1,63 @@
 ---
 globs: ["**/entity/**/*.java"]
 autoFix: true
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # JMIX ENTITIES
 
 ## ENTITY ANNOTATIONS (Basic)
-@JmixEntity @Entity @Table(name="MY_ENTITY") | @Id @JmixGeneratedValue @Column(name="ID") UUID id | @Version @Column(name="VERSION", nullable=false) Integer version | @Column(name="FIELD_NAME", nullable=false, length=100) | @Transient for non-persisted fields
+@JmixEntity @Entity @Table(name="MY_ENTITY") | @Id @JmixGeneratedValue @Column(name="ID") UUID id | @Version @Column(name="VERSION", nullable=false) Integer version | @Column(name="FIELD_NAME", nullable=false, length=100) | @Transient for non-persisted
 
 ## ENTITY ANNOTATIONS (Jmix-specific)
-**@JmixGeneratedValue**: UUID generation | **@JmixId**: ID for DTO entities (use existing unique field or add @JmixGeneratedValue) | **@JmixProperty**: Mark field/method as entity attribute (use `mandatory=true` if needed) | **@PropertyDatatype**: Specify Datatype implementation by ID | **@NumberFormat**: Format Number attributes (pattern, decimalSeparator, groupingSeparator) | **@Store**: Link entity to additional data store | **@PostConstruct**: Initialize entity instance (accepts Spring beans as parameters) | **@Secret**: Mark sensitive fields (passwords, tokens) - auto-hides in UI/logs
-
-**@JmixGeneratedValue Parameters**: `sequenceName` - Explicit sequence name (auto-created if missing) | `sequenceCache` - Enable sequence caching (only when sequenceName set) | Default: UUID generation without sequence
+**@JmixGeneratedValue**: UUID generation | `sequenceName` - Explicit sequence (auto-created) | `sequenceCache` - Enable caching (only with sequenceName) | **@JmixId**: ID for DTO entities | **@JmixProperty**: Mark field/method as attribute (`mandatory=true` if needed) | **@PropertyDatatype**: Specify Datatype by ID | **@NumberFormat**: Format Number (pattern, separators) | **@Store**: Link to additional data store | **@PostConstruct**: Initialize instance (accepts Spring beans) | **@Secret**: Mark sensitive fields (auto-hides in UI/logs)
 
 ## ENTITY METADATA
-**@InstanceName**: Display name method (used in UI, lookups) | **@DependsOnProperties**: Instance name dependencies | **@Composition**: Composition relationship (cascade delete) | **@OnDelete**: Delete policy (CASCADE, DENY, UNLINK) for soft-deleted entities | **@OnDeleteInverse**: Delete policy when referenced entity is deleted (CASCADE, DENY, UNLINK)
+**@InstanceName**: Display name method (UI, lookups) | **@DependsOnProperties**: Instance name dependencies | **@Composition**: Composition relationship (cascade delete) | **@OnDelete**: Delete policy (CASCADE, DENY, UNLINK) | **@OnDeleteInverse**: Delete policy when referenced deleted
 
-**Metadata API**: Use `Metadata` bean to access entity metadata programmatically
+**Metadata API**: Use `Metadata` bean to access programmatically
 
 ## DELETE POLICIES
-**@OnDelete**: What happens to referenced entity when THIS entity is deleted:
+**@OnDelete**: When THIS entity deleted:
 - `DeletePolicy.DENY`: Throw exception if reference not null
-- `DeletePolicy.CASCADE`: Delete referenced entities
+- `DeletePolicy.CASCADE`: Delete referenced
 - `DeletePolicy.UNLINK`: Set reference to null (owning side only, with @JoinColumn)
 
-**@OnDeleteInverse**: What happens to THIS entity when referenced entity is deleted:
-- `DeletePolicy.DENY`: Throw exception when referenced entity deleted
-- `DeletePolicy.CASCADE`: Delete this entity
+**@OnDeleteInverse**: When referenced deleted:
+- `DeletePolicy.DENY`: Throw exception
+- `DeletePolicy.CASCADE`: Delete this
 - `DeletePolicy.UNLINK`: Set reference to null (owning side only)
 
-**Note**: For soft-deleted entities, @OnDelete/@OnDeleteInverse handled at runtime. For hard-deleted entities, @OnDeleteInverse handled by Liquibase (CASCADE/UNLINK only, owning side only).
+**Note**: For soft-deleted, handled at runtime. For hard-deleted, @OnDeleteInverse handled by Liquibase (CASCADE/UNLINK only, owning side only).
 
 ## DATA STORES
-**Main Store**: Default store for all entities. Configured via `main.datasource.*` properties.
+**Main Store**: Default, configured via `main.datasource.*`
 
-**Additional Stores**: Multiple databases support:
-- Add store name to `jmix.core.additional-stores = locations,inmem`
-- Configure via `{storeName}.datasource.*` properties
-- Use `@Store(name = "locations")` on entity class
-- Studio auto-generates `{Store}StoreConfiguration` with DataSource, EntityManagerFactory, TransactionManager
+**Additional Stores**: Multiple databases:
+- Add to `jmix.core.additional-stores = locations,inmem`
+- Configure via `{storeName}.datasource.*`
+- Use `@Store(name = "locations")` on entity
+- Studio auto-generates `{Store}StoreConfiguration`
 
-**Custom Stores**: Non-JPA stores (DTO, in-memory):
-1. Implement `DataStore` interface (prototype bean)
-2. Implement `StoreDescriptor` interface (singleton bean)
-3. Add to `jmix.core.additional-stores`
-4. Configure `jmix.core.store-descriptor_{storeName} = {descriptorBeanName}`
-5. Use `@Store(name = "inmem")` on entity
+**Custom Stores** (Non-JPA): Implement `DataStore` (prototype) + `StoreDescriptor` (singleton) | Add to `jmix.core.additional-stores` | Configure `jmix.core.store-descriptor_{storeName}` | Use `@Store(name = "inmem")`
 
 ## SOFT DELETION
-**@DeletedDate**: Marks deletion timestamp field | **@DeletedBy**: Marks deletion user field | Automatically set on `dataManager.remove()` | Soft-deleted entities excluded from queries by default
+**@DeletedDate**: Deletion timestamp | **@DeletedBy**: Deletion user | Auto-set on `dataManager.remove()` | Excluded from queries by default
 
-**Querying soft-deleted entities**: Use `dataManager.load().condition(PropertyCondition.isSet("deletedDate"))` or `UnconstrainedDataManager` for system operations.
+**Querying**: Use `dataManager.load().condition(PropertyCondition.isSet("deletedDate"))` or `UnconstrainedDataManager` for system operations
 
 ## ENUMERATIONS
-**@Enumerated(EnumType.STRING)**: Store enum as string (preferred) | **@Enumerated(EnumType.ORDINAL)**: Store as integer (not recommended) | Always use STRING for maintainability
+**@Enumerated(EnumType.STRING)**: Store as string (preferred) | **@Enumerated(EnumType.ORDINAL)**: Store as integer (not recommended)
 
 ## DATATYPE
-**@PropertyDatatype**: Specify custom Datatype by ID | **Datatype Interface**: Implement for custom type conversion | Used for UI formatting, validation, conversion | **Custom Datatype**: Implement `io.jmix.core.metamodel.datatype.Datatype<T>` interface and register as Spring bean.
+**@PropertyDatatype**: Specify custom Datatype by ID | **Custom**: Implement `io.jmix.core.metamodel.datatype.Datatype<T>` and register as Spring bean | Used for UI formatting, validation, conversion
 
 ## BEAN VALIDATION
-**Layers**: UI (Binder) → Service (business) → Entity (Bean Validation) | **Annotations**: @NotNull, @Size, @Email, @Min, @Max, @Pattern, @Past, @Future | **Groups**: Use validation groups for conditional validation (e.g., create vs update)
+**Layers**: UI (Binder) → Service (business) → Entity (Bean Validation) | **Annotations**: @NotNull, @Size, @Email, @Min, @Max, @Pattern, @Past, @Future | **Groups**: Use for conditional validation (create vs update)
 
 ## DATABASE MIGRATIONS (Liquibase)
-**Changelog Structure**: `V{version}__{description}.xml` or `{timestamp}__{description}.xml` | **Main changelog**: `main.liquibase.change-log` property | **Additional stores**: `{storeName}.liquibase.change-log` property
+**Changelog**: `V{version}__{description}.xml` or `{timestamp}__{description}.xml` | **Main**: `main.liquibase.change-log` | **Additional**: `{storeName}.liquibase.change-log`
 
-**Rules**:
-- ✅ NEVER modify applied changelogs (only add new)
-- ✅ Use incremental changesets
-- ✅ Naming: UPPER_SNAKE_CASE (USER_ not USER)
-- ✅ Always specify indexes on foreign keys
-- ✅ Use explicit @JoinColumn names in entities
-- ✅ Versioning: @Version for optimistic locking
+**Rules**: ✅ NEVER modify applied changelogs | ✅ Use incremental changesets | ✅ Naming: UPPER_SNAKE_CASE (USER_ not USER) | ✅ Always specify indexes on foreign keys | ✅ Use explicit @JoinColumn names | ✅ @Version for optimistic locking
 
-**Studio**: Use Studio designer for entity changes - auto-generates Liquibase changelogs.
+**Studio**: Use Studio designer - auto-generates Liquibase changelogs

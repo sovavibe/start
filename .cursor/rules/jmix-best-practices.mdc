@@ -15,22 +15,22 @@ See specialized files for detailed information:
 ## QUICK REFERENCE
 
 ### Data Access
-**DataManager**: `create()`, `save()`, `load().id().one()`, `load().condition()`, `remove()` | ❌ `new Entity()` → ✅ `dataManager.create()` | **EntityManager**: Only native SQL (health checks) | See jmix-data-access.mdc
+**DataManager**: `create()`, `save()`, `load().id().one()`, `load().condition()`, `remove()` | ❌ `new Entity()` → ✅ `dataManager.create()` | **EntityManager**: Only native SQL (health checks) | See `@jmix-data-access.mdc`
 
 ### Security
-@SystemLevel, @Secret, @ResourceRole, @RowLevelRole | Authentication, Authorization, User Management | See jmix-security.mdc
+@SystemLevel, @Secret, @ResourceRole, @RowLevelRole | Authentication, Authorization, User Management | See `@jmix-security.mdc`
 
 ### Views
-StandardView, StandardListView<T>, StandardDetailView<T> | @ViewComponent, @ViewController, @ViewDescriptor | DataContext, Lifecycle Events | See jmix-views.mdc
+StandardView, StandardListView<T>, StandardDetailView<T> | @ViewComponent, @ViewController, @ViewDescriptor | DataContext, Lifecycle Events | See `@jmix-views.mdc`
 
 ### Entities
-@JmixEntity, @JmixGeneratedValue, @Version | @InstanceName, @Composition, @OnDelete | Liquibase migrations | See jmix-entities.mdc
+@JmixEntity, @JmixGeneratedValue, @Version | @InstanceName, @Composition, @OnDelete | Liquibase migrations | See `@jmix-entities.mdc`
 
 ## ANTIPATTERNS
 ❌ new Entity() | ❌ @Autowired fields | ❌ @Transactional in views | ❌ Native SQL without params | ❌ Missing @Version | ❌ Missing @JmixGeneratedValue | ❌ Lazy collections outside transaction | ❌ N+1 queries (use FetchPlan)
 
 ## LOGGING & TESTING
-**Logging**: See rules.mdc for logging basics | **Testing**: See `testing-policy.mdc` for complete testing guidelines | Quick Reference: Unit Tests (`@Test` only), Integration Tests (`@SpringBootTest` + `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})`), UI Tests (`@UiTest` + `@SpringBootTest`), @Autowired fields allowed in tests, Cleanup: `@AfterEach` with `dataManager.remove()`, Never delete failing tests - fix root cause
+**Logging**: See `@rules.mdc` for logging basics | **Testing**: See `@testing-policy.mdc` for complete testing guidelines | Quick Reference: Unit Tests (`@Test` only), Integration Tests (`@SpringBootTest` + `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})`), UI Tests (`@UiTest` + `@SpringBootTest`), @Autowired fields allowed in tests, Cleanup: `@AfterEach` with `dataManager.remove()`, Never delete failing tests - fix root cause
 
 ## DOCUMENTATION REFERENCES
 **Official**: Russian: https://docs.jmix.ru/jmix/ | English: https://docs.jmix.io/jmix/ | **Context7 MCP**: Use `context7 MCP docs` for accessing Jmix documentation programmatically | **Important Guides**: Business Logic, Entity Inheritance, Initial Entity Values, Many-to-Many Associations, Composition, Application Events, Application Logging, Reports | **Additional**: Tutorial, Data Access, Security, UI Components

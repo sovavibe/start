@@ -1,7 +1,7 @@
 ---
 globs: ["**/test/**/*.java", "**/*Test*.java", "**/*IT.java"]
 autoFix: true
-version: "8.0.0"
+version: "8.1.0"
 ---
 
 # TESTING
@@ -13,7 +13,7 @@ NEVER DELETE FAILING TESTS! Fix the reason, not the test.
 ✅ Investigate → Root cause → ASK USER if external dependency → FIX → Run | ❌ Delete | @Disabled | Comment out
 
 ## COMMON FAILURES
-TestContainers: Docker not running → Ask user start Docker | NEVER delete integration tests | Missing Dependencies: Implement or wait | NEVER delete tests
+TestContainers: Docker not running → Ask user start Docker | NEVER delete integration tests | Missing Dependencies: Implement or wait
 
 ## EXCEPTIONS FOR DELETION
 User requests | Duplicate | Removed feature | Better replacement | If all NO → DON'T DELETE
@@ -21,132 +21,52 @@ User requests | Duplicate | Removed feature | Better replacement | If all NO →
 ## TEST TYPES
 
 ### Unit Tests
-**Purpose**: Test isolated business logic without Spring context
-**Annotations**: `@Test` (JUnit) only
-**Pattern**: No Spring context, mock dependencies manually
-**Use**: Pure logic, calculations, validators, utilities
-**Example**: Service method with mocked DataManager
+**Annotations**: `@Test` only | **Pattern**: No Spring context, mock dependencies | **Use**: Pure logic, calculations, validators
 
 ### Integration Tests
-**Purpose**: Test with full Spring context and database
-**Annotations**: `@SpringBootTest` + `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})`
-**Dependencies**: Standard Jmix dependencies (no test-assist needed)
-**Pattern**: 
-- `@SpringBootTest` - starts full Spring context
-- `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})` - SpringExtension first (init ApplicationContext), AuthenticatedAsAdmin provides admin security context
-- `@Autowired` fields allowed (Spring Boot standard)
-- Use `DataManager` for CRUD operations
-- Cleanup in `@AfterEach` with `dataManager.remove()`
-**Use**: Service layer, DataManager operations, security, transactions
-**Example**: `UserTest` - create, save, load, verify UserRepository
+**Annotations**: `@SpringBootTest` + `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})` | **Pattern**: Full Spring context, `@Autowired` fields allowed | **Use**: Service layer, DataManager, security, transactions | **Cleanup**: `@AfterEach` with `dataManager.remove()`
 
 ### UI Integration Tests
-**Purpose**: Test UI layer with views, components, navigation
-**Annotations**: `@UiTest` + `@SpringBootTest(classes = {Application.class, FlowuiTestAssistConfiguration.class})`
-**Dependencies**: `io.jmix.flowui:jmix-flowui-test-assist` (test scope)
-**Pattern**:
-- `@UiTest` - enables UI testing capabilities
-- `@SpringBootTest(classes = {Application.class, FlowuiTestAssistConfiguration.class})` - includes FlowuiTestAssistConfiguration
-- `@Autowired ViewNavigators` - navigate between views
-- `UiTestUtils.getCurrentView()` - get current view
-- `UiTestUtils.getComponent(view, "componentId")` - get component by ID
-- Simulate user actions: `button.click()`, `field.setValue()`
-- Cleanup in `@AfterEach` with `dataManager.remove()` or queries
-**Use**: View navigation, form interactions, DataGrid operations, button clicks
-**Example**: `UserUiTest` - navigate to list, create user, fill form, save, verify in grid
+**Annotations**: `@UiTest` + `@SpringBootTest(classes = {Application.class, FlowuiTestAssistConfiguration.class})` | **Dependencies**: `io.jmix.flowui:jmix-flowui-test-assist` | **Pattern**: `UiTestUtils.getCurrentView()`, `UiTestUtils.getComponent(view, "id")`, `button.click()`, `field.setValue()` | **Use**: View navigation, form interactions, DataGrid | **Helper**: Use `getCurrentViewAsView()` from `AbstractIntegrationTest` instead of `(View<?>) UiTestUtils.getCurrentView()`
 
-### E2E Tests (Masquerade - Optional)
-**Purpose**: Browser-based end-to-end tests with Selenium/Selenide
-**Dependencies**: `io.jmix.masquerade:masquerade-core`, `io.jmix.masquerade:masquerade-app` (test scope)
-**Pattern**: Page Object pattern, Selenium WebDriver, Selenide
-**Use**: Full user workflows, browser interactions, visual verification
-**Note**: Slower than UI integration tests, use sparingly
+### E2E Tests (Optional)
+**Dependencies**: `io.jmix.masquerade:masquerade-core`, `masquerade-app` | **Pattern**: Page Object, Selenium/Selenide | **Use**: Full workflows, browser interactions | **Note**: Slower, use sparingly
 
-## SPRING BOOT + JMIX TESTING PATTERNS
+## SPRING BOOT + JMIX PATTERNS
 
 ### Annotations
 - **Unit**: `@Test` only
 - **Integration**: `@SpringBootTest` + `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})`
-- **UI Integration**: `@UiTest` + `@SpringBootTest(classes = {Application.class, FlowuiTestAssistConfiguration.class})`
+- **UI**: `@UiTest` + `@SpringBootTest(classes = {Application.class, FlowuiTestAssistConfiguration.class})`
 - **@Autowired** fields allowed in tests (Spring Boot standard)
 
-### Dependency Injection
-- `@Autowired` fields (Spring Boot standard for tests)
-- Constructor injection also works
-- `@RequiredArgsConstructor` only if needed
-
-### Import Order
-Java stdlib → Spring → Jmix → Project → Static imports
-
 ### Jmix Extensions
-- `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})`
-- **Order matters**: SpringExtension first (init ApplicationContext), AuthenticatedAsAdmin second (provides admin security context)
-- AuthenticatedAsAdmin automatically sets admin user before each test, cleans up after
+- `@ExtendWith({SpringExtension.class, AuthenticatedAsAdmin.class})` - SpringExtension first (init context), AuthenticatedAsAdmin second (admin security)
+- AuthenticatedAsAdmin auto-sets admin user, cleans up after
 
-### Test Structure (AAA/GWT Pattern)
-**REQUIRED**: Every test method MUST follow AAA (Arrange-Act-Assert) or GWT (Given-When-Then) pattern with explicit comments:
+### Test Structure (AAA/GWT)
+**REQUIRED**: Every test MUST follow AAA (Arrange-Act-Assert) or GWT (Given-When-Then) with explicit comments:
+- `// Arrange (Given)` - Setup test data, mocks
+- `// Act (When)` - Execute code under test (single action)
+- `// Assert (Then)` - Verify outcome (multiple assertions OK)
 
-```java
-@Test
-void testMethodName() {
-    // Arrange (Given) - Setup test data, mocks, and preconditions
-    final String input = "test-value";
-    final Entity entity = dataManager.create(Entity.class);
-    
-    // Act (When) - Execute the code under test
-    final String result = service.process(input);
-    
-    // Assert (Then) - Verify the expected outcome
-    assertThat(result).isEqualTo("expected-value");
-}
-```
+**Rules**: Clear section separation, one action in Act, multiple assertions OK
 
-**Rules**:
-- ✅ **Arrange/Given**: Prepare test data, mocks, dependencies, set up preconditions
-- ✅ **Act/When**: Execute the method/operation being tested (single action)
-- ✅ **Assert/Then**: Verify results, state changes, exceptions
-- ✅ Use clear comments: `// Arrange`, `// Act`, `// Assert` (or `// Given`, `// When`, `// Then`)
-- ✅ Each section should be clearly separated
-- ✅ One logical action in Act section
-- ✅ Multiple assertions in Assert section are acceptable
-
-**Example**:
-```java
-@Test
-void testValidatePassword() {
-    // Arrange
-    final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-    final PasswordValidationContext<User> context = mock(PasswordValidationContext.class);
-    when(context.getPassword()).thenReturn(validPassword);
-    
-    // Act
-    passwordValidator.validate(context);
-    
-    // Assert
-    assertThatCode(() -> passwordValidator.validate(context))
-            .doesNotThrowAnyException();
-}
-```
-
-### Assertions
-- Use AssertJ: `assertThat(actual).isEqualTo(expected)`
-- AssertJ automatically available in Jmix projects
-- Prefer AssertJ over JUnit assertions
-
-### Cleanup Patterns
-- `@AfterEach` for cleanup
-- Integration tests: `dataManager.remove(entity)` or `dataManager.remove().id(id).execute()`
-- UI tests: `dataManager.load(Entity.class).query("e.field like ?1", "pattern-%").list().forEach(dataManager::remove)`
-- Use unique test data (timestamps, UUIDs) to avoid conflicts
+### Assertions & Cleanup
+- **AssertJ**: `assertThat(actual).isEqualTo(expected)` (auto-available in Jmix)
+- **Cleanup**: `@AfterEach` with `dataManager.remove(entity)` or queries
+- **Test Data**: Unique identifiers (`"test-user-" + System.currentTimeMillis()`), cleanup patterns (`"test-%"`)
 
 ### DataManager in Tests
-- ✅ `dataManager.create(Entity.class)` - create new entity
-- ✅ `dataManager.save(entity)` - save entity
+- ✅ `dataManager.create(Entity.class)` - create
+- ✅ `dataManager.save(entity)` - save
 - ✅ `dataManager.load(Entity.class).id(id).one()` - load by ID
-- ✅ `dataManager.remove(entity)` - delete entity
-- ✅ Use queries for cleanup: `dataManager.load(Entity.class).query("e.field like ?1", "test-%").list()`
+- ✅ `dataManager.remove(entity)` - delete
+- ✅ Queries for cleanup: `dataManager.load(Entity.class).query("e.field like ?1", "test-%").list()`
 
-### Test Data
-- Use unique identifiers: `"test-user-" + System.currentTimeMillis()`
-- Use patterns for cleanup: `"test-%"` in queries
-- Clean up test data in `@AfterEach` to avoid test pollution
+## TESTCONTAINERS
+**Pattern**: @Testcontainers abstract BaseIntegrationTest | @Container static PostgreSQLContainer withReuse(true) | @DynamicPropertySource configureProperties | @SpringBootTest @Transactional extends BaseIntegrationTest
+
+**Performance**: testcontainers.reuse.enable=true (2-5s startup) | @Transactional rollback | Singleton container (NOT per test)
+
+**Antipatterns**: New container per test → singleton | @DirtiesContext everywhere → slow | No reuse → slow
