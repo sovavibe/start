@@ -29,12 +29,12 @@ CONFIG_FILES=$(git diff --name-only "$BASE_BRANCH".."$CURRENT_BRANCH" 2>/dev/nul
 DOC_FILES=$(git diff --name-only "$BASE_BRANCH".."$CURRENT_BRANCH" 2>/dev/null | grep -E '\.(md|txt)$' || true)
 OTHER_FILES=$(git diff --name-only "$BASE_BRANCH".."$CURRENT_BRANCH" 2>/dev/null | grep -vE '\.(java|gradle|properties|xml|yml|yaml|json|md|txt)$' || true)
 
-# Count files
-JAVA_COUNT=$(echo "$JAVA_FILES" | grep -c . || echo "0")
-TEST_COUNT=$(echo "$TEST_FILES" | grep -c . || echo "0")
-CONFIG_COUNT=$(echo "$CONFIG_FILES" | grep -c . || echo "0")
-DOC_COUNT=$(echo "$DOC_FILES" | grep -c . || echo "0")
-OTHER_COUNT=$(echo "$OTHER_FILES" | grep -c . || echo "0")
+# Count files (handle empty strings)
+JAVA_COUNT=$(echo "$JAVA_FILES" | grep -v '^$' | wc -l | tr -d ' ' || echo "0")
+TEST_COUNT=$(echo "$TEST_FILES" | grep -v '^$' | wc -l | tr -d ' ' || echo "0")
+CONFIG_COUNT=$(echo "$CONFIG_FILES" | grep -v '^$' | wc -l | tr -d ' ' || echo "0")
+DOC_COUNT=$(echo "$DOC_FILES" | grep -v '^$' | wc -l | tr -d ' ' || echo "0")
+OTHER_COUNT=$(echo "$OTHER_FILES" | grep -v '^$' | wc -l | tr -d ' ' || echo "0")
 
 # Get commit messages (first line only, max 5)
 COMMITS=$(git log --format="%s" "$BASE_BRANCH".."$CURRENT_BRANCH" 2>/dev/null | head -5 || true)
