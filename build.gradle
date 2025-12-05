@@ -617,7 +617,7 @@ tasks.register("lintEnglishOnly") {
         ]
         
         def excludePatterns = [
-            "messages_ru.properties",  // Russian localization file is allowed
+            "messages_ru.properties",  // Localization files are allowed
             "node_modules",
             "build",
             ".jmix",
@@ -626,7 +626,7 @@ tasks.register("lintEnglishOnly") {
         
         def violations = []
         // Check for non-ASCII characters (bytes > 127)
-        // This catches all non-English languages: Cyrillic, Chinese, Japanese, Arabic, etc.
+        // This catches all non-English languages (any non-ASCII text)
         def nonAsciiPattern = /[^\x00-\x7F]/
         
         sourceDirs.each { sourceDir ->
