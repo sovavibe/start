@@ -19,7 +19,7 @@ version: "1.1.0"
 `feat` | `fix` | `docs` | `style` | `refactor` | `perf` | `test` | `build` | `ci` | `chore` | `revert`
 
 ## SCOPES (Jmix/Vaadin)
-`jmix` | `vaadin` | `entity` | `view` | `service` | `security` | `liquibase` | `ui` | `api` | `db` | `config` | `test` | `ci` | `deps` | `docs` | `scripts` | `gradle` | `copyright`
+`jmix` | `vaadin` | `entity` | `view` | `service` | `security` | `liquibase` | `ui` | `api` | `db` | `config` | `test` | `ci` | `deps` | `docs` | `scripts` | `gradle` | `copyright` | `checkstyle`
 
 ## RULES
 - Imperative mood: "add" not "added"/"adds"

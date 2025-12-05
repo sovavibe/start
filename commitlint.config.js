@@ -56,20 +56,22 @@ export default {
         'scripts',
         'gradle',
         'copyright',
+        'checkstyle',
       ],
     ],
     'scope-case': [2, 'always', 'lower-case'],
-    // Note: Changed from [1, 'always', 'sentence-case'] to enforce lowercase consistency
-    // This matches project rules (conventional-commits.mdc: "Lowercase, no period")
-    // All commit subjects must be lowercase per project standards
-    'subject-case': [2, 'always', 'lower-case'],
+    // Subject case: warning only (structure is more important than case)
+    // Allows technical terms like AvoidFullyQualifiedNames in subject
+    'subject-case': [1, 'always', 'lower-case'],
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
-    'header-max-length': [2, 'always', 72],
+    // Header length: warning only (structure is more important than length)
+    'header-max-length': [1, 'always', 100],
     'body-leading-blank': [2, 'always'],
-    'body-max-line-length': [2, 'always', 72],
+    // Body line length: warning only (structure is more important than length)
+    'body-max-line-length': [1, 'always', 100],
     // ASCII-only validation is handled by .husky/commit-msg hook (byte-level check)
     // commitlint v19.8.1 doesn't support custom format rules, so we rely on the hook
   },
