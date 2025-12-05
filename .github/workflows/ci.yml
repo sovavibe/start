@@ -78,6 +78,14 @@ jobs:
         # Strict mode: fail on any violations (ignoreFailures=false in build.gradle)
         # Quality gates: Checkstyle, PMD, SpotBugs, SonarLint must all pass
 
+      - name: Verify code quality reports exist
+        run: |
+          if [ ! -d "build/reports" ] || [ -z "$(ls -A build/reports 2>/dev/null)" ]; then
+            echo "❌ Code quality reports not found"
+            exit 1
+          fi
+          echo "✅ Code quality reports found"
+
       - name: Upload code quality reports
         if: always()
         uses: actions/upload-artifact@v5
@@ -128,6 +136,14 @@ jobs:
         # Strict: Coverage thresholds (85% instructions, 75% branches, 90% lines) must pass
         # Fails build if coverage below thresholds (configured in build.gradle)
 
+      - name: Verify test results exist
+        run: |
+          if [ ! -d "build/reports/tests/test" ]; then
+            echo "❌ Test results not found"
+            exit 1
+          fi
+          echo "✅ Test results found"
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v5
@@ -136,6 +152,14 @@ jobs:
           path: build/reports/tests/test/
           retention-days: 30
           if-no-files-found: warn
+
+      - name: Verify coverage HTML report exists
+        run: |
+          if [ ! -d "build/reports/jacoco/test/html" ]; then
+            echo "❌ Coverage HTML report not found"
+            exit 1
+          fi
+          echo "✅ Coverage HTML report found"
 
       - name: Upload coverage report
         if: always()
@@ -146,13 +170,13 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
-      - name: Verify coverage report exists
+      - name: Verify coverage XML report exists
         run: |
           if [ ! -f "build/reports/jacoco/test/jacocoTestReport.xml" ]; then
-            echo "❌ Coverage report not found at build/reports/jacoco/test/jacocoTestReport.xml"
+            echo "❌ Coverage XML report not found at build/reports/jacoco/test/jacocoTestReport.xml"
             exit 1
           fi
-          echo "✅ Coverage report found"
+          echo "✅ Coverage XML report found"
 
       - name: SonarCloud Scan
         env:
@@ -191,6 +215,14 @@ jobs:
       - name: Build application
         run: ./gradlew -Pvaadin.productionMode=true bootJar --no-daemon -x test
 
+      - name: Verify build artifact exists
+        run: |
+          if [ ! -f build/libs/*.jar ]; then
+            echo "❌ Build artifact not found"
+            exit 1
+          fi
+          echo "✅ Build artifact found"
+
       - name: Upload build artifact
         if: always()
         uses: actions/upload-artifact@v5
@@ -225,6 +257,14 @@ jobs:
       # OWASP and Trivy run in parallel
       - name: OWASP Dependency Check
         run: ./gradlew dependencyCheckAnalyze --no-daemon
+
+      - name: Verify OWASP report exists
+        run: |
+          if [ ! -f "build/reports/dependency-check-report.html" ]; then
+            echo "❌ OWASP report not found"
+            exit 1
+          fi
+          echo "✅ OWASP report found"
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.33.1

@@ -510,3 +510,96 @@ test-observability: ## Test observability stack (Grafana + Loki + OpenTelemetry)
 	@echo "$(GREEN)Testing observability stack...$(RESET)"
 	@./scripts/test-observability.sh
 
+##@ CodeMachine
+
+codemachine-install: ## Install CodeMachine CLI globally
+	@echo "$(GREEN)Installing CodeMachine CLI...$(RESET)"
+	@if command -v npm >/dev/null 2>&1; then \
+		npm install -g codemachine; \
+		echo "$(GREEN)✅ CodeMachine CLI installed$(RESET)"; \
+		echo "$(YELLOW)Note: You need to configure an AI CLI engine (Claude Code, Cursor CLI, etc.)$(RESET)"; \
+	elif command -v bun >/dev/null 2>&1; then \
+		bun install -g codemachine; \
+		echo "$(GREEN)✅ CodeMachine CLI installed$(RESET)"; \
+		echo "$(YELLOW)Note: You need to configure an AI CLI engine (Claude Code, Cursor CLI, etc.)$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️  npm or bun not found$(RESET)"; \
+		echo "$(YELLOW)   Please install Node.js first: https://nodejs.org/$(RESET)"; \
+		exit 1; \
+	fi
+
+codemachine-check: ## Check if CodeMachine CLI is installed
+	@if command -v codemachine >/dev/null 2>&1 || command -v cm >/dev/null 2>&1; then \
+		echo "$(GREEN)✅ CodeMachine CLI is installed$(RESET)"; \
+		codemachine --version 2>/dev/null || cm --version 2>/dev/null || echo "$(YELLOW)Version check failed$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️  CodeMachine CLI not found$(RESET)"; \
+		echo "$(YELLOW)   Install with: $(YELLOW)make codemachine-install$(RESET)"; \
+		exit 1; \
+	fi
+
+codemachine-init: codemachine-check ## Initialize CodeMachine workspace
+	@echo "$(GREEN)Initializing CodeMachine workspace...$(RESET)"
+	@if [ -d ".codemachine" ]; then \
+		echo "$(YELLOW)⚠️  .codemachine directory already exists$(RESET)"; \
+		echo "$(YELLOW)   CodeMachine is already initialized$(RESET)"; \
+	else \
+		codemachine init || cm init || { \
+			echo "$(YELLOW)⚠️  CodeMachine initialization failed$(RESET)"; \
+			echo "$(YELLOW)   Make sure CodeMachine CLI is installed: $(YELLOW)make codemachine-install$(RESET)"; \
+			exit 1; \
+		}; \
+		echo "$(GREEN)✅ CodeMachine workspace initialized$(RESET)"; \
+		echo "$(YELLOW)Next steps:$(RESET)"; \
+		echo "  1. Add your specifications to .codemachine/inputs/specifications.md"; \
+		echo "  2. Configure an AI CLI engine (Claude Code, Cursor CLI, etc.)"; \
+		echo "  3. Run: $(YELLOW)codemachine /start$(RESET) or $(YELLOW)cm /start$(RESET)"; \
+	fi
+
+codemachine-start: codemachine-check ## Start CodeMachine workflow
+	@echo "$(GREEN)Starting CodeMachine workflow...$(RESET)"
+	@if [ ! -d ".codemachine" ]; then \
+		echo "$(YELLOW)⚠️  CodeMachine not initialized$(RESET)"; \
+		echo "$(YELLOW)   Run: $(YELLOW)make codemachine-init$(RESET)"; \
+		exit 1; \
+	fi
+	@codemachine /start || cm /start || { \
+		echo "$(YELLOW)⚠️  CodeMachine workflow failed$(RESET)"; \
+		echo "$(YELLOW)   Check .codemachine/ directory for logs$(RESET)"; \
+		exit 1; \
+	}
+
+cursor-cli-install: ## Install Cursor CLI
+	@echo "$(GREEN)Installing Cursor CLI...$(RESET)"
+	@curl https://cursor.com/install -fsS | bash || { \
+		echo "$(YELLOW)⚠️  Cursor CLI installation failed$(RESET)"; \
+		echo "$(YELLOW)   Please install manually: https://docs.cursor.com/cli/installation$(RESET)"; \
+		exit 1; \
+	}
+	@echo "$(GREEN)✅ Cursor CLI installed$(RESET)"
+	@echo "$(YELLOW)Note: Make sure ~/.local/bin is in your PATH$(RESET)"
+	@echo "$(YELLOW)   Add to ~/.zshrc or ~/.bashrc:$(RESET)"
+	@echo "$(YELLOW)   export PATH=\"\$$HOME/.local/bin:\$$PATH\"$(RESET)"
+	@if ! echo "$$PATH" | grep -q "$(HOME)/.local/bin"; then \
+		echo "$(YELLOW)⚠️  ~/.local/bin not in PATH. Adding temporarily...$(RESET)"; \
+		export PATH="$$HOME/.local/bin:$$PATH"; \
+	fi
+	@if command -v cursor-agent >/dev/null 2>&1; then \
+		echo "$(GREEN)✅ Cursor CLI is available$(RESET)"; \
+		cursor-agent --version 2>/dev/null || echo "$(YELLOW)Version check failed$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️  Cursor CLI not found in PATH$(RESET)"; \
+		echo "$(YELLOW)   Please add ~/.local/bin to PATH and reload shell$(RESET)"; \
+	fi
+
+cursor-cli-check: ## Check if Cursor CLI is installed
+	@if command -v cursor-agent >/dev/null 2>&1; then \
+		echo "$(GREEN)✅ Cursor CLI is installed$(RESET)"; \
+		cursor-agent --version 2>/dev/null || echo "$(YELLOW)Version check failed$(RESET)"; \
+	else \
+		echo "$(YELLOW)⚠️  Cursor CLI not found$(RESET)"; \
+		echo "$(YELLOW)   Install with: $(YELLOW)make cursor-cli-install$(RESET)"; \
+		echo "$(YELLOW)   Or check PATH: echo \$$PATH | grep -q ~/.local/bin$(RESET)"; \
+		exit 1; \
+	fi
+

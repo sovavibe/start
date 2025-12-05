@@ -16,28 +16,24 @@ This directory contains all project documentation organized by category for easy
 
 ### 🏗️ Architecture & Development
 - **[Architecture](architecture/ARCHITECTURE.md)** - System architecture, design patterns, and C4 Model diagrams
-- **[SDLC](development/SDLC.md)** - Software Development Life Cycle for Vibe Coding (with Mermaid diagrams)
+- **[SDLC](development/SDLC.md)** - Software Development Life Cycle for Vibe Coding
+- **[CodeMachine](development/CODEMACHINE.md)** - CodeMachine CLI integration with Cursor CLI for code generation
+- **[CodeMachine Example](development/CODEMACHINE_EXAMPLE.md)** - Example specification for Jmix entity generation
 
 ### 🔍 Quality & CI/CD
 - **[Quality Gates](quality/QUALITY_GATES.md)** - Comprehensive quality gates documentation and thresholds
 - **[CI/CD Pipeline](ci-cd/CI_CD.md)** - Continuous Integration and Deployment pipeline documentation
-- **[CI/CD Setup](ci-cd/CI_CD_SETUP.md)** - CI/CD configuration and secrets setup guide
-- **[SonarCloud Verification](ci-cd/SONARCLOUD_VERIFICATION.md)** - SonarCloud connection verification guide
 
 ### 🌐 Open Source
-- **[GitHub Setup](open-source/GITHUB_SETUP.md)** - GitHub repository configuration for open source
-- **[GitHub Status](open-source/GITHUB_STATUS.md)** - Current GitHub configuration status
 - **[Publication Checklist](open-source/PUBLICATION_CHECKLIST.md)** - Pre-publication verification checklist
 
 ### 📖 Examples
 - **[Code Examples](development/examples/)** - Example code patterns for entities, services, views, and tests
 - **[Analyst Workflow Example](examples/ANALYST_WORKFLOW_EXAMPLE.md)** - Complete example of automated analyst workflow
-
 ## Quick Links
 
 - **Main README**: [../README.md](../README.md)
 - **Contributing Guide**: [../CONTRIBUTING.md](../CONTRIBUTING.md)
-- **DevOps Guide**: [../README-DEVOPS.md](../README-DEVOPS.md)
 
 ## Documentation Standards
 
