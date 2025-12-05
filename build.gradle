@@ -32,16 +32,16 @@ plugins {
 
     // IDE
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
-    id 'com.palantir.baseline-idea' version '6.76.0'
+    id 'com.palantir.baseline-idea' version '6.79.0'
 
     // Code Quality - Palantir Baseline
     // Main plugin includes: Checkstyle, PMD, SpotBugs, Spotless auto-config
     // See: https://github.com/palantir/gradle-baseline
-    id 'com.palantir.baseline' version '6.76.0'
-    id 'com.palantir.baseline-exact-dependencies' version '6.76.0'
-    id 'com.palantir.baseline-error-prone' version '6.76.0'
-    id 'com.palantir.baseline-class-uniqueness' version '6.76.0'
-    id 'com.palantir.baseline-prefer-project-modules' version '6.76.0'
+    id 'com.palantir.baseline' version '6.79.0'
+    id 'com.palantir.baseline-exact-dependencies' version '6.79.0'
+    id 'com.palantir.baseline-error-prone' version '6.79.0'
+    id 'com.palantir.baseline-class-uniqueness' version '6.79.0'
+    id 'com.palantir.baseline-prefer-project-modules' version '6.79.0'
 
     // Code Quality - Additional
     id 'com.diffplug.spotless' version '8.1.0'
@@ -63,7 +63,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.53.0'
 
     // SonarQube/SonarCloud integration
-    id 'org.sonarqube' version '7.1.0.6387'
+    id 'org.sonarqube' version '7.2.0.6526'
 
     // Note: SonarLint is primarily an IDE plugin, not needed for build
     // SonarQube plugin is used for CI/CD integration with SonarCloud
@@ -144,13 +144,13 @@ dependencies {
     annotationProcessor 'com.google.errorprone:error_prone_core'
 
     // Nullaway for null-safety static analysis
-    annotationProcessor 'com.uber.nullaway:nullaway:0.12.13'
+    annotationProcessor 'com.uber.nullaway:nullaway:0.12.14'
     
     // SpotBugs plugins
-    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.13.0'
+    spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.14.0'
     
     // Safe logging for Error Prone PreferSafeLoggableExceptions
-    implementation 'com.palantir.safe-logging:preconditions:3.0.0'
+    implementation 'com.palantir.safe-logging:preconditions:3.9.0'
     
     // JSpecify for null marking annotations (Error Prone RequireExplicitNullMarking)
     compileOnly 'org.jspecify:jspecify:0.3.0'
