@@ -204,8 +204,10 @@ jobs:
   security:
     name: Security Checks
     runs-on: ubuntu-latest
+    needs: [format-check, code-quality, test]
     timeout-minutes: 30
-    # Fail-fast: stop all jobs if this fails
+    # Fail-fast: only run if all critical jobs pass
+    if: success()
 
     steps:
       - name: Checkout code
@@ -252,7 +254,7 @@ jobs:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     needs: [build, security]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    if: success() && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     timeout-minutes: 20
     # Fail-fast: won't run if any dependency fails
 
