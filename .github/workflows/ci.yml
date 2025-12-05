@@ -90,6 +90,7 @@ jobs:
           name: code-quality-reports
           path: build/reports/
           retention-days: 30
+          if-no-files-found: warn
 
   # Tests (runs in parallel)
   test:
@@ -139,6 +140,7 @@ jobs:
           name: test-results
           path: build/reports/tests/test/
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Upload coverage report
         if: always()
@@ -147,6 +149,7 @@ jobs:
           name: coverage-report
           path: build/reports/jacoco/test/html/
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Verify coverage report exists
         run: |
