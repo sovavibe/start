@@ -43,8 +43,6 @@ import org.springframework.core.env.Environment;
 })
 public class StartApplication implements AppShellConfigurator {
 
-    private static final long serialVersionUID = 1L;
-
     /**
      * Spring environment for accessing application properties.
      */
