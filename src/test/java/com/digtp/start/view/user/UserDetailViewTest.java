@@ -35,7 +35,8 @@ import org.springframework.test.context.ActiveProfiles;
 @SuppressWarnings({
     "PMD.AvoidAccessibilityAlteration", // Test: reflection via invokeMethod helper to access private methods.
     // Standard pattern in tests - allows testing private methods without making them package-private.
-    "PMD.AvoidDuplicateLiterals" // Test: GET_EDITED_ENTITY_METHOD constant string used multiple times via invokeMethod calls.
+    "PMD.AvoidDuplicateLiterals" // Test: GET_EDITED_ENTITY_METHOD constant string used multiple times via invokeMethod
+    // calls.
     // Acceptable in tests - improves readability over extracting to separate constant.
 })
 @ExtendWith(AuthenticatedAsAdmin.class)

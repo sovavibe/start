@@ -34,7 +34,8 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods via invokeMethod helper.
+@SuppressWarnings(
+        "PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods via invokeMethod helper.
 // Standard pattern in tests - allows testing private methods without making them package-private.
 class LoginViewTest extends AbstractIntegrationTest {
 

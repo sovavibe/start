@@ -49,10 +49,7 @@ import lombok.extern.slf4j.Slf4j;
 // Jmix View: @ViewComponent fields must be after constructor-injected fields.
 // Framework pattern: 1) constructor-injected (@RequiredArgsConstructor), 2) @ViewComponent fields.
 // Cannot change this order.
-@SuppressWarnings({
-    "PMD.NonSerializableClass",
-    "PMD.FieldDeclarationsShouldBeAtStartOfClass"
-})
+@SuppressWarnings({"PMD.NonSerializableClass", "PMD.FieldDeclarationsShouldBeAtStartOfClass"})
 public class UserDetailView extends StandardDetailView<User> {
 
     private static final long serialVersionUID = 1L;

@@ -69,8 +69,7 @@ public class LocaleHelper {
             // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter in method signature.
             // Parameter may be unused but is required by framework contract.
             // No centralized config for interface parameters.
-            @SuppressWarnings("unused")
-                    final LocaleChangeEvent _event) {
+            @SuppressWarnings("unused") final LocaleChangeEvent _event) {
         final JmixLoginI18n loginI18n = JmixLoginI18n.createDefault();
 
         final JmixLoginI18n.JmixForm form = new JmixLoginI18n.JmixForm();

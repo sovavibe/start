@@ -34,11 +34,13 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @SuppressWarnings({
-    "PMD.AvoidAccessibilityAlteration", // Test: reflection to call private methods (userMenuButtonRenderer, userMenuHeaderRenderer).
+    "PMD.AvoidAccessibilityAlteration", // Test: reflection to call private methods (userMenuButtonRenderer,
+    // userMenuHeaderRenderer).
     // Standard pattern in tests - allows testing private methods without making them package-private.
     "PMD.TypeParameterUnusedInFormals", // Test: generic type parameters in reflection helper methods for type safety.
     // Example: invokeRendererMethod() uses generics for type-safe reflection, parameter may be unused in signature.
-    "PMD.AvoidDuplicateLiterals" // Test: method name string literals ("userMenuButtonRenderer", "userMenuHeaderRenderer") repeated for clarity.
+    "PMD.AvoidDuplicateLiterals" // Test: method name string literals ("userMenuButtonRenderer",
+    // "userMenuHeaderRenderer") repeated for clarity.
     // Acceptable in tests - improves readability over extracting constants.
 })
 @ExtendWith(AuthenticatedAsAdmin.class)
@@ -306,7 +308,8 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     @AfterEach
-    @SuppressWarnings("PMD.NullAssignment") // Test cleanup: assign null after removing entity to prevent reuse in next test.
+    @SuppressWarnings(
+            "PMD.NullAssignment") // Test cleanup: assign null after removing entity to prevent reuse in next test.
     // Standard pattern: dataManager.remove(savedUser); savedUser = null; - ensures clean state.
     void afterEach() {
         if (savedUser != null) {
