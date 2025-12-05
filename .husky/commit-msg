@@ -28,26 +28,25 @@ if ! command -v npx >/dev/null 2>&1; then
     exit 0
 fi
 
-# Check if commitlint is installed (try local first, then npx)
+# Check if commitlint is installed locally (fastest, no network calls)
+# Only use local commitlint to avoid npx hanging or network delays
 COMMITLINT_CMD=""
 if [ -f "node_modules/.bin/commitlint" ]; then
-    # Use local commitlint
+    # Use local commitlint (fastest, no network calls)
     COMMITLINT_CMD="node_modules/.bin/commitlint"
-elif npx commitlint --version >/dev/null 2>&1; then
-    # Use npx commitlint
-    COMMITLINT_CMD="npx commitlint"
 fi
 
+# If commitlint is not available locally, skip validation gracefully
+# Don't use npx to avoid hanging or slow network calls during commit
 if [ -z "$COMMITLINT_CMD" ]; then
-    echo "⚠️  commitlint not found, skipping check"
+    echo "⚠️  commitlint not found locally, skipping check"
     echo "💡 Run 'npm install' to install commitlint"
     exit 0
 fi
 
-# Validate commit message (suppress errors if dependencies are missing)
-if ! $COMMITLINT_CMD --edit "$1" 2>/dev/null; then
+# Validate commit message
+if ! $COMMITLINT_CMD --edit "$1" 2>&1; then
     # If commitlint fails, check if it's due to missing dependencies
-    # Check if node_modules/@commitlint directory exists (more reliable than checking specific file)
     if [ -f "package.json" ] && [ ! -d "node_modules/@commitlint" ]; then
         echo "⚠️  commitlint dependencies not installed, skipping check"
         echo "💡 Run 'npm install' to install commitlint dependencies"
