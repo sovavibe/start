@@ -50,7 +50,8 @@ if [ -n "$STAGED_YAML_FILES" ]; then
     echo "📝 Checking formatting for $YAML_COUNT YAML file(s)..."
     
     if command -v npx >/dev/null 2>&1; then
-        echo "$STAGED_YAML_FILES" | while read -r file; do
+        YAML_CHECK_FAILED=0
+        for file in $STAGED_YAML_FILES; do
             if [ -f "$file" ] && [ ! -d "$file" ]; then
                 # Skip node_modules, build, .jmix, helm
                 case "$file" in
@@ -59,13 +60,17 @@ if [ -n "$STAGED_YAML_FILES" ]; then
                         ;;
                 esac
                 
-                npx prettier --check "$file" > /dev/null 2>&1 || {
+                if ! npx prettier --check "$file" > /dev/null 2>&1; then
                     echo "❌ YAML formatting check failed for: $file"
                     echo "💡 Run 'npx prettier --write $file' to fix"
-                    exit 1
-                }
+                    YAML_CHECK_FAILED=1
+                fi
             fi
         done
+        
+        if [ "$YAML_CHECK_FAILED" -eq 1 ]; then
+            exit 1
+        fi
         echo "✅ YAML formatting check passed"
     fi
 fi
