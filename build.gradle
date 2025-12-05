@@ -686,8 +686,7 @@ tasks.register("ciBuild") {
     group = JavaBasePlugin.VERIFICATION_GROUP
     dependsOn(
             "spotlessCheck",
-            "codeQualityFull",
-            "lintEnglishOnly",
+            "codeQualityFull", // Includes lintEnglishOnly
             "test",
             "build"
     )
