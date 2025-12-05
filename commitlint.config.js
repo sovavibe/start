@@ -66,6 +66,9 @@ export default {
       ],
     ],
     'scope-case': [2, 'always', 'lower-case'],
+    // Note: Changed from [1, 'always', 'sentence-case'] to enforce lowercase consistency
+    // This matches project rules (conventional-commits.mdc: "Lowercase, no period")
+    // All commit subjects must be lowercase per project standards
     'subject-case': [2, 'always', 'lower-case'],
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
