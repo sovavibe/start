@@ -76,7 +76,7 @@ jobs:
       - name: Run code quality checks
         run: ./gradlew codeQualityFull --no-daemon -x test
         # Strict mode: fail on any violations (ignoreFailures=false in build.gradle)
-        # Quality gates: Checkstyle, PMD, SpotBugs, SonarLint must all pass
+        # Quality gates: Checkstyle, PMD, SpotBugs, SonarLint, English-only must all pass
 
       - name: Verify code quality reports exist
         run: |
@@ -106,7 +106,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for better relevancy of SonarCloud analysis
+          fetch-depth: 0 # Shallow clones should be disabled for better relevancy of SonarCloud analysis
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v5

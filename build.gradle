@@ -568,7 +568,8 @@ tasks.register("codeQualityFull") {
     dependsOn(
             "codeQuality",
             "lintCss",
-            "lintYaml"
+            "lintYaml",
+            "lintEnglishOnly"
     )
 }
 
@@ -603,6 +604,76 @@ tasks.register("lintYamlFix", NpmTask) {
     args = ["run", "lint:yaml:fix"]
 }
 
+// English-only code validation
+tasks.register("lintEnglishOnly") {
+    description = "Check that code contains only English text (no Cyrillic, Unicode, emoji)"
+    group = JavaBasePlugin.VERIFICATION_GROUP
+    
+    doLast {
+        def sourceDirs = [
+            project.file("src/main/java"),
+            project.file("src/test/java"),
+            project.file("src/main/resources")
+        ]
+        
+        def excludePatterns = [
+            "messages_ru.properties",  // Russian localization file is allowed
+            "node_modules",
+            "build",
+            ".jmix",
+            "helm"
+        ]
+        
+        def violations = []
+        def cyrillicPattern = /[А-Яа-яЁё]/
+        
+        sourceDirs.each { sourceDir ->
+            if (sourceDir.exists()) {
+                sourceDir.eachFileRecurse { file ->
+                    // Skip excluded files
+                    def relativePath = project.relativePath(file)
+                    if (excludePatterns.any { pattern ->
+                        relativePath.contains(pattern)
+                    }) {
+                        return
+                    }
+                    
+                    // Check Java, properties, XML files
+                    if (file.isFile() && (file.name.endsWith(".java") ||
+                        file.name.endsWith(".properties") ||
+                        file.name.endsWith(".xml"))) {
+                        try {
+                            def content = file.getText("UTF-8")
+                            def matcher = cyrillicPattern.matcher(content)
+                            if (matcher.find()) {
+                                def lineNumber = 1
+                                content.eachLine { line ->
+                                    if (cyrillicPattern.matcher(line).find()) {
+                                        violations.add("${relativePath}:${lineNumber}: ${line.trim()}")
+                                    }
+                                    lineNumber++
+                                }
+                            }
+                        } catch (Exception e) {
+                            // Skip binary or unreadable files
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (!violations.isEmpty()) {
+            println("❌ Found ${violations.size()} violation(s) with non-English text (Cyrillic):")
+            violations.each { violation ->
+                println("  $violation")
+            }
+            throw new GradleException("Code must contain only English text. Found ${violations.size()} violation(s).")
+        } else {
+            println("✅ All code contains only English text")
+        }
+    }
+}
+
 // CI/CD Tasks
 tasks.register("ciBuild") {
     description = "CI build pipeline"
@@ -610,6 +681,7 @@ tasks.register("ciBuild") {
     dependsOn(
             "spotlessCheck",
             "codeQualityFull",
+            "lintEnglishOnly",
             "test",
             "build"
     )
