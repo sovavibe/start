@@ -50,11 +50,14 @@ jobs:
             # For PRs, check all commits in the PR (excluding merge commits)
             BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
+            echo "🔍 Validating commits from $BASE_SHA to $HEAD_SHA"
             npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
           else
             # For pushes, check only the last commit
+            echo "🔍 Validating last commit"
             npx commitlint --from HEAD~1 --to HEAD --verbose
           fi
+          echo "✅ All commit messages are valid"
 
   lint-branch:
     name: Lint Branch Name
@@ -69,13 +72,13 @@ jobs:
       - name: Validate branch name
         run: |
           BRANCH_NAME="${{ github.head_ref }}"
-          
+
           # Skip validation for protected branches
           if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" == "master" ]]; then
             echo "✅ Protected branch, skipping validation"
             exit 0
           fi
-          
+
           # Validate branch name format
           # 1. Task format: <type>/task-<number>/<description> or <type>/<scope>-task-<number>/<description>
           if echo "$BRANCH_NAME" | grep -qE '^(feat|fix|docs|refactor|perf|test|build|chore|revert)/task-[0-9]+/[a-z0-9-]+$'; then
@@ -116,4 +119,3 @@ jobs:
             echo "See .cursor/rules/branch-naming.mdc for details"
             exit 1
           fi
-
