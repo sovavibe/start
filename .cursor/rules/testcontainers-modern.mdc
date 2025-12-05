@@ -1,9 +1,0 @@
----
-globs: ["**/test/**/*Container*.java"]
-autoFix: true
-version: "6.0.0"
----
-
-# TESTCONTAINERS
-
-See `@testing-policy.mdc` → TESTCONTAINERS section for complete guidelines.

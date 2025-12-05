@@ -1,9 +1,0 @@
----
-globs: ["docs/**/*.md"]
-autoFix: false
-version: "2.0.0"
----
-
-# DOCUMENTATION
-
-See `@ai-rules.mdc` → DOCUMENTATION (STRICT) section for complete guidelines.

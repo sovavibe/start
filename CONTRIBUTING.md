@@ -52,7 +52,7 @@ Before you begin, ensure you have:
 
    Access at: http://localhost:8080
 
-For detailed setup instructions, see [Local Development Guide](docs/getting-started/LOCAL_DEVELOPMENT.md).
+For detailed setup instructions, see [Setup Guide](docs/getting-started/SETUP.md).
 
 ## Development Workflow
 
@@ -149,7 +149,7 @@ Only suppress for:
 - **Vaadin**: UI component patterns
 - **Lombok**: Generated code patterns
 
-See [Suppressions Documentation](docs/quality/suppressions-obosnovaniya.md) for details.
+See [Suppressions Documentation](docs/quality/SUPPRESSIONS.md) for details.
 
 ## Code Quality Requirements
 
@@ -291,7 +291,7 @@ How was this tested?
 
 ## SDLC Integration
 
-This project follows Vibe Coding SDLC. See [SDLC Documentation](docs/development/SDLC.md) for:
+This project follows Vibe Coding SDLC. See [SDLC Documentation](docs/workflow/SDLC.md) for:
 
 - Development phases
 - Quality gates at each phase

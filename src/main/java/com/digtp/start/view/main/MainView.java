@@ -48,7 +48,8 @@ import org.springframework.security.core.userdetails.UserDetails;
     "java:S2150",
     // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
     "java:S1186",
-    // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field injection)
+    // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field
+    // injection)
     "java:S6813",
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
     "java:S117",

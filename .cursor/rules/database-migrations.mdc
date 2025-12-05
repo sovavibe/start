@@ -1,9 +1,0 @@
----
-globs: ["**/liquibase/**/*.xml"]
-autoFix: true
-version: "5.0.0"
----
-
-# MIGRATIONS
-
-See `@jmix-entities.mdc` → DATABASE MIGRATIONS section for complete guidelines.

@@ -1,0 +1,18 @@
+---
+globs: ["**/view/**/*.java", "**/view/**/*.xml", "**/*View*.java", "**/*Component*.java"]
+version: "8.0.0"
+---
+
+# VAADIN BEST PRACTICES
+
+## LIFECYCLE & PERFORMANCE
+**Lifecycle**: @Route: Constructor (DI+UI) → beforeEnter → afterNavigation → onDetach | @UIScope: Constructor (data) → onAttach (hasBeenInitialized) → onDetach (Registration.remove) | **Performance**: Lazy: grid.setItems(query→service.find(PageRequest)) | Virtual: grid.setPageSize(50) | Smart refresh: track state
+
+## SECURITY & SCOPES
+**Security**: @AnonymousAllowed/@PermitAll/@RolesAllowed on @Route | Check permissions in beforeEnter() | Hidden != secure | getTranslation() auto-escapes | Html() only trusted | **@UIScope**: Use: @Component + reused + needs UI.getCurrent() | Don't: @Route, Dialogs, Stateless | @UIScope = tab, @SessionScope = shared
+
+## DIALOG & ANTIPATTERNS
+**Dialog**: ✅ new Dialog() each time | ❌ @Component extends Dialog = singleton corruption | **Antipatterns**: getTranslation() in @UIScope constructor → NPE | Listeners no cleanup → leak | grid.setItems(all) >100 → OOM | @Component + Dialog → singleton | removeAll() + add(same) → leak | @PostConstruct @UIScope → UI not ready | onAttach without hasBeenInitialized → double init
+
+## UI/UX & PWA & MOBILE
+**UI/UX**: Material Design-inspired, calm palette | Components: Jmix UiComponents factory | Responsive: Mobile-first, breakpoints | Accessibility: ARIA labels, keyboard nav | Loading: Progress indicators, skeleton screens | Error: User-friendly messages, validation feedback | I18n: Messages service, externalize strings | **PWA**: @PWA(name, shortName, iconPath, backgroundColor, themeColor, offlinePath) | AppShell implements AppShellConfigurator | Icons: 192x192, 512x512 | HTTPS production (mandatory) | Offline: src/main/webapp/offline.html | **Mobile-First**: Breakpoints: 768px (tablet/mobile), 1024px (desktop), 1280px (large) | CSS: Mobile base first, Desktop: @media (min-width: 768px) | Touch targets: 44x44px min, 48x48px recommended, spacing ≥8px (WCAG 2.1 AAA) | Viewport: width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes | Vaadin: AppLayout auto-overlay <768px, FormLayout ResponsiveStep, Button 44x44px on mobile | **Antipatterns**: Fixed widths → max-width: 100% | user-scalable=no → accessibility violation | Touch <44px → WCAG fail | Desktop-first @media (max-width) → min-width | Font-size <16px → iOS zooms

@@ -20,7 +20,7 @@ Follows [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/
 - **Line ending**: LF (Unix), no trailing whitespace
 
 ### Import Order
-See `@import-order.mdc` for details
+See `@quality.mdc` → CODE QUALITY STANDARDS → Import Order for details
 
 ### Naming
 - **Classes**: `UpperCamelCase` (e.g., `UserService`)
@@ -34,13 +34,13 @@ See `@import-order.mdc` for details
 - Order: `@param`, `@return`, `@throws`, `@deprecated`
 
 ## FORMATTING
-See `@palantir-baseline-integration.mdc` → FORMATTING
+See `@quality.mdc` → BASELINE CONFIGURATION → FORMATTING
 
 ## BEST PRACTICES
 - Immutable objects, avoid null (use `Optional`), `final` fields/params
 - Constructor injection (not field injection)
 - SOLID, Clean Architecture, DRY, KISS
-- Testing: AAA/GWT pattern, see `@testing-policy.mdc`
+- Testing: AAA/GWT pattern, see `@core.mdc` → TESTING POLICY
 
 ## REFERENCE
 [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/blob/develop/docs/java-style-guide/readme.md)

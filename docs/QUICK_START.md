@@ -1,125 +1,61 @@
 # Quick Start Guide
 
-> **For Analysts and Developers** - Get started in 5 minutes
+> Get started in 5 minutes
 
-## 🚀 Quick Setup (One Command)
+## Quick Setup
 
 ```bash
-# Clone and setup
 git clone https://github.com/sovavibe/start.git
 cd start
 make setup
+make postgres-up
+make run
 ```
 
-That's it! The `make setup` command will:
-- ✅ Check and install Java 21 (if needed)
-- ✅ Install all dependencies
-- ✅ Configure Git hooks
-- ✅ Compile the project
+Access: http://localhost:8080 (admin/admin)
 
-### 🤖 For Analysts (Fully Automated - Zero Knowledge Required!)
+## For Analysts
 
 ```bash
-# Just run this - it does EVERYTHING automatically!
 ./scripts/analyst-workflow.sh
 ```
 
-**What it does:**
-1. ✅ Sets up project automatically
-2. ✅ Asks simple questions (hypothesis, type, scope)
-3. ✅ Creates branch with correct name automatically
-4. ✅ Runs analysis commands automatically
-5. ✅ Formats and checks code automatically
-6. ✅ Commits with correct format automatically
-7. ✅ Pushes branch automatically
-8. ✅ Creates PR with description automatically
+Automated workflow: setup → analysis → branch → commit → PR
 
-**You just answer 3-4 simple questions!** 🎉
-
-## 📋 Essential Commands
-
-### For Analysts
+## Essential Commands
 
 ```bash
 make setup          # Setup project
-make info           # Show project info
-make analyze-full   # Check code quality
-make coverage       # View test coverage
-```
-
-### For Developers
-
-```bash
+make run            # Run application
+make test           # Run tests
 make format         # Format code
 make analyze-full   # Check quality
-make test           # Run tests
-make run            # Start application
+make ci             # Full CI pipeline
 ```
 
-### For Reviewers
-
-```bash
-gh pr checkout <number>  # Checkout PR
-make analyze-full        # Verify quality
-make test               # Run tests
-```
-
-## 🎯 Common Workflows
+## Common Workflows
 
 ### Starting Development
 
 ```bash
-# 1. Create branch
 git checkout -b feat/scope-description
-
-# 2. Make changes
-# ... edit code ...
-
-# 3. Format and check
-make format
-make analyze-full
-
-# 4. Test
-make test
-
-# 5. Create PR
+# ... make changes ...
+make format && make analyze-full && make test
 ./scripts/create-pr.sh
 ```
 
-### Before Committing
-
-```bash
-make format          # Format code
-make format-check    # Verify formatting
-make analyze-full    # Check quality
-make test            # Run tests
-```
-
-### Full CI Pipeline (Local)
-
-```bash
-make ci              # Run everything
-```
-
-## 📚 Next Steps
-
-- **Analysts**: See [SDLC - Analysis Phase](development/SDLC.md#phase-0-hypothesis--analysis)
-- **Developers**: See [SDLC - Development Phase](development/SDLC.md#phase-1-development-preparation)
-- **Reviewers**: See [SDLC - Review Phase](development/SDLC.md#phase-4-code-review)
-
-## 🆘 Troubleshooting
+## Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
 | `make setup` fails | Check Java 21 is installed |
 | Tests fail | Ensure Docker is running |
-| Format check fails | Run `make format` |
-| Quality check fails | See [Quality Gates](quality/QUALITY_GATES.md) |
+| Format fails | Run `make format` |
+| Quality fails | See [Quality Gates](quality/QUALITY_GATES.md) |
 
-## 📖 Full Documentation
+## Documentation
 
 - [Setup Guide](getting-started/SETUP.md) - Detailed setup
-- [SDLC Process](development/SDLC.md) - Complete workflow
+- [SDLC Process](workflow/SDLC.md) - Complete workflow
 - [Quality Gates](quality/QUALITY_GATES.md) - Quality standards
-- [CI/CD Pipeline](ci-cd/CI_CD.md) - CI/CD details
-
+- [Roles Guide](ROLES.md) - Role-specific commands
