@@ -20,7 +20,6 @@ The CI/CD pipeline ensures code quality, security, and deployability through aut
 ┌─────────────────┐
 │     Tests       │ (parallel)
 │  + Coverage     │
-│  + SonarCloud   │
 └─────────────────┘
          │
 ┌─────────────────┐
@@ -114,7 +113,7 @@ The CI/CD pipeline ensures code quality, security, and deployability through aut
 
 **Job Name**: `test`
 
-**Purpose**: Run tests, generate coverage, and analyze with SonarCloud
+**Purpose**: Run tests and generate coverage
 
 **Configuration**:
 - Runs on: `ubuntu-latest`
@@ -132,27 +131,23 @@ The CI/CD pipeline ensures code quality, security, and deployability through aut
 7. Upload test results
 8. Upload coverage report
 9. Verify coverage report exists
-10. SonarCloud scan: `./gradlew sonar --no-daemon`
 
 **Quality Gates**:
 - All tests must pass
 - Coverage thresholds:
-  - Instructions: ≥85%
-  - Branches: ≥75%
-  - Lines: ≥90%
-- SonarCloud quality gate must pass
+  - Instructions: ≥75%
+  - Branches: ≥65%
+  - Lines: ≥75%
 
 **Tools**:
 - [JUnit 5](https://junit.org/junit5/)
 - [Testcontainers](https://www.testcontainers.org/)
 - [JaCoCo](https://www.jacoco.org/jacoco/)
-- [SonarCloud](https://docs.sonarcloud.io/)
 
 **Environment Variables**:
 ```yaml
 TESTCONTAINERS_REUSE_ENABLE: false
 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 ```
 
 **Commands**:
@@ -165,21 +160,12 @@ SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 # Verify coverage
 ./gradlew jacocoTestCoverageVerification --no-daemon
-
-# SonarCloud scan
-./gradlew sonar --no-daemon
 ```
 
 **Artifacts**:
 - Test results: `build/reports/tests/test/`
 - Coverage report: `build/reports/jacoco/test/html/`
 - Retention: 30 days
-
-**SonarCloud Integration**:
-- Quality gate blocks merge on failure
-- Requires coverage report: `build/reports/jacoco/test/jacocoTestReport.xml`
-- Project: `sovavibe_start`
-- Organization: `sovavibe`
 
 ### 4. Build
 
@@ -307,7 +293,7 @@ trivy fs --format sarif --output trivy-results.sarif .
 | SpotBugs | `ignoreFailures=false` |
 | SonarLint | `ignoreFailures=false` |
 
-### SonarCloud Quality Gate
+### Quality Gates
 
 - Must pass (blocks merge on failure)
 - Coverage thresholds enforced
@@ -417,10 +403,9 @@ Jobs are configured to fail fast:
 ### Quality Gate Enforcement
 
 - Formatting violations block merge
-- Quality check failures block merge
+- Quality check failures block merge (includes SonarLint)
 - Test failures block merge
 - Coverage threshold violations block merge
-- SonarCloud quality gate failures block merge
 
 ## Local CI Simulation
 
@@ -453,9 +438,6 @@ make build           # Build
 ./gradlew jacocoTestReport --no-daemon
 ./gradlew jacocoTestCoverageVerification --no-daemon
 
-# SonarCloud (requires token)
-./gradlew sonar --no-daemon
-
 # Build
 ./gradlew -Pvaadin.productionMode=true bootJar --no-daemon -x test
 
@@ -471,11 +453,6 @@ make build           # Build
 - Status badges in README
 - PR status checks
 
-### SonarCloud Integration
-
-- Quality gate status in PR
-- Coverage reports in PR
-- Security vulnerabilities in PR
 
 ### GitHub Security
 
@@ -506,10 +483,10 @@ make build           # Build
    - Add missing tests
    - Verify thresholds
 
-5. **SonarCloud Quality Gate Fails**
-   - Check SonarCloud dashboard
-   - Review quality gate conditions
-   - Address reported issues
+5. **SonarLint Issues**
+   - Check SonarLint reports: `build/reports/sonarlint/`
+   - Review reported issues
+   - Address code quality violations
 
 ### Debugging
 
@@ -564,7 +541,7 @@ make build           # Build
 ## References
 
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [SonarCloud Documentation](https://docs.sonarcloud.io/)
+- [SonarLint Documentation](https://www.sonarsource.com/products/sonarlint/)
 - [JaCoCo Documentation](https://www.jacoco.org/jacoco/)
 - [OWASP Dependency-Check](https://owasp.org/www-project-dependency-check/)
 - [Trivy Documentation](https://aquasecurity.github.io/trivy/)

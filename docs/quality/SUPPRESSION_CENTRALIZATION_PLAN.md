@@ -4,7 +4,7 @@
 
 ### Already Centralized ✅
 
-1. **SonarLint/SonarQube** (`config/sonar-project.properties`):
+1. **SonarLint** (`sonar-project.properties`):
    - `java:S1948` - Non-serializable fields in View classes (e4)
    - `java:S110` - Too many parents for Jmix views (e5)
    - `java:S2177` - Method name conflict for lifecycle methods (e6)
@@ -26,7 +26,7 @@
 ### Can Be Centralized Now ✅
 
 1. **Remove inline `java:S1948`** from View classes:
-   - Already centralized in `config/sonar-project.properties` (e4)
+   - Already centralized in `sonar-project.properties` (e4)
    - Files: `LoginView.java`, `UserDetailView.java`
    - Action: Remove inline suppressions, rely on central config
 
@@ -90,7 +90,7 @@
 
 | Tool | Centralization Status | Notes |
 |------|----------------------|-------|
-| SonarLint | ✅ Fully centralized | `config/sonar-project.properties` |
+| SonarLint | ✅ Fully centralized | `sonar-project.properties` |
 | SpotBugs | ✅ Fully centralized | `config/spotbugs/exclude.xml` |
 | Checkstyle | ✅ Fully centralized | `.baseline/checkstyle/custom-suppressions.xml` |
 | PMD | ⚠️ Inline only | Baseline limitation, cannot centralize |
@@ -107,7 +107,7 @@
 - `@suppress-policy.mdc` - Comprehensive suppression guidelines
 - `@palantir-baseline-integration.mdc` - Baseline configuration details
 - `@ai-false-positives.mdc` - Quick decision guide
-- `config/sonar-project.properties` - SonarLint central config
+- `sonar-project.properties` - SonarLint central config
 - `config/spotbugs/exclude.xml` - SpotBugs central config
 - `.baseline/checkstyle/custom-suppressions.xml` - Checkstyle central config
 

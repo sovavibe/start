@@ -36,10 +36,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
 @Slf4j
-// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
-// These are injected by framework and don't need to be serializable.
-// Cannot be centralized due to PMD Baseline limitation.
-@SuppressWarnings("PMD.NonSerializableClass")
+// Framework: Jmix views extend multiple framework classes (StandardMainView, etc.)
+@SuppressWarnings({
+    // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
+    "java:S1948",
+    // Framework: Jmix views extend multiple framework classes (StandardMainView, etc.)
+    "java:S110",
+    // Framework: Jmix lifecycle methods may have same names as parent methods
+    "java:S2177",
+    // Framework: Jmix views extend StandardMainView which requires design for extension
+    "java:S2150",
+    // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
+    "java:S1186",
+    // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field injection)
+    "java:S6813",
+    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
+    "java:S117",
+    // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
+    "PMD.NonSerializableClass"
+})
 public class MainView extends StandardMainView {
 
     private static final long serialVersionUID = 1L;

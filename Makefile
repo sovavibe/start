@@ -337,18 +337,24 @@ analyze-reports: analyze ## Open code quality reports
 		echo "Reports available in: build/reports/"; \
 	fi
 
-sonar: ## Run SonarCloud analysis (requires SONAR_TOKEN environment variable)
-	@echo "$(GREEN)Running SonarCloud analysis...$(RESET)"
-	@if [ -z "$$SONAR_TOKEN" ]; then \
-		echo "$(YELLOW)⚠️  SONAR_TOKEN environment variable not set$(RESET)"; \
-		echo "$(YELLOW)   Analysis will be skipped. Set SONAR_TOKEN to run analysis$(RESET)"; \
-		echo "$(YELLOW)   Get token from: https://sonarcloud.io/account/security$(RESET)"; \
-		exit 0; \
-	fi
-	@echo "$(YELLOW)Note: This will apply settings from config/sonar-project.properties to SonarCloud$(RESET)"
-	@echo "$(YELLOW)      After analysis, sync settings in IntelliJ IDEA:$(RESET)"
-	@echo "$(YELLOW)      Settings → Tools → SonarLint → Project Settings → Update binding$(RESET)"
-	./gradlew sonar --no-daemon
+##@ Sync
+
+sync-baseline: ## Sync Palantir Baseline configuration to IntelliJ IDEA
+	@echo "$(GREEN)Syncing Palantir Baseline configuration to IntelliJ IDEA...$(RESET)"
+	@echo "$(YELLOW)Updating Baseline configuration files in .baseline/...$(RESET)"
+	@./gradlew baselineUpdateConfig
+	@echo "$(GREEN)✅ Baseline configuration files updated$(RESET)"
+	@echo "$(YELLOW)Note: To apply Baseline settings in IntelliJ IDEA:$(RESET)"
+	@echo "$(YELLOW)  1. File → Sync Project with Gradle Files$(RESET)"
+	@echo "$(YELLOW)  2. Or: File → Invalidate Caches / Restart$(RESET)"
+
+sync-all: sync-baseline ## Sync all configurations (Baseline)
+	@echo ""
+	@echo "$(GREEN)✅ All configurations synced!$(RESET)"
+	@echo ""
+	@echo "$(YELLOW)Next steps:$(RESET)"
+	@echo "  1. IntelliJ IDEA → File → Sync Project with Gradle Files (for Baseline)"
+
 
 ##@ CI/CD
 
@@ -481,8 +487,8 @@ postgres-logs: ## View PostgreSQL logs
 	docker logs -f start-postgres 2>/dev/null || \
 	echo "$(YELLOW)⚠️  No PostgreSQL container found$(RESET)"
 
-sonarqube-up: ## Start SonarQube Server (requires PostgreSQL)
-	@echo "$(GREEN)Starting SonarQube Server...$(RESET)"
+sonarqube-up: ## Start SonarQube Server with auto-configuration (requires PostgreSQL)
+	@echo "$(GREEN)Starting SonarQube Server with automatic Quality Profile setup...$(RESET)"
 	@if [ ! -f ".env" ]; then \
 		echo "$(YELLOW)⚠️  .env file not found. Creating from .env.example...$(RESET)"; \
 		$(MAKE) setup-env; \
@@ -495,12 +501,14 @@ sonarqube-up: ## Start SonarQube Server (requires PostgreSQL)
 	@docker exec -i start-postgres-dev psql -U start -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'sonar'" | grep -q 1 || \
 	docker exec -i start-postgres-dev psql -U start -d postgres -c "CREATE DATABASE sonar;" || \
 	echo "$(YELLOW)⚠️  Database may already exist or PostgreSQL not ready$(RESET)"
+	@echo "$(YELLOW)Building SonarQube image with Quality Profile initialization...$(RESET)"
+	@docker-compose -f docker-compose.dev.yml build sonarqube
 	@echo "$(YELLOW)Starting SonarQube Server...$(RESET)"
 	@docker-compose -f docker-compose.dev.yml up -d sonarqube
 	@echo "$(GREEN)✅ SonarQube Server starting on http://localhost:9000$(RESET)"
 	@echo "$(YELLOW)   Default credentials: admin/admin$(RESET)"
-	@echo "$(YELLOW)   Wait 30-60 seconds for SonarQube to start, then visit http://localhost:9000$(RESET)"
-	@echo "$(YELLOW)   See docs/quality/SONARQUBE_LOCAL_SETUP.md for setup instructions$(RESET)"
+	@echo "$(YELLOW)   Wait 30-60 seconds for SonarQube to start and initialize$(RESET)"
+	@echo "$(YELLOW)   See docs/quality/SONARQUBE_DOCKER_CONFIG.md for details$(RESET)"
 
 sonarqube-down: ## Stop SonarQube Server
 	@echo "$(GREEN)Stopping SonarQube Server...$(RESET)"
@@ -512,6 +520,26 @@ sonarqube-logs: ## View SonarQube logs
 	@echo "$(GREEN)Viewing SonarQube logs...$(RESET)"
 	@docker-compose -f docker-compose.dev.yml logs -f sonarqube 2>/dev/null || \
 	echo "$(YELLOW)⚠️  No SonarQube container found$(RESET)"
+
+sonarqube-reset: ## Reset SonarQube (stop, remove volumes and database, start fresh)
+	@echo "$(YELLOW)⚠️  This will delete all SonarQube data (volumes and database)!$(RESET)"
+	@echo "$(YELLOW)   All projects, settings, and tokens will be lost.$(RESET)"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		echo "$(GREEN)Stopping SonarQube...$(RESET)"; \
+		$(MAKE) sonarqube-down >/dev/null 2>&1 || true; \
+		echo "$(GREEN)Removing SonarQube volumes...$(RESET)"; \
+		docker volume rm start_sonarqube_data_dev start_sonarqube_extensions_dev start_sonarqube_logs_dev 2>/dev/null || true; \
+		echo "$(GREEN)Removing SonarQube database...$(RESET)"; \
+		docker exec start-postgres-dev psql -U start -c "DROP DATABASE IF EXISTS sonar;" 2>/dev/null || true; \
+		echo "$(GREEN)Creating fresh SonarQube database...$(RESET)"; \
+		docker exec start-postgres-dev psql -U start -c "CREATE DATABASE sonar;" 2>/dev/null || true; \
+		echo "$(GREEN)✅ SonarQube reset complete$(RESET)"; \
+		echo "$(YELLOW)   Run 'make sonarqube-up' to start fresh SonarQube$(RESET)"; \
+	else \
+		echo "$(YELLOW)Cancelled$(RESET)"; \
+	fi
 
 ##@ DevOps
 

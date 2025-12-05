@@ -42,10 +42,25 @@ import org.springframework.security.authentication.LockedException;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
-// These are injected by framework and don't need to be serializable.
-// Cannot be centralized due to PMD Baseline limitation.
-@SuppressWarnings("PMD.NonSerializableClass")
+// Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+@SuppressWarnings({
+    // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
+    "java:S1948",
+    // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+    "java:S110",
+    // Framework: Jmix lifecycle methods may have same names as parent methods
+    "java:S2177",
+    // Framework: Jmix views extend StandardView which requires design for extension
+    "java:S2150",
+    // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
+    "java:S1186",
+    // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field injection)
+    "java:S6813",
+    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
+    "java:S117",
+    // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
+    "PMD.NonSerializableClass"
+})
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private static final long serialVersionUID = 1L;
@@ -84,8 +99,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     }
 
     @Subscribe("login")
-    @SuppressWarnings(
-            "removal") // LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
+    // LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
+    @SuppressWarnings("removal")
     public void onLogin(final LoginEvent event) {
         try {
             loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
@@ -118,6 +133,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     }
 
     @Override
+    // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
+    @SuppressWarnings("java:S1172")
     public void localeChange(final LocaleChangeEvent event) {
         UI.getCurrent().getPage().setTitle(messageBundle.getMessage("LoginView.title"));
         localeHelper.updateLoginI18n(login, messageBundle, event);

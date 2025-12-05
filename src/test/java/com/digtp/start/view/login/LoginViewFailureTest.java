@@ -39,17 +39,24 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-// LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code (LoginView.onLogin)
-// Test must mock deprecated API to test production code. Suppression matches production code suppression
-@SuppressWarnings("removal")
+// Test: LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code
+@SuppressWarnings({
+    // Test: LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code
+    "removal",
+    // Test: @MockBean is Spring Boot standard for mocking beans in tests
+    "java:S5738",
+    // Test: Some tests are clearer as separate methods rather than parameterized
+    "java:S5976",
+    // Test: Multiple assertions on same object are acceptable in tests for clarity
+    "java:S5853",
+    // Test: Test methods may have similar structure but test different scenarios
+    "java:S4144"
+})
 class LoginViewFailureTest extends AbstractIntegrationTest {
 
     @Autowired
     ViewNavigators viewNavigators;
 
-    // DeprecatedForRemovalApiUsage disabled in build.gradle (Error Prone)
-    // @MockBean is Spring Boot standard, still supported
-    @SuppressWarnings("java:S5738")
     @MockBean
     LoginViewSupport loginViewSupport;
 

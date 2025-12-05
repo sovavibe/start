@@ -361,7 +361,7 @@ static final ArchRule servicesShouldNotDependOnViews = // package-private - Arch
 
 ## 🎯 Централизованные подавления (14 правил)
 
-### SonarLint (config/sonar-project.properties)
+### SonarLint (sonar-project.properties)
 
 Эти правила настроены централизованно для всех файлов, соответствующих паттерну:
 

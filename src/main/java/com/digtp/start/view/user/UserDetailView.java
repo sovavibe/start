@@ -43,13 +43,27 @@ import lombok.extern.slf4j.Slf4j;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
-// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
-// These are injected by framework and don't need to be serializable.
-// Cannot be centralized due to PMD Baseline limitation.
-// Jmix View: @ViewComponent fields must be after constructor-injected fields.
-// Framework pattern: 1) constructor-injected (@RequiredArgsConstructor), 2) @ViewComponent fields.
-// Cannot change this order.
-@SuppressWarnings({"PMD.NonSerializableClass", "PMD.FieldDeclarationsShouldBeAtStartOfClass"})
+// Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
+@SuppressWarnings({
+    // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
+    "java:S1948",
+    // Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
+    "java:S110",
+    // Framework: Jmix lifecycle methods may have same names as parent methods
+    "java:S2177",
+    // Framework: Jmix views extend StandardDetailView which requires design for extension
+    "java:S2150",
+    // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
+    "java:S1186",
+    // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field injection)
+    "java:S6813",
+    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
+    "java:S117",
+    // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
+    "PMD.NonSerializableClass",
+    // Framework: Jmix View: @ViewComponent fields must be after constructor-injected fields
+    "PMD.FieldDeclarationsShouldBeAtStartOfClass"
+})
 public class UserDetailView extends StandardDetailView<User> {
 
     private static final long serialVersionUID = 1L;
@@ -84,6 +98,8 @@ public class UserDetailView extends StandardDetailView<User> {
     private transient boolean wasNewOnSave;
 
     @Subscribe
+    // Framework: Jmix lifecycle methods require InitEvent parameter signature
+    @SuppressWarnings("java:S1172")
     public void onInit(final InitEvent _event) {
         timeZoneField.setItems(getAvailableTimeZoneIds());
         log.debug("User detail view initialized");

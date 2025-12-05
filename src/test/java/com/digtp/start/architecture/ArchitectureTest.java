@@ -41,12 +41,24 @@ import org.junit.jupiter.api.Test;
 // ArchUnit rule names are descriptive
 // ArchUnit requires ArchRule type (not interface)
 @SuppressWarnings({
+    // Test: ArchUnit rule names are descriptive
     "PMD.CommentRequired",
+    // Test: ArchUnit requires ArchRule type (not interface)
     "PMD.CommentDefaultAccessModifier",
+    // Test: ArchUnit rule names are descriptive
     "PMD.FieldNamingConventions",
+    // Test: Test class doesn't need explicit constructor
     "PMD.AtLeastOneConstructor",
+    // Test: ArchUnit rule names are descriptive
     "PMD.LongVariable",
-    "PMD.LooseCoupling"
+    // Test: ArchUnit requires ArchRule type (not interface)
+    "PMD.LooseCoupling",
+    // Test: Some tests are clearer as separate methods rather than parameterized
+    "java:S5976",
+    // Test: Multiple assertions on same object are acceptable in tests for clarity
+    "java:S5853",
+    // Test: Test methods may have similar structure but test different scenarios
+    "java:S4144"
 })
 class ArchitectureTest {
 

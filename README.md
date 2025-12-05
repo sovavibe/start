@@ -2,8 +2,8 @@
 
 [![CI/CD Pipeline](https://github.com/sovavibe/start/workflows/CI/CD%20Pipeline/badge.svg)](https://github.com/sovavibe/start/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=sovavibe_start&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=sovavibe_start)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sovavibe_start&metric=coverage)](https://sonarcloud.io/summary/new_code?id=sovavibe_start)
+[![SonarQube Quality Gate](http://localhost:9000/api/project_badges/measure?project=sovavibe&metric=alert_status&token=sqb_bf5bf919efc64dea57c8b762efde202320d29180)](http://localhost:9000/dashboard?id=sovavibe)
+[![SonarQube Coverage](http://localhost:9000/api/project_badges/measure?project=sovavibe&metric=coverage&token=sqb_bf5bf919efc64dea57c8b762efde202320d29180)](http://localhost:9000/dashboard?id=sovavibe)
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://docs.oracle.com/en/java/javase/21/)
 [![Jmix](https://img.shields.io/badge/Jmix-2.7.1-blue.svg)](https://docs.jmix.io/jmix/)
 

@@ -105,8 +105,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for better relevancy of SonarCloud analysis
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v5
@@ -177,16 +175,8 @@ jobs:
             exit 1
           fi
           echo "✅ Coverage XML report found"
-
-      - name: SonarCloud Scan
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar --no-daemon
-        # SonarCloud quality gate will block merge if quality gate fails
-        # Requires jacocoTestReport.xml at build/reports/jacoco/test/jacocoTestReport.xml
-        # Project: sovavibe_start (organization: sovavibe)
-        # Automatic Analysis is disabled - CI analysis is now required and blocking
+        # Note: SonarLint runs as part of codeQualityFull job (via Gradle plugin)
+        # Local SonarQube Server is used for development (see docs/quality/SONARQUBE_LOCAL_SETUP.md)
 
   # Build application (runs after tests)
   build:

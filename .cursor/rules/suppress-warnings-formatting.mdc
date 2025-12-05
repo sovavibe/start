@@ -10,20 +10,19 @@ version: "1.0.0"
 ## RULE
 Comment BEFORE annotation, annotation on single line
 
-## CORRECT
+## CORRECT FOR ONE
 ```java
 // Comment explaining WHY
 @SuppressWarnings("PMD.RuleName")
-@SuppressWarnings({"PMD.Rule1", "PMD.Rule2"})
 ```
 
-## WRONG
+## CORRECT FOR SEVERAL
 ```java
-@SuppressWarnings("PMD.RuleName") // Comment after
-@SuppressWarnings(
-        "PMD.RuleName") // Comment after
 @SuppressWarnings({
-    "PMD.Rule1", // Comment inside
+    // Comment explaining WHY
+    "PMD.Rule1",
+    // Comment explaining WHY
     "PMD.Rule2"
 })
 ```
+

@@ -22,10 +22,10 @@ Quality gates ensure code quality, security, and maintainability. All gates are 
 | **Code Coverage (Instructions)** | ≥85% | JaCoCo |
 | **Code Coverage (Branches)** | ≥75% | JaCoCo |
 | **Code Coverage (Lines)** | ≥90% | JaCoCo |
-| **Cognitive Complexity** | ≤10 | SonarCloud |
-| **Cyclomatic Complexity** | ≤10 | PMD, SonarCloud |
-| **File Length** | ≤250 lines | Checkstyle, SonarCloud |
-| **Code Duplication** | <3% | SonarCloud |
+| **Cognitive Complexity** | ≤10 | SonarLint, PMD |
+| **Cyclomatic Complexity** | ≤10 | PMD, SonarLint |
+| **File Length** | ≤250 lines | Checkstyle, SonarLint |
+| **Code Duplication** | <3% | SonarLint |
 | **Warnings (Checkstyle)** | 0 | Checkstyle |
 | **Failures (All Tools)** | 0 | All tools |
 
@@ -135,19 +135,19 @@ make analyze-full
 
 ### SonarLint
 
-**Purpose**: Code quality and security analysis (local development)
+**Purpose**: Code quality and security analysis (works locally and in CI/CD)
 
 **Configuration**:
-- Centralized: `config/sonar-project.properties` (single source of truth)
-- Rules disabled: `java:S110`, `java:S2177`, `xml:S2068`, `java:S5976`, `java:S1130`
+- Centralized: `sonar-project.properties` (project root, single source of truth)
+- Rules automatically extracted from multicriteria entries
 - Languages: Java, XML
 
 **Thresholds**:
 - `ignoreFailures = false`
 
 **Documentation**: 
+- [SonarLint Gradle Plugin](SONARLINT_GRADLE_PLUGIN.md)
 - [SonarLint](https://www.sonarsource.com/products/sonarlint/)
-- [SonarCloud](https://docs.sonarcloud.io/)
 
 **Usage**:
 ```bash
@@ -159,16 +159,12 @@ make analyze-full
 ```
 
 **Configuration Details**:
-- All settings from `config/sonar-project.properties`
-- Rules synchronized with SonarCloud
+- All settings from `sonar-project.properties` (project root)
+- Rules automatically extracted from multicriteria (no manual sync needed)
 - Framework-specific exclusions via multicriteria
+- Works without server connection (standalone mode)
 
-**Excluded Rules** (framework-specific):
-- `java:S110`: Too many parents (Jmix views extend multiple classes)
-- `java:S2177`: Method name conflict (lifecycle methods)
-- `xml:S2068`: Hard-coded credentials (UI labels only, not actual credentials)
-- `java:S5976`: Parameterized tests (test clarity)
-- `java:S1130`: Superfluous exception declaration (test reflection)
+**Excluded Rules**: See `sonar-project.properties` for complete list of framework-specific exclusions (automatically applied)
 
 ### Error-prone
 
@@ -261,7 +257,7 @@ violationRules {
 
 **Reports**:
 - HTML: `build/reports/jacoco/test/html/index.html`
-- XML: `build/reports/jacoco/test/jacocoTestReport.xml` (for SonarCloud)
+- XML: `build/reports/jacoco/test/jacocoTestReport.xml`
 
 ## Code Formatting
 
@@ -301,33 +297,6 @@ make format
 - Fails build if formatting violations found
 - Can be auto-fixed with `spotlessApply`
 
-## Code Quality (Cloud)
-
-### SonarCloud
-
-**Purpose**: Cloud-based code quality and security analysis
-
-**Configuration**:
-- Project key: `sovavibe_start`
-- Organization: `sovavibe`
-- Configuration: `config/sonar-project.properties`
-
-**Thresholds**:
-- Quality gate must pass (blocks merge on failure)
-- Coverage thresholds: 85%/75%/90%
-- Complexity: ≤10
-- Duplication: <3%
-
-**Documentation**: [SonarCloud](https://docs.sonarcloud.io/)
-
-**Usage**:
-```bash
-# Run SonarCloud analysis (CI/CD)
-./gradlew sonar
-```
-
-**Quality Gate**:
-- Blocks merge if quality gate fails
 - Requires coverage report: `build/reports/jacoco/test/jacocoTestReport.xml`
 - Integrates with GitHub PRs
 
@@ -341,7 +310,7 @@ make format
 - Maintainability rating
 
 **Configuration**:
-- Centralized in `config/sonar-project.properties`
+- Centralized in `sonar-project.properties` (project root)
 - Framework-specific exclusions via multicriteria
 - Complexity threshold: 10
 
@@ -496,10 +465,9 @@ make analyze-full
 Quality gates are enforced in `.github/workflows/ci.yml`:
 
 1. **Format Check**: `spotlessCheck`
-2. **Code Quality**: `codeQualityFull`
+2. **Code Quality**: `codeQualityFull` (includes SonarLint)
 3. **Tests**: `test` + coverage verification
-4. **SonarCloud**: Quality gate check
-5. **Security**: OWASP + Trivy
+4. **Security**: OWASP + Trivy
 
 All jobs must pass before merge.
 
@@ -539,10 +507,13 @@ private String unusedField; // Remove this field instead
 
 ## Quality Metrics Dashboard
 
-### SonarCloud Dashboard
+### Local Reports
 
-- **URL**: https://sonarcloud.io/project/overview?id=sovavibe_start
-- **Metrics**: Coverage, complexity, duplication, security
+- **SonarLint**: `build/reports/sonarlint/`
+- **Checkstyle**: `build/reports/checkstyle/`
+- **PMD**: `build/reports/pmd/`
+- **SpotBugs**: `build/reports/spotbugs/`
+- **JaCoCo**: `build/reports/jacoco/test/html/`
 - **Quality Gate**: Pass/Fail status
 - **Trends**: Historical data
 
@@ -626,7 +597,6 @@ private String unusedField; // Remove this field instead
 - [PMD](https://pmd.github.io/)
 - [SpotBugs](https://spotbugs.github.io/)
 - [SonarLint](https://www.sonarsource.com/products/sonarlint/)
-- [SonarCloud](https://docs.sonarcloud.io/)
 - [Error Prone](https://errorprone.info/)
 - [JaCoCo](https://www.jacoco.org/jacoco/)
 - [Spotless](https://github.com/diffplug/spotless)

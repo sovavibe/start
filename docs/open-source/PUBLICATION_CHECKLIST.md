@@ -70,7 +70,7 @@ Current badges use:
 
 If repository is renamed, update:
 - Badge URLs in README.md
-- SonarCloud project key in `config/sonar-project.properties`
+- SonarLint project key in `sonar-project.properties`
 - Workflow environment variables
 
 ## 🧪 Testing Before Publication

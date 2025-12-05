@@ -33,6 +33,15 @@ import org.springframework.test.context.ActiveProfiles;
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
+// Test: Test methods may have similar structure but test different scenarios
+@SuppressWarnings({
+    // Test: Some tests are clearer as separate methods rather than parameterized
+    "java:S5976",
+    // Test: Multiple assertions on same object are acceptable in tests for clarity
+    "java:S5853",
+    // Test: Test methods may have similar structure but test different scenarios
+    "java:S4144"
+})
 class UserUiTest extends AbstractIntegrationTest {
 
     @Autowired

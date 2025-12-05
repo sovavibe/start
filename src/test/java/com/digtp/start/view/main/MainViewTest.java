@@ -34,7 +34,15 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-// java:S5976 excluded via config/sonar-project.properties
+// Test: Test methods may have similar structure but test different scenarios
+@SuppressWarnings({
+    // Test: Some tests are clearer as separate methods rather than parameterized
+    "java:S5976",
+    // Test: Multiple assertions on same object are acceptable in tests for clarity
+    "java:S5853",
+    // Test: Test methods may have similar structure but test different scenarios
+    "java:S4144"
+})
 class MainViewTest extends AbstractIntegrationTest {
 
     private static final String TEST_USERNAME = "john.doe";
@@ -196,7 +204,7 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    // java:S5853 excluded via config/sonar-project.properties
+    // java:S5853 excluded via sonar-project.properties
     void testUserMenuButtonRendererWithUser() {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
         final MainView mainView = (MainView) getMainView();
@@ -230,7 +238,7 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    // java:S4144 excluded via config/sonar-project.properties
+    // java:S4144 excluded via sonar-project.properties
     void testUserMenuHeaderRendererWhenNameEqualsUsername() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
