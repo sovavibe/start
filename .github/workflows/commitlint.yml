@@ -51,11 +51,11 @@ jobs:
             BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
             echo "🔍 Validating commits from $BASE_SHA to $HEAD_SHA"
-            npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+            npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose || exit 1
           else
             # For pushes, check only the last commit
             echo "🔍 Validating last commit"
-            npx commitlint --from HEAD~1 --to HEAD --verbose
+            npx commitlint --from HEAD~1 --to HEAD --verbose || exit 1
           fi
           echo "✅ All commit messages are valid"
 
