@@ -65,16 +65,17 @@ Search codebase first | Follow existing patterns | Use context7 MCP docs | Maint
 - **Chat with User**: ✅ Use Russian when user communicates in Russian | ✅ Use English when user communicates in English | Adapt to user's language preference
 - **Brevity**: Be concise, avoid verbose explanations unless requested
 - **ENFORCEMENT**: 
-  - ❌ **NEVER** write code comments in Russian or any non-English language
-  - ❌ **NEVER** write JavaDoc in Russian or any non-English language
-  - ❌ **NEVER** write commit messages in Russian or any non-English language
-  - ❌ **NEVER** write code strings in Russian or any non-English language (except localization files)
-  - ❌ **NEVER** write error messages in Russian or any non-English language
+  - ❌ **NEVER** write code comments in any non-English language
+  - ❌ **NEVER** write JavaDoc in any non-English language
+  - ❌ **NEVER** write commit messages in any non-English language
+  - ❌ **NEVER** write code strings in any non-English language (except localization files)
+  - ❌ **NEVER** write error messages in any non-English language
   - ✅ **ALWAYS** use English for all code, comments, documentation, commit messages
 - **Examples**: 
-  - ✅ Chat in Russian: "Файлы успешно добавлены в git"
+  - ✅ Chat in Russian: "Файлы успешно добавлены в git" (use language of user's request)
+  - ✅ Chat in English: "Files successfully added to git" (use language of user's request)
   - ✅ Code comment: `// Loads user from database` (always English)
   - ✅ Rule documentation: "Use DataManager.create() instead of new Entity()" (always English)
-  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных` **FORBIDDEN**
-  - ❌ Commit message in Russian: `feat: добавить проверку` **FORBIDDEN**
-  - ❌ Code string in Russian: `String message = "Ошибка";` **FORBIDDEN**
+  - ❌ Code comment in non-English: `// Загружает пользователя из базы данных` **FORBIDDEN**
+  - ❌ Commit message in non-English: `feat: добавить проверку` **FORBIDDEN**
+  - ❌ Code string in non-English: `String message = "Ошибка";` **FORBIDDEN**

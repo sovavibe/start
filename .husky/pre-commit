@@ -88,11 +88,11 @@ if [ -n "$STAGED_CODE_FILES" ]; then
         echo "💡 CI will run full English-only check"
     else
         # Quick check for non-ASCII characters (non-English text)
-        # This catches all non-English languages: Cyrillic, Chinese, Japanese, Arabic, etc.
+        # This catches all non-English languages (any non-ASCII text)
         VIOLATIONS_FOUND=0
         for file in $STAGED_CODE_FILES; do
             if [ -f "$file" ] && [ ! -d "$file" ]; then
-                # Skip messages_ru.properties (Russian localization is allowed)
+                # Skip localization files (non-English text allowed in localization)
                 case "$file" in
                     */messages_ru.properties)
                         continue
