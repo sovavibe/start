@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+# Commit message validation hook
+# Checks commit message format using commitlint
+
+set -e
+
+echo "🔍 Validating commit message..."
+
+# Check if npx is available
+if ! command -v npx >/dev/null 2>&1; then
+    echo "⚠️  npx not found, skipping commitlint check"
+    echo "💡 Install Node.js to enable commit message validation"
+    exit 0
+fi
+
+# Check if commitlint is installed (try local first, then npx)
+COMMITLINT_CMD=""
+if [ -f "node_modules/.bin/commitlint" ]; then
+    # Use local commitlint
+    COMMITLINT_CMD="node_modules/.bin/commitlint"
+elif npx commitlint --version >/dev/null 2>&1; then
+    # Use npx commitlint
+    COMMITLINT_CMD="npx commitlint"
+fi
+
+if [ -z "$COMMITLINT_CMD" ]; then
+    echo "⚠️  commitlint not found, skipping check"
+    echo "💡 Run 'npm install' to install commitlint"
+    exit 0
+fi
+
+# Validate commit message (suppress errors if dependencies are missing)
+if ! $COMMITLINT_CMD --edit "$1" 2>/dev/null; then
+    # If commitlint fails, check if it's due to missing dependencies
+    if [ -f "package.json" ] && ! grep -q "@commitlint/config-conventional" node_modules/@commitlint/config-conventional/package.json 2>/dev/null; then
+        echo "⚠️  commitlint dependencies not installed, skipping check"
+        echo "💡 Run 'npm install' to install commitlint dependencies"
+        exit 0
+    fi
+    # If it's a real validation error, fail
+    echo "❌ Commit message validation failed"
+    exit 1
+fi
+
+echo "✅ Commit message is valid"
