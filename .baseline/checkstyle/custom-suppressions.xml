@@ -205,6 +205,17 @@
     -->
     <suppress
             checks="AvoidFullyQualifiedNames"
-            files=".*/package-info\.java$|.*\\package-info\.java$"
+            files=".*[/\\]package-info\.java$"
+            message=".*"/>
+
+    <!--
+    Framework compatibility: Suppress IllegalThrows for AOP @Around methods
+    AOP @Around advice methods must declare throws Throwable to properly propagate
+    exceptions from the intercepted method. This is required by AspectJ framework.
+    Pattern matches AOP aspect classes (classes with @Aspect annotation)
+    -->
+    <suppress
+            checks="IllegalThrows"
+            files=".*/config/.*Aspect\.java$"
             message=".*"/>
 </suppressions>

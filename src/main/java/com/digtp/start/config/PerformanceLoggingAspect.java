@@ -48,10 +48,8 @@ public class PerformanceLoggingAspect {
      * @return method return value
      * @throws Throwable if method execution throws exception
      */
-    // CHECKSTYLE:OFF: IllegalThrows - AOP @Around requires Throwable for proper exception propagation
     @Around("execution(public * com.digtp.start.service..*(..))")
     public Object logServicePerformance(final ProceedingJoinPoint joinPoint) throws Throwable {
-        // CHECKSTYLE:ON: IllegalThrows
         return logPerformance(joinPoint, SERVICE_THRESHOLD_MS, "service");
     }
 
@@ -65,10 +63,8 @@ public class PerformanceLoggingAspect {
      * @return method return value
      * @throws Throwable if method execution throws exception
      */
-    // CHECKSTYLE:OFF: IllegalThrows - AOP @Around requires Throwable for proper exception propagation
     @Around("execution(public * com.digtp.start.view..*(..))")
     public Object logViewPerformance(final ProceedingJoinPoint joinPoint) throws Throwable {
-        // CHECKSTYLE:ON: IllegalThrows
         return logPerformance(joinPoint, VIEW_THRESHOLD_MS, "view");
     }
 
@@ -81,10 +77,8 @@ public class PerformanceLoggingAspect {
      * @return method return value
      * @throws Throwable if method execution throws exception
      */
-    // CHECKSTYLE:OFF: IllegalThrows - AOP @Around requires Throwable for proper exception propagation
     private Object logPerformance(final ProceedingJoinPoint joinPoint, final long thresholdMs, final String layer)
             throws Throwable {
-        // CHECKSTYLE:ON: IllegalThrows
         final long startTime = System.currentTimeMillis();
         try {
             return joinPoint.proceed();
