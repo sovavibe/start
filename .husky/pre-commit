@@ -70,5 +70,46 @@ if [ -n "$STAGED_YAML_FILES" ]; then
     fi
 fi
 
+# Check for non-English text in staged files (quick check)
+STAGED_CODE_FILES=$(echo "$STAGED_FILES" | grep -E '\.(java|properties|xml)$' || true)
+
+if [ -n "$STAGED_CODE_FILES" ]; then
+    CODE_COUNT=$(echo "$STAGED_CODE_FILES" | wc -l | tr -d ' ')
+    echo "📝 Checking for English-only text in $CODE_COUNT code file(s)..."
+    
+    # Quick check: if many files, skip (let CI handle it)
+    if [ "$CODE_COUNT" -gt 10 ]; then
+        echo "⚠️  Many files changed ($CODE_COUNT), skipping English-only check"
+        echo "💡 CI will run full English-only check"
+    else
+        # Quick check for Cyrillic in staged files
+        VIOLATIONS=0
+        echo "$STAGED_CODE_FILES" | while read -r file; do
+            if [ -f "$file" ] && [ ! -d "$file" ]; then
+                # Skip messages_ru.properties (Russian localization is allowed)
+                case "$file" in
+                    */messages_ru.properties)
+                        continue
+                        ;;
+                esac
+                
+                # Check for Cyrillic characters
+                if grep -q "[А-Яа-яЁё]" "$file" 2>/dev/null; then
+                    echo "❌ Non-English text found in: $file"
+                    echo "💡 Code must contain only English text"
+                    VIOLATIONS=1
+                fi
+            fi
+        done
+        
+        if [ "$VIOLATIONS" -eq 1 ]; then
+            echo "❌ English-only check failed"
+            echo "💡 Run './gradlew lintEnglishOnly' for detailed report"
+            exit 1
+        fi
+        echo "✅ English-only check passed"
+    fi
+fi
+
 echo "✅ Pre-commit checks passed"
 exit 0
