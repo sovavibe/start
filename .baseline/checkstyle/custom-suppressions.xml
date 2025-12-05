@@ -186,9 +186,10 @@
             message=".*"/>
 
     <!--
-    Documentation: Suppress AvoidFullyQualifiedNames for FQN in javadoc code examples
+    Documentation: Suppress RegexpSinglelineJava check for FQN in javadoc code examples
     FQN in javadoc {@code} blocks are acceptable for documentation purposes
     Pattern matches OpenTelemetry config classes that contain FQN in javadoc examples
+    Check: RegexpSinglelineJava with id="AvoidFullyQualifiedNames" (message: "Avoid fully qualified names...")
     -->
     <suppress
             checks="RegexpSinglelineJava"
@@ -196,17 +197,18 @@
             message=".*Avoid fully qualified names.*"/>
 
     <!--
-    Java language requirement: Suppress AvoidFullyQualifiedNames for package-info.java files
+    Java language requirement: Suppress RegexpSinglelineJava check for FQN in package-info.java files
     In package-info.java, annotations on package declarations must use FQN because:
     1. Package declaration must come first (or annotations on the same line)
     2. Imports come after package declaration
     3. Therefore, annotations cannot use imported names
     This is a Java language limitation, not a code style choice
+    Check: RegexpSinglelineJava with id="AvoidFullyQualifiedNames" (message: "Avoid fully qualified names...")
     -->
     <suppress
-            checks="AvoidFullyQualifiedNames"
+            checks="RegexpSinglelineJava"
             files=".*package-info\.java$"
-            message=".*"/>
+            message=".*Avoid fully qualified names.*"/>
 
     <!--
     Framework compatibility: Suppress IllegalThrows for AOP @Around methods
