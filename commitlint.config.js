@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * Custom rule to check if string contains only ASCII characters
+ */
+function isASCII(str) {
+  return /^[\x00-\x7F]*$/.test(str);
+}
+
 export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
@@ -67,6 +74,33 @@ export default {
     'header-max-length': [2, 'always', 72],
     'body-leading-blank': [2, 'always'],
     'body-max-line-length': [2, 'always', 72],
+    'header-format': [
+      2,
+      'always',
+      (parsed) => {
+        const { header } = parsed;
+        if (!isASCII(header)) {
+          return [
+            false,
+            'header must contain only ASCII characters (no Unicode, emoji, or special characters)',
+          ];
+        }
+        return [true];
+      },
+    ],
+    'body-format': [
+      2,
+      'always',
+      (parsed) => {
+        const { body } = parsed;
+        if (body && !isASCII(body)) {
+          return [
+            false,
+            'body must contain only ASCII characters (no Unicode, emoji, or special characters)',
+          ];
+        }
+        return [true];
+      },
+    ],
   },
 };
-
