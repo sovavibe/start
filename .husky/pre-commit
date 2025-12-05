@@ -87,7 +87,8 @@ if [ -n "$STAGED_CODE_FILES" ]; then
         echo "⚠️  Many files changed ($CODE_COUNT), skipping English-only check"
         echo "💡 CI will run full English-only check"
     else
-        # Quick check for Cyrillic in staged files
+        # Quick check for non-ASCII characters (non-English text)
+        # This catches all non-English languages: Cyrillic, Chinese, Japanese, Arabic, etc.
         VIOLATIONS_FOUND=0
         for file in $STAGED_CODE_FILES; do
             if [ -f "$file" ] && [ ! -d "$file" ]; then
@@ -98,10 +99,11 @@ if [ -n "$STAGED_CODE_FILES" ]; then
                         ;;
                 esac
                 
-                # Check for Cyrillic characters
-                if grep -q "[А-Яа-яЁё]" "$file" 2>/dev/null; then
-                    echo "❌ Non-English text found in: $file"
-                    echo "💡 Code must contain only English text"
+                # Check for non-ASCII characters (bytes > 127)
+                # Use od to check for bytes outside ASCII range (0x00-0x7F)
+                if LC_ALL=C od -An -tx1 "$file" 2>/dev/null | LC_ALL=C grep -q '[89abcdef][0-9a-f]'; then
+                    echo "❌ Non-English text (non-ASCII) found in: $file"
+                    echo "💡 Code must contain only English text (ASCII-only)"
                     VIOLATIONS_FOUND=1
                 fi
             fi
