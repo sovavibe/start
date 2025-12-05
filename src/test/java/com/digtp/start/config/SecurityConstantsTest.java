@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Tests that security constants are properly defined and accessible.
  */
-@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to access private constructor
+@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to access private constructor for testing utility class.
+// SecurityConstants has private constructor to prevent instantiation - reflection allows testing this pattern.
 class SecurityConstantsTest {
 
     @Test

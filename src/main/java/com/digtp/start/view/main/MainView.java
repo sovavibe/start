@@ -36,7 +36,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
 @Slf4j
-@SuppressWarnings("PMD.NonSerializableClass") // Jmix View: contains framework-managed non-serializable beans (expected)
+// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
+// These are injected by framework and don't need to be serializable.
+// Cannot be centralized due to PMD Baseline limitation.
+@SuppressWarnings("PMD.NonSerializableClass")
 public class MainView extends StandardMainView {
 
     private static final long serialVersionUID = 1L;

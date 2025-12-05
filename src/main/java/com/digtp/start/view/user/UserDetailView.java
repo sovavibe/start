@@ -43,10 +43,15 @@ import lombok.extern.slf4j.Slf4j;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
+// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
+// These are injected by framework and don't need to be serializable.
+// Cannot be centralized due to PMD Baseline limitation.
+// Jmix View: @ViewComponent fields must be after constructor-injected fields.
+// Framework pattern: 1) constructor-injected (@RequiredArgsConstructor), 2) @ViewComponent fields.
+// Cannot change this order.
 @SuppressWarnings({
-    "PMD.NonSerializableClass", // Jmix View: contains framework-managed non-serializable beans (expected)
-    "PMD.FieldDeclarationsShouldBeAtStartOfClass" // Jmix View: @ViewComponent fields after constructor-injected fields
-    // (framework pattern)
+    "PMD.NonSerializableClass",
+    "PMD.FieldDeclarationsShouldBeAtStartOfClass"
 })
 public class UserDetailView extends StandardDetailView<User> {
 

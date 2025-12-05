@@ -140,8 +140,9 @@
             message=".*"/>
 
     <!-- Framework compatibility: Suppress NonSerializableClass for Jmix/Vaadin framework classes -->
-    <!-- Framework views contain non-serializable framework dependencies (MessageBundle, etc.) -->
-    <!-- This is expected behavior for framework views -->
+    <!-- Framework views contain non-serializable framework dependencies (MessageBundle, UI components, etc.) -->
+    <!-- Example: @ViewComponent private MessageBundle messageBundle; - framework-injected, not serializable, but expected -->
+    <!-- This is expected behavior for framework views - framework manages serialization internally -->
     <suppress
             checks="NonSerializableClass"
             files=".*/view/.*/.*View\.java$"

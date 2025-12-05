@@ -41,7 +41,8 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to call private onLogin method
+@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to call private onLogin method for testing login failure scenarios.
+// Standard pattern in tests - allows testing private methods without making them package-private.
 class LoginViewFailureTest extends AbstractIntegrationTest {
 
     private static final String ON_LOGIN_METHOD = "onLogin";

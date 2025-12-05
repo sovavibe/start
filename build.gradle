@@ -151,6 +151,9 @@ dependencies {
     
     // Safe logging for Error Prone PreferSafeLoggableExceptions
     implementation 'com.palantir.safe-logging:preconditions:3.0.0'
+    
+    // JSpecify for null marking annotations (Error Prone RequireExplicitNullMarking)
+    compileOnly 'org.jspecify:jspecify:0.3.0'
 
     // Testing
     testImplementation('org.springframework.boot:spring-boot-starter-test') {

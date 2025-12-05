@@ -15,8 +15,10 @@ import java.util.UUID;
  * Reduces SpotBugs HARD_CODE_PASSWORD warnings and improves test maintainability.
  */
 @SuppressWarnings({
-    "PMD.AvoidDuplicateLiterals", // Test fixtures intentionally use repeated string literals
-    "PMD.TestClassWithoutTestCases" // Utility class for test data, not a test class itself
+    "PMD.AvoidDuplicateLiterals", // Test fixtures: intentionally use repeated string literals for test data (usernames, passwords).
+    // Acceptable in test fixtures - improves readability and makes test data obvious.
+    "PMD.TestClassWithoutTestCases" // Utility class for test data (TestFixtures), not a test class itself.
+    // Provides constants and helper methods for tests, but doesn't contain test methods.
 })
 public final class TestFixtures {
 

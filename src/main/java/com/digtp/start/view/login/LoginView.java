@@ -44,7 +44,10 @@ import lombok.extern.slf4j.Slf4j;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("PMD.NonSerializableClass") // Jmix View: contains framework-managed non-serializable beans (expected)
+// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
+// These are injected by framework and don't need to be serializable.
+// Cannot be centralized due to PMD Baseline limitation.
+@SuppressWarnings("PMD.NonSerializableClass")
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private static final long serialVersionUID = 1L;

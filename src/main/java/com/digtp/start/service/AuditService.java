@@ -38,7 +38,11 @@ public class AuditService {
      * Dedicated audit logger configured in logback-spring.xml.
      *
      * <p>Logs to audit.log file with 365 days retention for compliance and audit purposes.
+     *
+     * <p>Note: Named logger is required for separate audit log configuration.
+     * Cannot use class-based logger (PreferSafeLogger) for named logger.
      */
+    @SuppressWarnings("PreferSafeLogger")
     private static final Logger auditLogger = LoggerFactory.getLogger("com.digtp.start.audit");
 
     /**

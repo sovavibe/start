@@ -32,9 +32,12 @@ import org.junit.jupiter.api.Test;
  */
 @AnalyzeClasses(packages = "com.digtp.start", importOptions = ImportOption.DoNotIncludeTests.class)
 @SuppressWarnings({
-    "PMD.CommentRequired", // Test class documentation
-    "PMD.CommentDefaultAccessModifier", // ArchUnit test rules use package-private
-    "PMD.FieldNamingConventions", // ArchUnit convention uses snake_case for rule names
+    "PMD.CommentRequired", // ArchUnit test: rule names are self-documenting (e.g., "servicesShouldNotDependOnViews").
+    // ArchUnit convention - descriptive rule names don't require additional comments.
+    "PMD.CommentDefaultAccessModifier", // ArchUnit test: rules use package-private access (ArchUnit convention).
+    // Example: static final ArchRule servicesShouldNotDependOnViews = ... - package-private is standard for ArchUnit.
+    "PMD.FieldNamingConventions", // ArchUnit convention uses snake_case for rule names (e.g., "services_should_not_depend_on_views").
+    // ArchUnit standard - snake_case makes rules more readable in test output.
     "PMD.AtLeastOneConstructor", // Test class doesn't need explicit constructor
     "PMD.LongVariable", // ArchUnit rule names are descriptive
     "PMD.LooseCoupling" // ArchUnit requires ArchRule type (not interface)

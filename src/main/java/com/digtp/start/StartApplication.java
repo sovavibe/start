@@ -36,9 +36,10 @@ import org.springframework.core.env.Environment;
 @Slf4j
 @RequiredArgsConstructor
 @SuppressWarnings({
-    "java:S1948", // Framework: Spring Environment is not serializable (expected)
-    "PMD.LongVariable", // Framework: AppShellConfigurator interface method names
-    "PMD.FormalParameterNamingConventions" // Framework: Vaadin route parameter naming
+    "PMD.LongVariable", // Framework: AppShellConfigurator interface requires methods with long parameter names.
+    // Example: configurePage(InitialPageSettings settings) - "settings" is required by interface signature.
+    "PMD.FormalParameterNamingConventions" // Framework: Vaadin route parameters use framework conventions.
+    // Example: @Route("users/:id") - ":id" is Vaadin route convention, not Java naming.
 })
 public class StartApplication implements AppShellConfigurator {
 
@@ -47,8 +48,7 @@ public class StartApplication implements AppShellConfigurator {
     /**
      * Spring environment for accessing application properties.
      */
-    @SuppressWarnings("java:S1948") // Framework: Spring Environment is not serializable (expected)
-    private final Environment environment;
+    private final transient Environment environment;
 
     /**
      * Application entry point.

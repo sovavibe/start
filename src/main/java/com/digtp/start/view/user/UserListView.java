@@ -44,7 +44,10 @@ import lombok.extern.slf4j.Slf4j;
 @LookupComponent("usersDataGrid")
 @DialogMode(width = "64em")
 @Slf4j
-@SuppressWarnings("PMD.NonSerializableClass") // Jmix View: contains framework-managed non-serializable beans (expected)
+// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
+// These are injected by framework and don't need to be serializable.
+// Cannot be centralized due to PMD Baseline limitation.
+@SuppressWarnings("PMD.NonSerializableClass")
 public class UserListView extends StandardListView<User> {
 
     private static final long serialVersionUID = 1L;

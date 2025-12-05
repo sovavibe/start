@@ -31,7 +31,8 @@ import org.springframework.test.context.DynamicPropertySource;
  * }</pre>
  */
 @Slf4j
-@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // Framework: abstract base class for tests
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // Framework: abstract base class for tests provides common methods (invokeMethod, etc.).
+// No abstract methods but provides shared functionality. Standard pattern for test base classes.
 public abstract class AbstractIntegrationTest {
 
     @DynamicPropertySource
@@ -72,7 +73,8 @@ public abstract class AbstractIntegrationTest {
      * @return result of method invocation
      * @throws ReflectiveOperationException if method cannot be found or invoked
      */
-    @SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods for testing internal logic.
+    // Standard pattern in tests - allows testing private methods without making them package-private.
     protected static <T> T invokeMethod(
             final Class<T> returnType,
             final Object object,
