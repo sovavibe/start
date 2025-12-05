@@ -34,8 +34,10 @@ export default {
         'revert',
       ],
     ],
+    // Scope enum: warning only (structure is more important than specific scope)
+    // Allows any scope as long as structure type(scope): description is correct
     'scope-enum': [
-      2,
+      1,
       'always',
       [
         'jmix',
