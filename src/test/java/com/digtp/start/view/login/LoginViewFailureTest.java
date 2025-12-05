@@ -4,26 +4,14 @@
  */
 package com.digtp.start.view.login;
 
+import java.lang.reflect.Method;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.digtp.start.StartApplication;
-import com.digtp.start.testsupport.AbstractIntegrationTest;
-import com.digtp.start.testsupport.AuthenticatedAsAdmin;
-import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
-import com.vaadin.flow.component.login.LoginForm;
-import io.jmix.core.security.AccessDeniedException;
-import io.jmix.flowui.ViewNavigators;
-import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
-import io.jmix.flowui.testassist.UiTest;
-import io.jmix.flowui.testassist.UiTestUtils;
-import io.jmix.flowui.view.View;
-import io.jmix.securityflowui.authentication.LoginViewSupport;
-import java.lang.reflect.Method;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -31,6 +19,20 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.test.context.ActiveProfiles;
+
+import com.digtp.start.StartApplication;
+import com.digtp.start.testsupport.AbstractIntegrationTest;
+import com.digtp.start.testsupport.AuthenticatedAsAdmin;
+import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
+
+import io.jmix.core.security.AccessDeniedException;
+import io.jmix.flowui.ViewNavigators;
+import io.jmix.flowui.component.loginform.JmixLoginForm;
+import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
+import io.jmix.flowui.testassist.UiTest;
+import io.jmix.flowui.testassist.UiTestUtils;
+import io.jmix.flowui.view.View;
+import io.jmix.securityflowui.authentication.LoginViewSupport;
 
 /**
  * Unit tests for LoginView failure scenarios.
@@ -41,10 +43,12 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-@SuppressWarnings(
-        "PMD.AvoidAccessibilityAlteration") // Test: reflection to call private onLogin method for testing login failure
-// scenarios.
-// Standard pattern in tests - allows testing private methods without making them package-private.
+@SuppressWarnings({
+    "PMD.AvoidAccessibilityAlteration", // Test: reflection to call private onLogin method for testing login failure
+    // scenarios. Standard pattern in tests - allows testing private methods without making them package-private.
+    "removal" // LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code.
+    // Cannot avoid until production code is updated. Test must mock deprecated API to test production code.
+})
 class LoginViewFailureTest extends AbstractIntegrationTest {
 
     private static final String ON_LOGIN_METHOD = "onLogin";
@@ -67,7 +71,7 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginViewSupport.authenticate(any())).thenThrow(new BadCredentialsException("Invalid credentials"));
 
         final LoginEvent loginEvent = mock(LoginEvent.class);
-        final LoginForm loginForm = mock(LoginForm.class);
+        final JmixLoginForm loginForm = mock(JmixLoginForm.class);
         when(loginEvent.getSource()).thenReturn(loginForm);
         when(loginEvent.getUsername()).thenReturn("testuser");
         when(loginEvent.getPassword()).thenReturn("wrongpassword");
@@ -89,7 +93,7 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginViewSupport.authenticate(any())).thenThrow(new DisabledException("Account disabled"));
 
         final LoginEvent loginEvent = mock(LoginEvent.class);
-        final LoginForm loginForm = mock(LoginForm.class);
+        final JmixLoginForm loginForm = mock(JmixLoginForm.class);
         when(loginEvent.getSource()).thenReturn(loginForm);
         when(loginEvent.getUsername()).thenReturn("disableduser");
 
@@ -110,7 +114,7 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginViewSupport.authenticate(any())).thenThrow(new LockedException("Account locked"));
 
         final LoginEvent loginEvent = mock(LoginEvent.class);
-        final LoginForm loginForm = mock(LoginForm.class);
+        final JmixLoginForm loginForm = mock(JmixLoginForm.class);
         when(loginEvent.getSource()).thenReturn(loginForm);
         when(loginEvent.getUsername()).thenReturn("lockeduser");
 
@@ -132,7 +136,7 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginViewSupport.authenticate(any())).thenThrow(accessDeniedException);
 
         final LoginEvent loginEvent = mock(LoginEvent.class);
-        final LoginForm loginForm = mock(LoginForm.class);
+        final JmixLoginForm loginForm = mock(JmixLoginForm.class);
         when(loginEvent.getSource()).thenReturn(loginForm);
         when(loginEvent.getUsername()).thenReturn("denieduser");
 
