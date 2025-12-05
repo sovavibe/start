@@ -326,6 +326,14 @@ tasks.withType(JavaCompile).configureEach {
             "-parameters",
             "-Xlint:all,-serial,-processing"
     ])
+    // NullAway configuration: check null-safety for annotated packages
+    options.errorprone {
+        option("NullAway:AnnotatedPackages", "com.digtp.start")
+        // Disable strict logging checks (Slf4jLogsafeArgs, CatchBlockLogException)
+        // These require safe-logging wrappers which can be added incrementally
+        disable("Slf4jLogsafeArgs")
+        disable("CatchBlockLogException")
+    }
     mustRunAfter("spotlessApply")
 }
 

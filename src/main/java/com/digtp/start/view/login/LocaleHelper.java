@@ -29,10 +29,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
-@SuppressWarnings({
-    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
-    "java:S117"
-})
+@SuppressWarnings("java:S117")
 public class LocaleHelper {
 
     /**
