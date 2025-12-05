@@ -66,31 +66,4 @@ public abstract class AbstractIntegrationTest {
     protected static View<?> getCurrentViewAsView() {
         return (View<?>) UiTestUtils.getCurrentView();
     }
-
-    /**
-     * Invokes a method on an object using reflection.
-     *
-     * <p>Delegates to {@link ReflectionTestUtils#invokeMethod} for reflection operations.
-     * This method is provided for backward compatibility with existing tests.
-     *
-     * @param <T> return type of the method
-     * @param returnType class of the return type (for type-safe casting)
-     * @param object object on which to invoke the method
-     * @param methodName name of the method to invoke
-     * @param paramTypes parameter types of the method
-     * @param args arguments to pass to the method
-     * @return result of method invocation
-     * @throws ReflectiveOperationException if method cannot be found or invoked
-     * @deprecated Use {@link ReflectionTestUtils#invokeMethod} directly instead
-     */
-    @Deprecated(forRemoval = false)
-    protected static <T> T invokeMethod(
-            final Class<T> returnType,
-            final Object object,
-            final String methodName,
-            final Class<?>[] paramTypes,
-            final Object... args)
-            throws ReflectiveOperationException {
-        return ReflectionTestUtils.invokeMethod(returnType, object, methodName, paramTypes, args);
-    }
 }

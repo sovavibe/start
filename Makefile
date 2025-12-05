@@ -481,6 +481,38 @@ postgres-logs: ## View PostgreSQL logs
 	docker logs -f start-postgres 2>/dev/null || \
 	echo "$(YELLOW)⚠️  No PostgreSQL container found$(RESET)"
 
+sonarqube-up: ## Start SonarQube Server (requires PostgreSQL)
+	@echo "$(GREEN)Starting SonarQube Server...$(RESET)"
+	@if [ ! -f ".env" ]; then \
+		echo "$(YELLOW)⚠️  .env file not found. Creating from .env.example...$(RESET)"; \
+		$(MAKE) setup-env; \
+	fi
+	@echo "$(YELLOW)Starting PostgreSQL if not running...$(RESET)"
+	@docker-compose -f docker-compose.dev.yml up -d postgres
+	@echo "$(YELLOW)Waiting for PostgreSQL to be ready...$(RESET)"
+	@sleep 5
+	@echo "$(YELLOW)Creating SonarQube database if not exists...$(RESET)"
+	@docker exec -i start-postgres-dev psql -U start -d postgres -tc "SELECT 1 FROM pg_database WHERE datname = 'sonar'" | grep -q 1 || \
+	docker exec -i start-postgres-dev psql -U start -d postgres -c "CREATE DATABASE sonar;" || \
+	echo "$(YELLOW)⚠️  Database may already exist or PostgreSQL not ready$(RESET)"
+	@echo "$(YELLOW)Starting SonarQube Server...$(RESET)"
+	@docker-compose -f docker-compose.dev.yml up -d sonarqube
+	@echo "$(GREEN)✅ SonarQube Server starting on http://localhost:9000$(RESET)"
+	@echo "$(YELLOW)   Default credentials: admin/admin$(RESET)"
+	@echo "$(YELLOW)   Wait 30-60 seconds for SonarQube to start, then visit http://localhost:9000$(RESET)"
+	@echo "$(YELLOW)   See docs/quality/SONARQUBE_LOCAL_SETUP.md for setup instructions$(RESET)"
+
+sonarqube-down: ## Stop SonarQube Server
+	@echo "$(GREEN)Stopping SonarQube Server...$(RESET)"
+	@docker-compose -f docker-compose.dev.yml down sonarqube 2>/dev/null || \
+	echo "$(YELLOW)⚠️  No SonarQube container found$(RESET)"
+	@echo "$(GREEN)✅ SonarQube stopped$(RESET)"
+
+sonarqube-logs: ## View SonarQube logs
+	@echo "$(GREEN)Viewing SonarQube logs...$(RESET)"
+	@docker-compose -f docker-compose.dev.yml logs -f sonarqube 2>/dev/null || \
+	echo "$(YELLOW)⚠️  No SonarQube container found$(RESET)"
+
 ##@ DevOps
 
 docker-up: ## Start Docker Compose (app + PostgreSQL)

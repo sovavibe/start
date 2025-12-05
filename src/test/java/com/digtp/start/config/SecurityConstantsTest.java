@@ -6,7 +6,7 @@ package com.digtp.start.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.digtp.start.testsupport.ReflectionTestUtils;
+import java.lang.reflect.Constructor;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -25,8 +25,9 @@ class SecurityConstantsTest {
     @Test
     void testSecurityConstantsCannotBeInstantiated() throws ReflectiveOperationException {
         // Arrange & Act - verify constructor exists but is private (utility class pattern)
-        // Use reflection to verify constructor is accessible but private
-        ReflectionTestUtils.invokeConstructor(SecurityConstants.class, new Class<?>[0]);
+        final Constructor<SecurityConstants> constructor = SecurityConstants.class.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        constructor.newInstance();
 
         // Assert - verify the constant is accessible
         assertEquals(8, SecurityConstants.MIN_PASSWORD_LENGTH);

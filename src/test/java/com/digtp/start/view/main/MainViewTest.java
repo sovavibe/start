@@ -11,7 +11,6 @@ import com.digtp.start.StartApplication;
 import com.digtp.start.entity.User;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
-import com.digtp.start.testsupport.ReflectionTestUtils;
 import com.digtp.start.view.user.UserListView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -54,153 +53,143 @@ class MainViewTest extends AbstractIntegrationTest {
     private User savedUser;
 
     @Test
-    void testGenerateUserNameWithFirstNameAndLastName() throws ReflectiveOperationException {
+    void testGenerateUserNameWithFirstNameAndLastName() {
         // Navigate to UserListView first to ensure we have a valid view context
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         // Then try to navigate to MainView using current view
         // MainView is a layout view, so navigation might work differently
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final String userName = ReflectionTestUtils.invokeMethod(
-                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = mainView.generateUserName(user);
 
         assertThat(userName).isEqualTo(TEST_FIRST_NAME + " " + TEST_LAST_NAME);
     }
 
     @Test
-    void testGenerateUserNameWithOnlyFirstName() throws ReflectiveOperationException {
+    void testGenerateUserNameWithOnlyFirstName() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, null);
 
-        final String userName = ReflectionTestUtils.invokeMethod(
-                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = mainView.generateUserName(user);
 
         assertThat(userName).isEqualTo(TEST_FIRST_NAME);
     }
 
     @Test
-    void testGenerateUserNameWithOnlyLastName() throws ReflectiveOperationException {
+    void testGenerateUserNameWithOnlyLastName() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, null, TEST_LAST_NAME);
 
-        final String userName = ReflectionTestUtils.invokeMethod(
-                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = mainView.generateUserName(user);
 
         assertThat(userName).isEqualTo(TEST_LAST_NAME);
     }
 
     @Test
-    void testGenerateUserNameWithoutNames() throws ReflectiveOperationException {
+    void testGenerateUserNameWithoutNames() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, null, null);
 
-        final String userName = ReflectionTestUtils.invokeMethod(
-                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = mainView.generateUserName(user);
 
         assertThat(userName).isEqualTo(TEST_USERNAME);
     }
 
     @Test
-    void testIsSubstitutedWhenUserIsSubstituted() throws ReflectiveOperationException {
+    void testIsSubstitutedWhenUserIsSubstituted() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
         // Authenticated user is "admin" (from AuthenticatedAsAdmin), user is different
         // So isSubstituted should return true
-        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
-                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted = mainView.isSubstituted(user);
 
         assertThat(isSubstituted).isTrue();
     }
 
     @Test
-    void testIsSubstitutedWhenUserIsNotSubstituted() throws ReflectiveOperationException {
+    void testIsSubstitutedWhenUserIsNotSubstituted() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         // Authenticated user is "admin" (from AuthenticatedAsAdmin), so use admin user
         final UserDetails adminUserDetails = userRepository.loadUserByUsername("admin");
         final User user = (User) adminUserDetails;
 
         // No substitution - authenticated user is the same as the user
-        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
-                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted = mainView.isSubstituted(user);
 
         assertThat(isSubstituted).isFalse();
     }
 
     @Test
-    void testIsSubstitutedWhenUserIsNull() throws ReflectiveOperationException {
+    void testIsSubstitutedWhenUserIsNull() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
 
         // When user is null, isSubstituted should return false
-        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
-                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, (Object) null);
+        final boolean isSubstituted = mainView.isSubstituted(null);
 
         assertThat(isSubstituted).isFalse();
     }
 
     @Test
-    void testIsSubstitutedWhenAuthenticatedUserIsNull() throws ReflectiveOperationException {
+    void testIsSubstitutedWhenAuthenticatedUserIsNull() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         // Create a user that will trigger the authenticatedUser == null branch
         // This is difficult to test directly, but we can verify the method handles null gracefully
         final User user = createTestUser("test.user", "Test", "User");
         // The method checks authenticatedUser == null, which should return false
         // In normal flow, authenticatedUser is always set by AuthenticatedAsAdmin, so this branch
         // is hard to test without mocking CurrentUserSubstitution
-        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
-                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted = mainView.isSubstituted(user);
         // In test context, authenticatedUser is always set, so this should return true (user != admin)
         assertThat(isSubstituted).isTrue();
     }
 
     @Test
-    void testUserMenuHeaderRendererWhenNameDoesNotEqualUsername() throws ReflectiveOperationException {
+    void testUserMenuHeaderRendererWhenNameDoesNotEqualUsername() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         // When name does not equal username, else branch is taken (adds subtext with username)
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component = ReflectionTestUtils.invokeMethod(
-                Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = mainView.userMenuHeaderRenderer(user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
 
     @Test
-    void testCreateAvatar() throws ReflectiveOperationException {
+    void testCreateAvatar() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
 
         final String expectedName = TEST_FIRST_NAME + " " + TEST_LAST_NAME;
-        final Avatar avatar = ReflectionTestUtils.invokeMethod(
-                Avatar.class, mainView, "createAvatar", new Class<?>[] {String.class}, expectedName);
+        final Avatar avatar = mainView.createAvatar(expectedName);
 
         assertThat(avatar).isNotNull();
         assertThat(avatar.getName()).isEqualTo(expectedName);
@@ -208,66 +197,63 @@ class MainViewTest extends AbstractIntegrationTest {
 
     @Test
     // java:S5853 excluded via config/sonar-project.properties
-    void testUserMenuButtonRendererWithUser() throws ReflectiveOperationException {
+    void testUserMenuButtonRendererWithUser() {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
+        final MainView mainView = (MainView) getMainView();
 
-        final Component component = ReflectionTestUtils.invokeMethod(
-                Component.class, getMainView(), "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = mainView.userMenuButtonRenderer(user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
 
     @Test
-    void testUserMenuButtonRendererWithNonUser() throws ReflectiveOperationException {
+    void testUserMenuButtonRendererWithNonUser() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         final UserDetails nonUser = mock(UserDetails.class);
 
-        final Component component = ReflectionTestUtils.invokeMethod(
-                Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, nonUser);
+        final Component component = mainView.userMenuButtonRenderer(nonUser);
 
         assertThat(component).isNull();
     }
 
     @Test
-    void testUserMenuHeaderRendererWithUser() throws ReflectiveOperationException {
+    void testUserMenuHeaderRendererWithUser() {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
+        final MainView mainView = (MainView) getMainView();
 
-        final Component component = ReflectionTestUtils.invokeMethod(
-                Component.class, getMainView(), "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = mainView.userMenuHeaderRenderer(user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
 
     @Test
     // java:S4144 excluded via config/sonar-project.properties
-    void testUserMenuHeaderRendererWhenNameEqualsUsername() throws ReflectiveOperationException {
+    void testUserMenuHeaderRendererWhenNameEqualsUsername() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         // When name equals username, different branch is taken (adds subtext class)
         final User user = createTestUser(TEST_USERNAME, null, null);
 
-        final Component component = ReflectionTestUtils.invokeMethod(
-                Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = mainView.userMenuHeaderRenderer(user);
 
         assertThat(component).isNotNull();
     }
 
     @Test
-    void testUserMenuButtonRendererWithSubstitutedUser() throws ReflectiveOperationException {
+    void testUserMenuButtonRendererWithSubstitutedUser() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
+        final MainView mainView = (MainView) getCurrentViewAsView();
         // Create user different from authenticated user (admin) to trigger substitution
         final User user = createTestUser("substituted.user", "Substituted", "User");
 
-        final Component component = ReflectionTestUtils.invokeMethod(
-                Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
+        final Component component = mainView.userMenuButtonRenderer(user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
         // Component should include substitution indicator
@@ -288,11 +274,11 @@ class MainViewTest extends AbstractIntegrationTest {
      *
      * @return MainView instance
      */
-    private View<?> getMainView() {
+    private MainView getMainView() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        return getCurrentViewAsView();
+        return (MainView) getCurrentViewAsView();
     }
 
     @AfterEach

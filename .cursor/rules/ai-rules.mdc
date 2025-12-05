@@ -11,6 +11,8 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
 
 **Vibe Coding**: Minimal suppressions, maximum code quality | **Token Economy**: Optimize rule usage | See `@suppress-policy.mdc` for suppression guidelines
 
+**Simplicity First**: Simpler is better | ❌ Don't create utilities for single use | ✅ Use existing libraries and practices | ✅ Direct calls instead of abstractions when possible | ✅ Centralize only mass patterns (3+ usages)
+
 ## RULE SELECTION & TOKEN ECONOMY
 **CRITICAL**: When choosing which rules to apply, prioritize token efficiency and applicability:
 - **Applicability First**: Only apply rules relevant to current task/context | Skip irrelevant rules even if they exist

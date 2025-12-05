@@ -51,8 +51,7 @@ public class LocaleHelper {
         // Error Prone StrictUnusedVariable requires underscore prefix for unused lambda parameters
         final Map<Locale, String> locales = coreProperties.getAvailableLocales().stream()
                 .collect(Collectors.toMap(
-                        Function.identity(), messageTools::getLocaleDisplayName,
-                        (s1, _s2) -> s1, LinkedHashMap::new));
+                        Function.identity(), messageTools::getLocaleDisplayName, (s1, _s2) -> s1, LinkedHashMap::new));
 
         ComponentUtils.setItemsMap(login, locales);
         login.setSelectedLocale(VaadinSession.getCurrent().getLocale());

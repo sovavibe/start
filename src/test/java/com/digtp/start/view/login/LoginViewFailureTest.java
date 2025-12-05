@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import com.digtp.start.StartApplication;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
-import com.digtp.start.testsupport.ReflectionTestUtils;
 import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
 import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.ViewNavigators;
@@ -20,7 +19,6 @@ import io.jmix.flowui.component.loginform.JmixLoginForm;
 import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
 import io.jmix.flowui.testassist.UiTest;
 import io.jmix.flowui.testassist.UiTestUtils;
-import io.jmix.flowui.view.View;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,8 +44,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SuppressWarnings("removal")
 class LoginViewFailureTest extends AbstractIntegrationTest {
 
-    private static final String ON_LOGIN_METHOD = "onLogin";
-
     @Autowired
     ViewNavigators viewNavigators;
 
@@ -58,10 +54,10 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
     LoginViewSupport loginViewSupport;
 
     @Test
-    void testLoginFailureBadCredentials() throws ReflectiveOperationException {
+    void testLoginFailureBadCredentials() {
         // Arrange
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        final View<?> loginView = getCurrentViewAsView();
+        final LoginView loginView = (LoginView) getCurrentViewAsView();
         UiTestUtils.getComponent(loginView, "login"); // Verify component exists
 
         when(loginViewSupport.authenticate(any())).thenThrow(new BadCredentialsException("Invalid credentials"));
@@ -72,19 +68,18 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getUsername()).thenReturn("testuser");
         when(loginEvent.getPassword()).thenReturn("wrongpassword");
 
-        // Act - use reflection to call onLogin method
-        ReflectionTestUtils.invokeMethod(
-                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
+        // Act - call onLogin method directly (public @Subscribe method)
+        loginView.onLogin(loginEvent);
 
         // Assert
         verify(loginForm).setError(true);
     }
 
     @Test
-    void testLoginFailureDisabledException() throws ReflectiveOperationException {
+    void testLoginFailureDisabledException() {
         // Arrange
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        final View<?> loginView = getCurrentViewAsView();
+        final LoginView loginView = (LoginView) getCurrentViewAsView();
 
         when(loginViewSupport.authenticate(any())).thenThrow(new DisabledException("Account disabled"));
 
@@ -93,19 +88,18 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getSource()).thenReturn(loginForm);
         when(loginEvent.getUsername()).thenReturn("disableduser");
 
-        // Act - use reflection to call onLogin method
-        ReflectionTestUtils.invokeMethod(
-                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
+        // Act - call onLogin method directly (public @Subscribe method)
+        loginView.onLogin(loginEvent);
 
         // Assert
         verify(loginForm).setError(true);
     }
 
     @Test
-    void testLoginFailureLockedException() throws ReflectiveOperationException {
+    void testLoginFailureLockedException() {
         // Arrange
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        final View<?> loginView = getCurrentViewAsView();
+        final LoginView loginView = (LoginView) getCurrentViewAsView();
 
         when(loginViewSupport.authenticate(any())).thenThrow(new LockedException("Account locked"));
 
@@ -114,19 +108,18 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getSource()).thenReturn(loginForm);
         when(loginEvent.getUsername()).thenReturn("lockeduser");
 
-        // Act - use reflection to call onLogin method
-        ReflectionTestUtils.invokeMethod(
-                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
+        // Act - call onLogin method directly (public @Subscribe method)
+        loginView.onLogin(loginEvent);
 
         // Assert
         verify(loginForm).setError(true);
     }
 
     @Test
-    void testLoginFailureAccessDeniedException() throws ReflectiveOperationException {
+    void testLoginFailureAccessDeniedException() {
         // Arrange
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        final View<?> loginView = getCurrentViewAsView();
+        final LoginView loginView = (LoginView) getCurrentViewAsView();
 
         final AccessDeniedException accessDeniedException = new AccessDeniedException("Access denied", "resource");
         when(loginViewSupport.authenticate(any())).thenThrow(accessDeniedException);
@@ -136,9 +129,8 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getSource()).thenReturn(loginForm);
         when(loginEvent.getUsername()).thenReturn("denieduser");
 
-        // Act - use reflection to call onLogin method
-        ReflectionTestUtils.invokeMethod(
-                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
+        // Act - call onLogin method directly (public @Subscribe method)
+        loginView.onLogin(loginEvent);
 
         // Assert
         verify(loginForm).setError(true);

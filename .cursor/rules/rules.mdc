@@ -10,6 +10,8 @@ Java 21 | Jmix 2.7.1 | Vaadin 24+ | Spring Boot 3.x | PostgreSQL | Liquibase
 ## PRINCIPLES
 **Code Quality**: Production-ready, Senior+ level, maintainable, testable | **Architecture**: SOLID, Clean Architecture, DRY, KISS | **Approach**: Fix root causes, not symptoms | Refactor, not workarounds | **Standards**: Final fields, immutable, constructor injection, validation
 
+**Simplicity First**: Simpler is better | ❌ Don't create utilities for single use | ✅ Use existing libraries and practices | ✅ Direct calls instead of abstractions when possible | ✅ Centralize only mass patterns (3+ usages)
+
 ## TECH STACK
 Java 21 (virtual threads, pattern matching, records) | Jmix 2.7.1 | Vaadin FlowUI 24+ | Spring Boot 3.x | EclipseLink | Liquibase | Gradle 8.12.x | Quality: Palantir Baseline (Checkstyle, PMD, SpotBugs, Spotless, Error-prone), SonarLint | Frontend: stylelint, prettier
 

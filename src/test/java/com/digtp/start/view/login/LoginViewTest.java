@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import com.digtp.start.StartApplication;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
-import com.digtp.start.testsupport.ReflectionTestUtils;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -51,11 +50,10 @@ class LoginViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void testLocaleChange() throws ReflectiveOperationException {
+    void testLocaleChange() {
         // Arrange
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        // Use View<?> to avoid ClassCastException with Jmix class loaders
-        final View<?> loginView = getCurrentViewAsView();
+        final LoginView loginView = (LoginView) getCurrentViewAsView();
         final LocaleChangeEvent event = mock(LocaleChangeEvent.class);
         when(event.getLocale()).thenReturn(Locale.FRENCH);
 
@@ -65,9 +63,8 @@ class LoginViewTest extends AbstractIntegrationTest {
             uiMock.when(UI::getCurrent).thenReturn(ui);
             when(ui.getPage()).thenReturn(page);
 
-            // Act - use reflection to call localeChange method
-            ReflectionTestUtils.invokeMethod(
-                    Void.class, loginView, "localeChange", new Class<?>[] {LocaleChangeEvent.class}, event);
+            // Act - call localeChange method directly (public interface method)
+            loginView.localeChange(event);
 
             // Assert - method should complete without errors
             assertThat(loginView).isNotNull();
