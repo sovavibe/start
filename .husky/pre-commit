@@ -74,7 +74,7 @@ if [ -n "$STAGED_CODE_FILES" ]; then
                     continue
                     ;;
             esac
-            [ -f "$file" ] && [ ! -d "$file" ] && LC_ALL=C od -An -tx1 "$file" 2>/dev/null | LC_ALL=C grep -q '[89abcdef][0-9a-f]' && {
+            [ -f "$file" ] && [ ! -d "$file" ] && LC_ALL=C od -An -tx1 "$file" 2>/dev/null | tr -d ' \n' | sed 's/\(..\)/\1 /g' | LC_ALL=C grep -qE '\b[89abcdef][0-9a-f]\b' && {
                 echo "❌ Non-ASCII found in: $file. Run './gradlew lintEnglishOnly'"
                 exit 1
             }

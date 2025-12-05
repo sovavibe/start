@@ -12,7 +12,8 @@ COMMIT_MSG_FILE="$1"
 if [ -f "$COMMIT_MSG_FILE" ]; then
     # Check if commit message contains non-ASCII characters (bytes > 127)
     # Use LC_ALL=C and od to check for bytes outside ASCII range (0x00-0x7F)
-    if LC_ALL=C od -An -tx1 "$COMMIT_MSG_FILE" 2>/dev/null | LC_ALL=C grep -q '[89abcdef][0-9a-f]'; then
+    # Remove spaces/newlines, then re-add spaces between byte pairs to match complete bytes only
+    if LC_ALL=C od -An -tx1 "$COMMIT_MSG_FILE" 2>/dev/null | tr -d ' \n' | sed 's/\(..\)/\1 /g' | LC_ALL=C grep -qE '\b[89abcdef][0-9a-f]\b'; then
         # Found bytes >= 0x80 (non-ASCII)
         echo "❌ Commit message contains non-ASCII characters"
         echo "💡 Use only ASCII characters (0x00-0x7F)"
