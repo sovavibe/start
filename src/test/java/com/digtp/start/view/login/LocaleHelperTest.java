@@ -69,7 +69,7 @@ class LocaleHelperTest {
 
         when(coreProperties.getAvailableLocales()).thenReturn(availableLocales);
         when(messageTools.getLocaleDisplayName(locale1)).thenReturn("English");
-        when(messageTools.getLocaleDisplayName(locale2)).thenReturn("Русский");
+        when(messageTools.getLocaleDisplayName(locale2)).thenReturn("Russian");
         when(vaadinSession.getLocale()).thenReturn(currentLocale);
 
         // Act
