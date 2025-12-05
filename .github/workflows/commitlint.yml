@@ -30,16 +30,19 @@ jobs:
 
       - name: Install dependencies
         run: |
+          # Configure npm registry and retry logic
+          npm config set registry https://registry.npmjs.org/
           # Retry npm ci up to 3 times in case of network issues
           for i in 1 2 3; do
-            if npm ci; then
+            if npm ci --legacy-peer-deps; then
               exit 0
             fi
             echo "Attempt $i failed, retrying..."
-            sleep 5
+            sleep 10
           done
-          echo "Failed to install dependencies after 3 attempts"
-          exit 1
+          # If npm ci fails, try npm install as fallback
+          echo "npm ci failed, trying npm install as fallback..."
+          npm install --legacy-peer-deps || exit 1
 
       - name: Validate commit messages
         run: |
