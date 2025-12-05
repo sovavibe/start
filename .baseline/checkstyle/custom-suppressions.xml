@@ -194,4 +194,17 @@
             checks="RegexpSinglelineJava"
             files=".*OpenTelemetry.*\.java$"
             message=".*Avoid fully qualified names.*"/>
+
+    <!--
+    Java language requirement: Suppress AvoidFullyQualifiedNames for package-info.java files
+    In package-info.java, annotations on package declarations must use FQN because:
+    1. Package declaration must come first (or annotations on the same line)
+    2. Imports come after package declaration
+    3. Therefore, annotations cannot use imported names
+    This is a Java language limitation, not a code style choice
+    -->
+    <suppress
+            checks="AvoidFullyQualifiedNames"
+            files="package-info\.java$"
+            message=".*"/>
 </suppressions>
