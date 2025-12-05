@@ -1,22 +1,9 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.view.login;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -33,8 +20,10 @@ import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
@@ -43,11 +32,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * <p>Tests locale initialization and internationalization updates for login form.
  */
 @ExtendWith(MockitoExtension.class)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
-// - PMD.LawOfDemeter, PMD.ShortVariable
-@SuppressWarnings("PMD.TooManyStaticImports")
 class LocaleHelperTest {
 
     @Mock
@@ -89,7 +73,7 @@ class LocaleHelperTest {
         when(vaadinSession.getLocale()).thenReturn(currentLocale);
 
         // Act
-        try (MockedStatic<VaadinSession> vaadinSessionMock = mockStatic(VaadinSession.class)) {
+        try (MockedStatic<VaadinSession> vaadinSessionMock = Mockito.mockStatic(VaadinSession.class)) {
             vaadinSessionMock.when(VaadinSession::getCurrent).thenReturn(vaadinSession);
             localeHelper.initLocales(login);
         }
@@ -108,14 +92,14 @@ class LocaleHelperTest {
         when(vaadinSession.getLocale()).thenReturn(Locale.ENGLISH);
 
         // Act
-        try (MockedStatic<VaadinSession> vaadinSessionMock = mockStatic(VaadinSession.class)) {
+        try (MockedStatic<VaadinSession> vaadinSessionMock = Mockito.mockStatic(VaadinSession.class)) {
             vaadinSessionMock.when(VaadinSession::getCurrent).thenReturn(vaadinSession);
             localeHelper.initLocales(login);
         }
 
         // Assert
         verify(coreProperties).getAvailableLocales();
-        verify(messageTools, never()).getLocaleDisplayName(any());
+        verify(messageTools, never()).getLocaleDisplayName(ArgumentMatchers.any());
         verify(login).setSelectedLocale(Locale.ENGLISH);
     }
 
@@ -158,6 +142,6 @@ class LocaleHelperTest {
         verify(messageBundle).getMessage("loginForm.badCredentials");
         verify(messageBundle).getMessage("loginForm.errorUsername");
         verify(messageBundle).getMessage("loginForm.errorPassword");
-        verify(login).setI18n(any(JmixLoginI18n.class));
+        verify(login).setI18n(ArgumentMatchers.any(JmixLoginI18n.class));
     }
 }

@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.view.main;
 
@@ -47,19 +36,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD rules handled by Baseline: CommentSize, AtLeastOneConstructor, CommentRequired, GuardLogStatement
-// - PMD rules handled by Baseline: LawOfDemeter, FormalParameterNamingConventions, LongVariable, OnlyOneReturn
-// - Sonar rules excluded via config/sonar-project.properties: java:S110, java:S2177, java:S1948
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
-//   MissingSerialVersionUID, NonSerializableClass
-// - Error Prone: UnusedMethod enabled - framework methods (@Install, @Subscribe)
-//   automatically excluded via ExcludedAnnotations
-@SuppressWarnings({
-    "PMD.MissingSerialVersionUID", // Jmix views don't need serialVersionUID (framework-managed)
-    "PMD.NonSerializableClass" // Views contain framework-managed non-serializable beans (expected)
-})
+// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
+// These are injected by framework and don't need to be serializable.
+// Cannot be centralized due to PMD Baseline limitation.
+@SuppressWarnings("PMD.NonSerializableClass")
 public class MainView extends StandardMainView {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Tabindex value to exclude element from keyboard navigation.

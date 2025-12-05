@@ -25,11 +25,10 @@ out/
 
 # Palantir Baseline
 .baseline/
-# But commit important configuration files
-!.baseline/copyright/
+# Commit important configuration files (use specific paths instead of directory exclusions)
+!.baseline/copyright/zzz_apache-minimal.txt
 !.baseline/checkstyle/custom-suppressions.xml
 !.baseline/checkstyle/checkstyle.xml
-
 # VS Code
 .vscode/
 
@@ -71,3 +70,6 @@ logs/
 # Docker Compose override files
 docker-compose.override.yml
 .vscode/settings.json
+
+# Temporary PR description files
+pr_description.md

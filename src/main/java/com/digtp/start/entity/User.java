@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.entity;
 
@@ -59,16 +48,9 @@ import org.springframework.security.core.GrantedAuthority;
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD rules handled by Baseline: CommentSize, CommentRequired, LongVariable, ShortClassName,
-//   AtLeastOneConstructor, ShortVariable
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
-//   MissingSerialVersionUID, MissingJavadocMethod
-// - SpotBugs rules excluded via config/spotbugs/exclude.xml:
-//   ES, EI, EI2, EI_EXPOSE_REP, EI_EXPOSE_REP2 (EclipseLink/Lombok)
-@SuppressWarnings("PMD.MissingSerialVersionUID") // Jmix entities don't need serialVersionUID (framework-managed)
 public class User implements JmixUserDetails, HasTimeZone {
 
+    private static final long serialVersionUID = 1L;
     private static final int USERNAME_MAX_LENGTH = 100;
     private static final int DEFAULT_STRING_LENGTH = 255;
 
@@ -124,8 +106,6 @@ public class User implements JmixUserDetails, HasTimeZone {
     }
 
     @Override
-    // checkstyle:HiddenField suppressed via .baseline/checkstyle/custom-suppressions.xml
-    // Interface method signature requires parameter name matching field
     public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
     }

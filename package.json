@@ -6,10 +6,14 @@
     "lint:css": "stylelint 'src/main/frontend/themes/**/*.css'",
     "lint:css:fix": "stylelint 'src/main/frontend/themes/**/*.css' --fix",
     "lint:yaml": "sh -c \"find . -type f \\( -name '*.yml' -o -name '*.yaml' \\) ! -path '*/node_modules/*' ! -path '*/build/*' ! -path '*/.jmix/*' ! -path '*/helm/*' | head -1 | xargs -r prettier --check\" || true",
-    "lint:yaml:fix": "sh -c \"find . -type f \\( -name '*.yml' -o -name '*.yaml' \\) ! -path '*/node_modules/*' ! -path '*/build/*' ! -path '*/.jmix/*' ! -path '*/helm/*' | xargs -r prettier --write\" || true"
+    "lint:yaml:fix": "sh -c \"find . -type f \\( -name '*.yml' -o -name '*.yaml' \\) ! -path '*/node_modules/*' ! -path '*/build/*' ! -path '*/.jmix/*' ! -path '*/helm/*' | xargs -r prettier --write\" || true",
+    "commitlint": "commitlint --edit",
+    "commitlint:last": "commitlint --from HEAD~1 --to HEAD --verbose"
   },
   "devDependencies": {
     "@babel/preset-react": "7.27.1",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@preact/signals-react-transform": "0.6.0",
     "@rollup/plugin-replace": "6.0.2",
     "@rollup/pluginutils": "5.3.0",
@@ -93,7 +97,7 @@
       "workbox-core": "7.3.0",
       "workbox-precaching": "7.3.0"
     },
-    "hash": "665200375af61f73541bd6761cf2c69487a56de884c77586945bb77b368ca15f"
+    "hash": "482910c0f4f50b036fca0160477d6a15dc3a28a84a5c4c73af303581750a509e"
   },
   "type": "module",
   "overrides": {

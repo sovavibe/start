@@ -1,0 +1,60 @@
+---
+alwaysApply: false
+autoFix: false
+version: "1.2.0"
+---
+
+# BRANCH NAMING CONVENTIONS
+
+## FORMAT
+```
+<type>/<scope>-<description>
+<type>/task-<number>/<description>
+<type>/<scope>-task-<number>/<description>
+```
+**Special cases**:
+- For `docs` type, scope is optional: `docs/<description>` or `docs/<scope>-<description>`
+- Task format: `<type>/task-<number>/<description>` or `<type>/<scope>-task-<number>/<description>` (scope optional)
+
+## TYPES
+`feat` | `fix` | `docs` | `refactor` | `perf` | `test` | `build` | `chore` | `revert`
+
+## SCOPES (Jmix/Vaadin)
+`jmix` | `vaadin` | `entity` | `view` | `service` | `security` | `liquibase` | `ui` | `api` | `db` | `config` | `test` | `ci` | `deps` | `docs`
+
+## RULES
+- Lowercase, kebab-case (hyphens)
+- Max 50 chars (excluding type/scope prefix)
+- Descriptive: what the branch does
+- No special characters except hyphens
+- No trailing slashes or dots
+
+## EXAMPLES
+```
+feat/vaadin-add-login-form
+fix/jmix-resolve-datamanager-npe
+refactor/service-extract-payment-logic
+docs/add-sdlc-and-workflow-automation          # docs without scope (preferred)
+docs/ci-add-sdlc-and-workflow-automation       # docs with ci scope (if CI/CD related)
+docs/update-setup-guide                        # docs without scope
+feat/task-111/add-login-form                   # task format without scope
+feat/vaadin-task-123/add-user-profile          # task format with scope
+fix/task-456/resolve-npe-issue                 # task format
+test/test-add-integration-tests
+chore/deps-update-dependencies
+build/config-configure-gradle-cache
+ci/ci-add-commitlint-check
+```
+
+## PROHIBITIONS
+❌ Uppercase | Spaces | Underscores | Special chars | Vague names | Periods | Trailing slashes
+❌ `feature/`, `bugfix/`, `hotfix/` (use `feat/`, `fix/` instead)
+❌ `master`, `main`, `develop` (protected branches)
+
+## VALIDATION
+- Standard format: `^(feat|fix|docs|refactor|perf|test|build|chore|revert)/(jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test|ci|deps|docs)-[a-z0-9-]+$`
+- Docs with optional scope: `^docs/[a-z0-9-]+$` (allows `docs/add-...` pattern)
+- Task format: `^(feat|fix|docs|refactor|perf|test|build|chore|revert)/task-[0-9]+/[a-z0-9-]+$`
+- Task format with scope: `^(feat|fix|docs|refactor|perf|test|build|chore|revert)/(jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test|ci|deps|docs)-task-[0-9]+/[a-z0-9-]+$`
+- Enforced in GitHub Actions
+- Blocks merge if invalid

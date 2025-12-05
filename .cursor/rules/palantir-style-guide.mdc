@@ -20,11 +20,7 @@ Follows [Palantir Java Style Guide](https://github.com/palantir/gradle-baseline/
 - **Line ending**: LF (Unix), no trailing whitespace
 
 ### Import Order
-Palantir Baseline auto-configures via Spotless:
-1. `java.*` → `javax.*` → `jakarta.*` → `org.*` → `com.*` → Static imports
-2. Blank lines between groups, no blank lines within group
-3. Alphabetical within each group
-4. See `@import-order.mdc` for details
+See `@import-order.mdc` for details
 
 ### Naming
 - **Classes**: `UpperCamelCase` (e.g., `UserService`)
@@ -37,11 +33,8 @@ Palantir Baseline auto-configures via Spotless:
 - Use `<p>` for paragraphs
 - Order: `@param`, `@return`, `@throws`, `@deprecated`
 
-## FORMATTING COMMANDS
-- `./gradlew format` - Palantir Baseline format (recommended)
-- `./gradlew spotlessApply` - Spotless-only
-
-Baseline auto-configures: import order, unused imports removal, trailing whitespace, end with newline, Palantir Java Format (2.68.0)
+## FORMATTING
+See `@palantir-baseline-integration.mdc` → FORMATTING
 
 ## BEST PRACTICES
 - Immutable objects, avoid null (use `Optional`), `final` fields/params

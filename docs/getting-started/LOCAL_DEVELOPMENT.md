@@ -1,6 +1,8 @@
 # Local Development Guide
 
-This guide helps you set up and develop the Start project locally.
+> **Note**: This guide covers local development workflow. For quick setup, see [Quick Start Guide](../QUICK_START.md). For detailed setup, see [Setup Guide](SETUP.md).
+
+This guide helps you develop the Start project locally.
 
 ## Prerequisites
 

@@ -637,5 +637,4 @@ private String unusedField; // Remove this field instead
 - [SDLC Documentation](../development/SDLC.md) - Quality gates in development lifecycle
 - [CI/CD Documentation](../ci-cd/CI_CD.md) - Quality gates in CI/CD pipeline
 - [Contributing Guide](../../CONTRIBUTING.md) - Quality requirements for contributors
-- [Suppressions Documentation](suppressions-obosnovaniya.md) - Detailed suppression guidelines
 

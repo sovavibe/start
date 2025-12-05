@@ -116,8 +116,10 @@ All quality gates are enforced in CI/CD. See [Quality Gates Documentation](docs/
 - **[Local Development](docs/getting-started/LOCAL_DEVELOPMENT.md)** - Local setup and development guide
 
 **Architecture & Development:**
+- **[Quick Start](docs/QUICK_START.md)** ⭐ - Get started in 5 minutes
+- **[Roles Guide](docs/ROLES.md)** ⭐ - Quick reference for Analysts, Developers, Reviewers
 - **[Architecture](docs/architecture/ARCHITECTURE.md)** - System architecture and design patterns (C4 Model)
-- **[SDLC](docs/development/SDLC.md)** - Software Development Life Cycle for Vibe Coding
+- **[SDLC](docs/development/SDLC.md)** - Software Development Life Cycle for Vibe Coding (with Mermaid diagrams)
 
 **Quality & CI/CD:**
 - **[Quality Gates](docs/quality/QUALITY_GATES.md)** - Comprehensive quality gates documentation
@@ -161,6 +163,15 @@ make build
 # Full CI pipeline
 make ci
 ```
+
+### 🤖 For Analysts (Fully Automated)
+
+```bash
+# Zero knowledge required - just run this!
+./scripts/analyst-workflow.sh
+```
+
+The script guides you through everything automatically - from hypothesis to PR!
 
 See [Makefile](Makefile) for all available commands.
 

@@ -14,28 +14,13 @@ version: "2.0.0"
 
 ## LOG LEVELS
 
-**DEBUG**: Detailed diagnostics, method tracing, internal states. Does NOT affect production (INFO level).
-```java
-log.debug("Loading configuration from .env file");
-log.debug("User entity initialized: isNew={}, username={}", isNew, username);
-```
+**DEBUG**: Detailed diagnostics, method tracing, internal states. Does NOT affect production (INFO level). Example: `log.debug("User entity initialized: isNew={}, username={}", isNew, username);`
 
-**INFO**: Business events (entity CRUD, successful operations), component start/stop, state changes.
-```java
-log.info("User created successfully: id={}, username={}", user.getId(), user.getUsername());
-log.info("Application started successfully");
-```
+**INFO**: Business events (entity CRUD, successful operations), component start/stop, state changes. Example: `log.info("User created: id={}, username={}", user.getId(), user.getUsername());`
 
-**WARN**: Issues that don't break functionality, validation failed (expected), retry operations, deprecated API.
-```java
-log.warn("Password validation failed: {}", validationError);
-log.warn("Login failed for user '{}': {}", username, reason);
-```
+**WARN**: Issues that don't break functionality, validation failed (expected), retry operations, deprecated API. Example: `log.warn("Login failed: username={}, reason={}", username, reason);`
 
-**ERROR**: Critical errors, exceptions, operations that cannot be executed, system errors.
-```java
-log.error("Failed to save user: id={}, username={}", user.getId(), user.getUsername(), exception);
-```
+**ERROR**: Critical errors, exceptions, operations that cannot be executed, system errors. Example: `log.error("Failed to save user: id={}, username={}", user.getId(), user.getUsername(), exception);`
 
 ## STRUCTURED LOGGING
 
@@ -62,34 +47,15 @@ log.error("Failed to save user: id={}, username={}", user.getId(), user.getUsern
 
 ## CONTEXT (MDC)
 
-Always use MDC for request context: `requestId` (UUID), `userId` (if authenticated), `sessionId` (optional).
-```java
-MDC.put("requestId", UUID.randomUUID().toString());
-MDC.put("userId", getCurrentUserId());
-try {
-    // ... operation
-} finally {
-    MDC.clear();
-}
-```
+Always use MDC for request context: `requestId` (UUID), `userId` (if authenticated), `sessionId` (optional). Example: `MDC.put("requestId", UUID.randomUUID().toString());` - clear in `finally` block.
 
 ## AUDIT LOGGING
 
-Use separate logger `com.digtp.start.audit` for business events (entity CRUD, authentication, critical operations, security changes).
-```java
-private static final Logger auditLogger = LoggerFactory.getLogger("com.digtp.start.audit");
-auditLogger.info("USER_CREATED: userId={}, username={}", userId, username);
-```
+Use separate logger `com.digtp.start.audit` for business events (entity CRUD, authentication, critical operations, security changes). Example: `LoggerFactory.getLogger("com.digtp.start.audit").info("USER_CREATED: userId={}, username={}", userId, username);`
 
 ## PERFORMANCE
 
-Log slow operations (>100ms services, >500ms views) at DEBUG level. Don't log in hot paths unnecessarily.
-```java
-long duration = System.currentTimeMillis() - start;
-if (duration > 100 && log.isDebugEnabled()) {
-    log.debug("Slow operation: method={}, duration={}ms", methodName, duration);
-}
-```
+Log slow operations (>100ms services, >500ms views) at DEBUG level. Don't log in hot paths unnecessarily. Use `log.isDebugEnabled()` before expensive operations.
 
 ## ANTIPATTERNS
 
@@ -103,40 +69,10 @@ Before removing/changing a log: Does it help understand the system? Used for dia
 
 ## ERROR LOGGING
 
-**CRITICAL**: Always log exceptions in catch blocks with context:
-```java
-try {
-    // operation
-} catch (final Exception exception) {
-    log.error("Operation failed: entityId={}, username={}, error={}", entityId, username, exception.getMessage(), exception);
-    // handle error
-}
-```
+**CRITICAL**: Always log exceptions in catch blocks with context. Example: `log.error("Operation failed: entityId={}, username={}", entityId, username, exception);`
 
-**Best Practices**:
-- ✅ Always include exception as last parameter: `log.error("...", exception)`
-- ✅ Include context: entityId, userId, operation name
-- ✅ Use ERROR level for unexpected exceptions
-- ✅ Use WARN level for expected exceptions (validation, business rules)
-- ❌ Never swallow exceptions silently
-- ❌ Never use `printStackTrace()` or `System.out.println()`
-
-## EXAMPLES
-
-### ✅ Good: Structured logging with context
-```java
-log.info("User created: id={}, username={}, createdBy={}", userId, username, currentUser);
-log.warn("Login failed: username={}, reason={}", username, reason, exception);
-log.error("Failed to save user: id={}, username={}, error={}", userId, username, exception.getMessage(), exception);
-```
-
-### ❌ Bad: Concatenation, no context, silent failures
-```java
-log.info("User created: id=" + userId); // Concatenation
-log.info("User created"); // No context
-catch (Exception e) { } // Silent failure
-```
+**Best Practices**: ✅ Include exception as last parameter | ✅ Include context (entityId, userId, operation) | ✅ ERROR for unexpected, WARN for expected | ❌ Never swallow silently | ❌ Never use `printStackTrace()` or `System.out.println()`
 
 ## SUMMARY
 
-1. Observability First | 2. Structured Logging (parameterized) | 3. Context Matters | 4. Security (no secrets) | 5. Don't Remove Logs | 6. Use Right Level (DEBUG/INFO/WARN/ERROR) | 7. MDC for Tracing | 8. Audit for Business | 9. Always Log Exceptions | 10. Include Context in Errors
+Observability First | Structured Logging (parameterized) | Context Matters | Security (no secrets) | Don't Remove Logs | Use Right Level (DEBUG/INFO/WARN/ERROR) | MDC for Tracing | Audit for Business | Always Log Exceptions

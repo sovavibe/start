@@ -23,6 +23,4 @@ Automatically enforced by `com.palantir.baseline` via Spotless:
 - ✅ Alphabetical within each group
 
 ## ENFORCEMENT
-- `./gradlew format` - Palantir Baseline format (recommended)
-- `./gradlew spotlessApply` - Spotless-only
-- Baseline auto-configures: `importOrder`, `removeUnusedImports`, `trimTrailingWhitespace`
+See `@palantir-baseline-integration.mdc` → FORMATTING
