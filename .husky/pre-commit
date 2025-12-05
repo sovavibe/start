@@ -1,42 +1,74 @@
 #!/usr/bin/env sh
-# Fast pre-commit hook - checks only staged Java files (<1 sec)
+# Fast pre-commit hook - checks formatting for staged files
 # Optimized for speed: only checks changed files, not entire codebase
+# Full quality checks run in CI
 
 set -e
 
-echo "🔍 Running fast pre-commit checks..."
+echo "🔍 Running pre-commit checks..."
 
-# Get staged Java files only
-STAGED_JAVA_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep '\.java$' || true)
+# Get staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM || true)
 
-if [ -z "$STAGED_JAVA_FILES" ]; then
-    echo "✅ No Java files to check"
+if [ -z "$STAGED_FILES" ]; then
+    echo "✅ No files to check"
     exit 0
 fi
 
-# Count files
-FILE_COUNT=$(echo "$STAGED_JAVA_FILES" | wc -l | tr -d ' ')
-echo "📝 Checking $FILE_COUNT staged Java file(s)..."
+# Check Java files formatting
+STAGED_JAVA_FILES=$(echo "$STAGED_FILES" | grep '\.java$' || true)
 
-# Quick syntax check using javac (fastest, <1 sec for few files)
-# Only check if files compile (catches obvious errors)
-for file in $STAGED_JAVA_FILES; do
-    if [ -f "$file" ]; then
-        # Quick check: file exists and is readable
-        if ! head -1 "$file" | grep -q "package\|import"; then
-            echo "⚠️  Warning: $file may not be valid Java"
+if [ -n "$STAGED_JAVA_FILES" ]; then
+    FILE_COUNT=$(echo "$STAGED_JAVA_FILES" | wc -l | tr -d ' ')
+    echo "📝 Checking formatting for $FILE_COUNT Java file(s)..."
+    
+    # Quick check: if many files, skip (let CI handle it)
+    if [ "$FILE_COUNT" -gt 10 ]; then
+        echo "⚠️  Many files changed ($FILE_COUNT), skipping format check"
+        echo "💡 CI will run full format check"
+    else
+        # Check formatting for staged Java files only
+        if command -v ./gradlew >/dev/null 2>&1; then
+            echo "🔍 Checking code formatting..."
+            ./gradlew spotlessCheck --no-daemon > /dev/null 2>&1 || {
+                echo "❌ Code formatting check failed"
+                echo "💡 Run './gradlew format' to fix formatting issues"
+                exit 1
+            }
+            echo "✅ Formatting check passed"
+        else
+            echo "⚠️  gradlew not found, skipping format check"
         fi
     fi
-done
-
-# If many files changed, skip detailed check (let CI handle it)
-if [ "$FILE_COUNT" -gt 10 ]; then
-    echo "⚠️  Many files changed ($FILE_COUNT), skipping detailed check"
-    echo "💡 CI will run full quality checks"
-    exit 0
 fi
 
-# For small changes, run quick spotless check on specific files
-# This is still faster than full project check
-echo "✅ Pre-commit checks passed (detailed checks in CI)"
+# Check YAML files formatting (if any)
+STAGED_YAML_FILES=$(echo "$STAGED_FILES" | grep -E '\.(yml|yaml)$' || true)
+
+if [ -n "$STAGED_YAML_FILES" ]; then
+    YAML_COUNT=$(echo "$STAGED_YAML_FILES" | wc -l | tr -d ' ')
+    echo "📝 Checking formatting for $YAML_COUNT YAML file(s)..."
+    
+    if command -v npx >/dev/null 2>&1; then
+        echo "$STAGED_YAML_FILES" | while read -r file; do
+            if [ -f "$file" ] && [ ! -d "$file" ]; then
+                # Skip node_modules, build, .jmix, helm
+                case "$file" in
+                    */node_modules/*|*/build/*|*/.jmix/*|*/helm/*)
+                        continue
+                        ;;
+                esac
+                
+                npx prettier --check "$file" > /dev/null 2>&1 || {
+                    echo "❌ YAML formatting check failed for: $file"
+                    echo "💡 Run 'npx prettier --write $file' to fix"
+                    exit 1
+                }
+            fi
+        done
+        echo "✅ YAML formatting check passed"
+    fi
+fi
+
+echo "✅ Pre-commit checks passed"
 exit 0
