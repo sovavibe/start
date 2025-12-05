@@ -1,7 +1,7 @@
 ---
 globs: ["**/*.md", "**/*.java", "**/*.gradle", "**/*.properties"]
 autoFix: false
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # GITHUB WORKFLOW
@@ -20,8 +20,8 @@ version: "1.0.0"
 ## COMMITS
 ✅ ALWAYS use Conventional Commits format (see `@conventional-commits.mdc`)
 ✅ Format: `<type>[scope]: <description>`
-✅ Types: feat, fix, docs, refactor, test, chore, perf, style
-✅ Scopes: jmix, vaadin, entity, view, service, security, liquibase, ui, api, db, config, test
+✅ Types: feat, fix, docs, refactor, test, chore, perf, style, build, ci, revert
+✅ Scopes: jmix, vaadin, entity, view, service, security, liquibase, ui, api, db, config, test, ci, deps, docs, scripts, gradle, copyright
 ✅ Examples:
   - `feat(vaadin): add flashcard creation view`
   - `fix(service): resolve null pointer`
