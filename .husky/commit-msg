@@ -1,10 +1,25 @@
 #!/usr/bin/env sh
 # Commit message validation hook
 # Checks commit message format using commitlint
+# Also validates ASCII-only characters
 
 set -e
 
 echo "🔍 Validating commit message..."
+
+# First, check for ASCII-only characters
+COMMIT_MSG_FILE="$1"
+if [ -f "$COMMIT_MSG_FILE" ]; then
+    # Check if commit message contains non-ASCII characters (bytes > 127)
+    # Use LC_ALL=C to ensure byte-level comparison
+    if LC_ALL=C awk 'BEGIN{exit_code=0} /[^\x00-\x7F]/{exit_code=1; exit} END{exit exit_code}' "$COMMIT_MSG_FILE" 2>/dev/null; then
+        # Found non-ASCII characters
+        echo "❌ Commit message contains non-ASCII characters"
+        echo "💡 Use only ASCII characters (English letters, numbers, and standard punctuation)"
+        echo "💡 Non-ASCII characters (Unicode, emoji, special chars) are not allowed"
+        exit 1
+    fi
+fi
 
 # Check if npx is available
 if ! command -v npx >/dev/null 2>&1; then
