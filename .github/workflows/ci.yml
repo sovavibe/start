@@ -70,11 +70,6 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Generate Baseline configuration
-        run: ./gradlew baselineUpdateConfig --no-daemon
-        # Baseline generates .baseline/checkstyle/checkstyle.xml and other config files
-        # This ensures config files exist even if not committed or if Baseline version changed
-
       - name: Clean build
         run: ./gradlew clean --no-daemon
 

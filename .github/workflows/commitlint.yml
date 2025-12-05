@@ -47,7 +47,7 @@ jobs:
       - name: Validate commit messages
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            # For PRs, check all commits in the PR
+            # For PRs, check all commits in the PR (excluding merge commits)
             BASE_SHA=${{ github.event.pull_request.base.sha }}
             HEAD_SHA=${{ github.event.pull_request.head.sha }}
             npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose

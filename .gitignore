@@ -26,7 +26,7 @@ out/
 # Palantir Baseline
 .baseline/
 # Commit important configuration files (use specific paths instead of directory exclusions)
-!.baseline/copyright/999_apache-minimal.txt
+!.baseline/copyright/zzz_apache-minimal.txt
 !.baseline/checkstyle/custom-suppressions.xml
 !.baseline/checkstyle/checkstyle.xml
 !.baseline/idea/intellij-java-palantir-style.xml

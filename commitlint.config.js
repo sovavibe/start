@@ -59,14 +59,14 @@ export default {
       ],
     ],
     'scope-case': [2, 'always', 'lower-case'],
-    'subject-case': [2, 'always', 'lower-case'],
+    'subject-case': [1, 'always', 'sentence-case'],
     'subject-empty': [2, 'never'],
     'subject-full-stop': [2, 'never', '.'],
     'type-case': [2, 'always', 'lower-case'],
     'type-empty': [2, 'never'],
-    'header-max-length': [2, 'always', 72],
+    'header-max-length': [2, 'always', 100],
     'body-leading-blank': [2, 'always'],
-    'body-max-line-length': [2, 'always', 72],
+    'body-max-line-length': [2, 'always', 100],
   },
 };
 
