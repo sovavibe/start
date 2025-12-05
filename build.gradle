@@ -604,9 +604,9 @@ tasks.register("lintYamlFix", NpmTask) {
     args = ["run", "lint:yaml:fix"]
 }
 
-// English-only code validation (ASCII-only check)
+// ASCII-only code validation
 tasks.register("lintEnglishOnly") {
-    description = "Check that code contains only English text (ASCII-only, no Unicode, emoji, or other languages)"
+    description = "Check that code contains only ASCII characters (no Unicode, emoji, or non-ASCII text)"
     group = JavaBasePlugin.VERIFICATION_GROUP
     
     doLast {
@@ -617,7 +617,7 @@ tasks.register("lintEnglishOnly") {
         ]
         
         def excludePatterns = [
-            "messages_ru.properties",  // Localization files are allowed
+            "messages_",  // Localization files (messages_*.properties) are allowed
             "node_modules",
             "build",
             ".jmix",
@@ -626,7 +626,7 @@ tasks.register("lintEnglishOnly") {
         
         def violations = []
         // Check for non-ASCII characters (bytes > 127)
-        // This catches all non-English languages (any non-ASCII text)
+        // This catches any non-ASCII text (all languages except ASCII)
         def nonAsciiPattern = /[^\x00-\x7F]/
         
         sourceDirs.each { sourceDir ->
@@ -634,6 +634,10 @@ tasks.register("lintEnglishOnly") {
                 sourceDir.eachFileRecurse { file ->
                     // Skip excluded files
                     def relativePath = project.relativePath(file)
+                    // Skip localization files (messages_*.properties)
+                    if (file.name.startsWith("messages_") && file.name.endsWith(".properties")) {
+                        return
+                    }
                     if (excludePatterns.any { pattern ->
                         relativePath.contains(pattern)
                     }) {
@@ -665,13 +669,13 @@ tasks.register("lintEnglishOnly") {
         }
         
         if (!violations.isEmpty()) {
-            println("❌ Found ${violations.size()} violation(s) with non-English text (non-ASCII characters):")
+            println("❌ Found ${violations.size()} violation(s) with non-ASCII characters:")
             violations.each { violation ->
                 println("  $violation")
             }
-            throw new GradleException("Code must contain only English text (ASCII-only). Found ${violations.size()} violation(s) with non-ASCII characters.")
+            throw new GradleException("Code must contain only ASCII characters. Found ${violations.size()} violation(s) with non-ASCII text.")
         } else {
-            println("✅ All code contains only English text (ASCII-only)")
+            println("✅ All code contains only ASCII characters")
         }
     }
 }

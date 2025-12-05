@@ -15,7 +15,7 @@ if [ -f "$COMMIT_MSG_FILE" ]; then
     if LC_ALL=C od -An -tx1 "$COMMIT_MSG_FILE" 2>/dev/null | LC_ALL=C grep -q '[89abcdef][0-9a-f]'; then
         # Found bytes >= 0x80 (non-ASCII)
         echo "❌ Commit message contains non-ASCII characters"
-        echo "💡 Use only ASCII characters (English letters, numbers, and standard punctuation)"
+        echo "💡 Use only ASCII characters (0x00-0x7F)"
         echo "💡 Non-ASCII characters (Unicode, emoji, special chars) are not allowed"
         exit 1
     fi
