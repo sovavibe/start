@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
  */
 @Component("startPasswordValidator")
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline
 public final class StartPasswordValidator implements PasswordValidator<User> {
 
     @Override

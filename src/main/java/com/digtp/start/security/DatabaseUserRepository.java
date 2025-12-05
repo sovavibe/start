@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 @Component("userRepository")
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline
 public class DatabaseUserRepository extends AbstractDatabaseUserRepository<User> {
 
     @Override

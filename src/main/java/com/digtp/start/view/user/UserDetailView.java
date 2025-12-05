@@ -43,14 +43,11 @@ import lombok.extern.slf4j.Slf4j;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns: PMD rules handled by Baseline, Sonar/Checkstyle rules excluded centrally
 @SuppressWarnings({
-    "PMD.NonSerializableClass", // Views contain framework-managed non-serializable beans (expected)
-    "PMD.FieldDeclarationsShouldBeAtStartOfClass" // @ViewComponent fields after constructor-injected fields
+    "PMD.NonSerializableClass", // Jmix View: contains framework-managed non-serializable beans (expected)
+    "PMD.FieldDeclarationsShouldBeAtStartOfClass" // Jmix View: @ViewComponent fields after constructor-injected fields
+    // (framework pattern)
 })
-// Note: NullAway suppressions removed - @ViewComponent fields are excluded via
-// ExcludedFieldAnnotations in build.gradle
-// NOSONAR java:S110 - Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
 public class UserDetailView extends StandardDetailView<User> {
 
     private static final long serialVersionUID = 1L;
@@ -73,10 +70,7 @@ public class UserDetailView extends StandardDetailView<User> {
     private ComboBox<String> timeZoneField;
 
     @ViewComponent
-    // Framework pattern: @ViewComponent fields are framework-managed, not serializable (expected)
-    // java:S1948: Suppressed inline for SonarLint compatibility (also excluded centrally in sonar-project.properties
-    // for SonarCloud)
-    @SuppressWarnings("java:S1948")
+    @SuppressWarnings("java:S1948") // Jmix View: @ViewComponent fields are framework-managed, not serializable
     private MessageBundle messageBundle;
 
     /**
@@ -127,7 +121,6 @@ public class UserDetailView extends StandardDetailView<User> {
     }
 
     @Subscribe
-    // NOSONAR java:S2177 - Framework: lifecycle method name matches parent private method (Jmix framework pattern)
     public void onReady(final ReadyEvent _event) {
         final User user = getEditedEntity();
         if (entityStates.isNew(user)) {

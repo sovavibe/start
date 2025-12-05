@@ -14,9 +14,6 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Tests that the role constant is properly defined.
  */
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.UnitTestAssertionsShouldIncludeMessage, PMD.AvoidDuplicateLiterals, PMD.UnitTestContainsTooManyAsserts
 class FullAccessRoleTest {
 
     @Test

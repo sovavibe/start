@@ -458,7 +458,6 @@
             <message key="name.invalidPattern" value="Parameter name ''{0}'' must match pattern ''{1}''."/>
         </module>
 
-
         <!-- Stricter checks end -->
     </module>
 </module>

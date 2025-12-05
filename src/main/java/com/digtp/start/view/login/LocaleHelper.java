@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-// Framework patterns: PMD rules handled by Baseline
 public class LocaleHelper {
 
     /**
@@ -67,7 +66,8 @@ public class LocaleHelper {
     public void updateLoginI18n(
             final JmixLoginForm login,
             final MessageBundle messageBundle,
-            @SuppressWarnings("unused") final LocaleChangeEvent _event) {
+            @SuppressWarnings("unused") // Framework: LocaleChangeObserver interface requires this parameter
+                    final LocaleChangeEvent _event) {
         final JmixLoginI18n loginI18n = JmixLoginI18n.createDefault();
 
         final JmixLoginI18n.JmixForm form = new JmixLoginI18n.JmixForm();

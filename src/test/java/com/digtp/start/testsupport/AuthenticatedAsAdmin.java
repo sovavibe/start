@@ -19,9 +19,6 @@ import org.springframework.test.context.TestContextManager;
  * <p>This class is not intended for extension. It implements JUnit extension callbacks
  * and should be used as-is via {@code @ExtendWith} annotation.
  */
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable
 @Slf4j
 public final class AuthenticatedAsAdmin implements BeforeEachCallback, AfterEachCallback {
 

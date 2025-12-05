@@ -25,11 +25,13 @@ out/
 
 # Palantir Baseline
 .baseline/
-# But commit important configuration files
-!.baseline/copyright/
-!.baseline/checkstyle/
+# Commit important configuration files (use specific paths instead of directory exclusions)
+!.baseline/copyright/999_apache-minimal.txt
 !.baseline/checkstyle/custom-suppressions.xml
 !.baseline/checkstyle/checkstyle.xml
+!.baseline/idea/intellij-java-palantir-style.xml
+!.baseline/eclipse/org.eclipse.jdt.core.prefs
+!.baseline/eclipse/static/dotfile.settings/org.eclipse.jdt.ui.prefs
 
 # VS Code
 .vscode/

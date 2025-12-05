@@ -35,12 +35,10 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication(exclude = ProjectInfoAutoConfiguration.class)
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns: PMD rules handled by Baseline
-// java:S1948: Suppressed inline for SonarLint (also excluded centrally for SonarCloud)
 @SuppressWarnings({
-    "java:S1948", // Suppressed inline for SonarLint (also excluded centrally for SonarCloud)
-    "PMD.LongVariable",
-    "PMD.FormalParameterNamingConventions"
+    "java:S1948", // Framework: Spring Environment is not serializable (expected)
+    "PMD.LongVariable", // Framework: AppShellConfigurator interface method names
+    "PMD.FormalParameterNamingConventions" // Framework: Vaadin route parameter naming
 })
 public class StartApplication implements AppShellConfigurator {
 
@@ -49,10 +47,7 @@ public class StartApplication implements AppShellConfigurator {
     /**
      * Spring environment for accessing application properties.
      */
-    // Framework pattern: Environment is Spring framework dependency, not serializable (expected)
-    // java:S1948: Suppressed inline for SonarLint compatibility (also excluded centrally in sonar-project.properties
-    // for SonarCloud)
-    @SuppressWarnings("java:S1948")
+    @SuppressWarnings("java:S1948") // Framework: Spring Environment is not serializable (expected)
     private final Environment environment;
 
     /**

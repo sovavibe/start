@@ -18,8 +18,6 @@ import org.testcontainers.utility.DockerImageName;
  * <p>The container is automatically started when first accessed and
  * stopped when JVM exits (via Ryuk).
  */
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
 public final class PostgresTestContainer {
 
     private static final PostgreSQLContainer<?> INSTANCE = new PostgreSQLContainer<>(

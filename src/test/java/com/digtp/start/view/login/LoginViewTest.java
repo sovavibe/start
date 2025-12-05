@@ -34,11 +34,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
-// - PMD.LawOfDemeter
-@SuppressWarnings("PMD.AvoidAccessibilityAlteration")
+@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Framework: reflection in tests
 class LoginViewTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -56,7 +52,6 @@ class LoginViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    // PMD.ShortVariable suppressed via @SuppressWarnings (Palantir Baseline defaults)
     void testLocaleChange() throws ReflectiveOperationException {
         // Arrange
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();

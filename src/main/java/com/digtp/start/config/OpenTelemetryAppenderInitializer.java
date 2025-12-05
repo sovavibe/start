@@ -30,7 +30,6 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "management.otlp.logging.endpoint")
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns: PMD rules handled by Baseline
 public final class OpenTelemetryAppenderInitializer implements InitializingBean {
 
     /**

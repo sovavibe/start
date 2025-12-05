@@ -20,7 +20,6 @@ import io.jmix.securityflowui.role.annotation.ViewPolicy;
  * This role should be assigned only to system administrators.
  */
 @ResourceRole(name = "Full Access", code = FullAccessRole.CODE)
-// Framework patterns: PMD rules handled by Baseline
 public interface FullAccessRole {
 
     String CODE = "system-full-access";

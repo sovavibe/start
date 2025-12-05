@@ -31,14 +31,10 @@ import org.springframework.test.context.DynamicPropertySource;
  * }</pre>
  */
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable
-@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // Framework: abstract base class for tests
 public abstract class AbstractIntegrationTest {
 
     @DynamicPropertySource
-    // PMD.GuardLogStatement suppressed via @SuppressWarnings (Palantir Baseline defaults)
     static void configureProperties(final DynamicPropertyRegistry registry) {
         // Use singleton container instance shared across all test classes
         registry.add("main.datasource.url", PostgresTestContainer::getJdbcUrl);

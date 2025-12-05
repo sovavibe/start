@@ -4,6 +4,12 @@
  */
 package com.digtp.start.view.login;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+
 import com.digtp.start.service.AuditService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
@@ -11,6 +17,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.component.loginform.JmixLoginForm;
 import io.jmix.flowui.view.MessageBundle;
@@ -23,11 +30,6 @@ import io.jmix.securityflowui.authentication.AuthDetails;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
 
 /**
  * Login view for user authentication.
@@ -42,12 +44,7 @@ import org.springframework.security.authentication.LockedException;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns: PMD rules (AtLeastOneConstructor, CommentRequired, GuardLogStatement, etc.) handled by Baseline
-// - java:S1948 excluded via config/sonar-project.properties
-@SuppressWarnings("PMD.NonSerializableClass")
-// PMD.UnnecessaryAnnotationValueElement: @Route(value = "login") value is required (route name differs from class name)
-// Note: NullAway suppressions removed - @ViewComponent and @Value fields are excluded via
-// ExcludedFieldAnnotations in build.gradle
+@SuppressWarnings("PMD.NonSerializableClass") // Jmix View: contains framework-managed non-serializable beans (expected)
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private static final long serialVersionUID = 1L;
@@ -60,10 +57,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private JmixLoginForm login;
 
     @ViewComponent
-    // Framework pattern: @ViewComponent fields are framework-managed, not serializable (expected)
-    // java:S1948: Suppressed inline for SonarLint compatibility (also excluded centrally in sonar-project.properties
-    // for SonarCloud)
-    @SuppressWarnings("java:S1948")
+    @SuppressWarnings("java:S1948") // Jmix View: @ViewComponent fields are framework-managed, not serializable
     private MessageBundle messageBundle;
 
     @Value("${ui.login.defaultUsername:}")

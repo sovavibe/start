@@ -26,7 +26,6 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline
 public class PerformanceLoggingAspect {
 
     /**

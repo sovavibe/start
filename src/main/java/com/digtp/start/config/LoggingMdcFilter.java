@@ -40,7 +40,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(1) // Execute early, before security filters
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline
 public final class LoggingMdcFilter implements Filter {
 
     private static final String REQUEST_ID_KEY = "requestId";
@@ -99,15 +98,10 @@ public final class LoggingMdcFilter implements Filter {
         }
 
         final Object principal = authentication.getPrincipal();
-        if (principal instanceof User user) {
-            // User entity - return UUID
-            return user.getId() != null ? user.getId().toString() : null;
-        } else if (principal instanceof UserDetails userDetails) {
-            // Standard Spring Security UserDetails - return username
-            return userDetails.getUsername();
-        }
-
-        // Fallback: use principal name if available
-        return authentication.getName();
+        return switch (principal) {
+            case User user -> user.getId() != null ? user.getId().toString() : null;
+            case UserDetails userDetails -> userDetails.getUsername();
+            default -> authentication.getName();
+        };
     }
 }

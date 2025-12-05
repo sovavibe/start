@@ -48,13 +48,6 @@ import org.springframework.security.core.GrantedAuthority;
 @Setter
 @ToString(onlyExplicitlyIncluded = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD rules handled by Baseline: CommentSize, CommentRequired, LongVariable, ShortClassName,
-//   AtLeastOneConstructor, ShortVariable
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
-//   MissingSerialVersionUID, MissingJavadocMethod
-// - SpotBugs rules excluded via config/spotbugs/exclude.xml:
-//   ES, EI, EI2, EI_EXPOSE_REP, EI_EXPOSE_REP2 (EclipseLink/Lombok)
 public class User implements JmixUserDetails, HasTimeZone {
 
     private static final long serialVersionUID = 1L;
@@ -113,8 +106,6 @@ public class User implements JmixUserDetails, HasTimeZone {
     }
 
     @Override
-    // checkstyle:HiddenField suppressed via .baseline/checkstyle/custom-suppressions.xml
-    // Interface method signature requires parameter name matching field
     public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
     }

@@ -7,7 +7,7 @@ updates:
       interval: 'monthly'
       day: 'monday'
       time: '09:00'
-    open-pull-requests-limit: 1 # One PR for all updates
+    open-pull-requests-limit: 1
     reviewers:
       - 'sovavibe'
     labels:
@@ -16,7 +16,7 @@ updates:
     commit-message:
       prefix: 'build'
       include: 'scope'
-    # Single group for all updates (patch and minor)
+    # Group all patch and minor updates in single PR
     groups:
       gradle-updates:
         patterns:
@@ -37,7 +37,7 @@ updates:
       interval: 'monthly'
       day: 'monday'
       time: '09:00'
-    open-pull-requests-limit: 1 # One PR for all updates
+    open-pull-requests-limit: 1
     reviewers:
       - 'sovavibe'
     labels:
@@ -46,6 +46,7 @@ updates:
     commit-message:
       prefix: 'ci'
       include: 'scope'
+    # Group all patch and minor updates in single PR
     groups:
       github-actions-updates:
         patterns:
@@ -61,7 +62,7 @@ updates:
       interval: 'monthly'
       day: 'monday'
       time: '09:00'
-    open-pull-requests-limit: 1 # One PR for all updates
+    open-pull-requests-limit: 1
     reviewers:
       - 'sovavibe'
     labels:
@@ -70,6 +71,7 @@ updates:
     commit-message:
       prefix: 'build'
       include: 'scope'
+    # Group all patch and minor updates in single PR
     groups:
       docker-updates:
         patterns:
@@ -77,7 +79,7 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
-    # Ignore major updates automatically
+    # Ignore major updates automatically (require manual review)
     ignore:
       - dependency-name: '*'
         update-types:

@@ -36,8 +36,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @ViewDescriptor(path = "main-view.xml")
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline, Sonar/Checkstyle rules excluded centrally
-@SuppressWarnings("PMD.NonSerializableClass")
+@SuppressWarnings("PMD.NonSerializableClass") // Jmix View: contains framework-managed non-serializable beans (expected)
 public class MainView extends StandardMainView {
 
     private static final long serialVersionUID = 1L;

@@ -28,10 +28,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith({AuthenticatedAsAdmin.class, MockitoExtension.class})
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
-// - PMD.LawOfDemeter, PMD.AvoidDuplicateLiterals
 class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -127,7 +123,6 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
         // Act & Assert
         assertThatCode(() -> passwordValidator.validate(passwordContext)).doesNotThrowAnyException();
     }
-
 
     /**
      * Helper method to verify that a valid password is accepted by the validator.

@@ -31,13 +31,7 @@ import org.junit.jupiter.api.Test;
  * </ul>
  */
 @AnalyzeClasses(packages = "com.digtp.start", importOptions = ImportOption.DoNotIncludeTests.class)
-// Test patterns: ArchUnit test conventions require snake_case rule names and ArchRule types
-// - PMD rules handled by Baseline: CommentSize, CommentRequired, CommentDefaultAccessModifier,
-//   AtLeastOneConstructor, LongVariable
-// - ArchUnit-specific: FieldNamingConventions (snake_case), LooseCoupling (ArchRule type required)
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml: ConstantName (ArchUnit convention)
 @SuppressWarnings({
-    // Copyright header is standard and required (Apache License)
     "PMD.CommentRequired", // Test class documentation
     "PMD.CommentDefaultAccessModifier", // ArchUnit test rules use package-private
     "PMD.FieldNamingConventions", // ArchUnit convention uses snake_case for rule names

@@ -30,7 +30,6 @@ import org.springframework.lang.Nullable;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline
 public class CacheMetricsConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final MeterRegistry meterRegistry;

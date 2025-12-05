@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline
 public class UserService {
 
     private final PasswordEncoder passwordEncoder;

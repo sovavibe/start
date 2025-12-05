@@ -14,10 +14,7 @@ import org.junit.jupiter.api.Test;
  *
  * <p>Tests that security constants are properly defined and accessible.
  */
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.UnitTestAssertionsShouldIncludeMessage
-@SuppressWarnings("PMD.AvoidAccessibilityAlteration")
+@SuppressWarnings("PMD.AvoidAccessibilityAlteration") // Test: reflection to access private constructor
 class SecurityConstantsTest {
 
     @Test
@@ -27,7 +24,6 @@ class SecurityConstantsTest {
     }
 
     @Test
-    // PMD.AvoidAccessibilityAlteration suppressed via class-level @SuppressWarnings
     void testSecurityConstantsCannotBeInstantiated() throws Exception {
         // Arrange
         final Constructor<SecurityConstants> constructor = SecurityConstants.class.getDeclaredConstructor();

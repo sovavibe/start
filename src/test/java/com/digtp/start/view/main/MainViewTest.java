@@ -33,10 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
-// - PMD.LawOfDemeter, PMD.AvoidDuplicateLiterals, PMD.NullAssignment, PMD.TooManyMethods
 @SuppressWarnings({
     "PMD.AvoidAccessibilityAlteration", // Test: reflection to call private methods
     "PMD.TypeParameterUnusedInFormals", // Test: generic type parameters in reflection
@@ -303,8 +299,7 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
         final View<?> mainView = getCurrentViewAsView();
-        return invokeMethod(
-                Component.class, mainView, methodName, new Class<?>[] {UserDetails.class}, userDetails);
+        return invokeMethod(Component.class, mainView, methodName, new Class<?>[] {UserDetails.class}, userDetails);
     }
 
     @AfterEach

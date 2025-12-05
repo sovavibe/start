@@ -42,7 +42,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns: PMD rules (AtLeastOneConstructor, CommentRequired, GuardLogStatement, etc.) handled by Baseline
 public class StartSecurityConfiguration {
 
     /**

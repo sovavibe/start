@@ -32,10 +32,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * <p>Tests locale initialization and internationalization updates for login form.
  */
 @ExtendWith(MockitoExtension.class)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
-// - PMD.LawOfDemeter, PMD.ShortVariable
 class LocaleHelperTest {
 
     @Mock

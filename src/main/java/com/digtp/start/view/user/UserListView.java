@@ -44,9 +44,7 @@ import lombok.extern.slf4j.Slf4j;
 @LookupComponent("usersDataGrid")
 @DialogMode(width = "64em")
 @Slf4j
-// Framework patterns: PMD rules (AtLeastOneConstructor, CommentRequired, GuardLogStatement, etc.) handled by Baseline
-// - java:S110 excluded via config/sonar-project.properties
-@SuppressWarnings("PMD.NonSerializableClass")
+@SuppressWarnings("PMD.NonSerializableClass") // Jmix View: contains framework-managed non-serializable beans (expected)
 public class UserListView extends StandardListView<User> {
 
     private static final long serialVersionUID = 1L;

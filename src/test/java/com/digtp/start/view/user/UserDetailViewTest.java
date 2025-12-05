@@ -32,10 +32,6 @@ import org.springframework.test.context.ActiveProfiles;
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
-// - PMD.LawOfDemeter, PMD.TooManyMethods, PMD.AvoidDuplicateLiterals
 @SuppressWarnings({
     "PMD.AvoidAccessibilityAlteration", // Test: reflection via invokeMethod helper
     "PMD.AvoidDuplicateLiterals" // GET_EDITED_ENTITY_METHOD constant is used multiple times via invokeMethod

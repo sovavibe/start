@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnProperty(name = "management.otlp.logging.endpoint")
 @Slf4j
-// Framework patterns: PMD rules handled by Baseline
 public class OpenTelemetryConfig {
 
     /**
