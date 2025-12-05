@@ -1,17 +1,14 @@
 #!/usr/bin/env sh
 # Fast pre-commit hook - checks formatting for staged files
-# Optimized for speed: only checks changed files, not entire codebase
+# Optimized for maximum speed: parallel checks, caching, skip large changes
 # Full quality checks run in CI
 
 set -e
 
-echo "🔍 Running pre-commit checks..."
-
-# Get staged files
-STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM || true)
+# Get staged files (fast, no output)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
 
 if [ -z "$STAGED_FILES" ]; then
-    echo "✅ No files to check"
     exit 0
 fi
 
@@ -20,25 +17,18 @@ STAGED_JAVA_FILES=$(echo "$STAGED_FILES" | grep '\.java$' || true)
 
 if [ -n "$STAGED_JAVA_FILES" ]; then
     FILE_COUNT=$(echo "$STAGED_JAVA_FILES" | wc -l | tr -d ' ')
-    echo "📝 Checking formatting for $FILE_COUNT Java file(s)..."
     
-    # Quick check: if many files, skip (let CI handle it)
+    # Skip if many files (let CI handle it)
     if [ "$FILE_COUNT" -gt 10 ]; then
-        echo "⚠️  Many files changed ($FILE_COUNT), skipping format check"
-        echo "💡 CI will run full format check"
-    else
-        # Check formatting for staged Java files only
-        if command -v ./gradlew >/dev/null 2>&1; then
-            echo "🔍 Checking code formatting..."
-            ./gradlew spotlessCheck --no-daemon > /dev/null 2>&1 || {
-                echo "❌ Code formatting check failed"
-                echo "💡 Run './gradlew format' to fix formatting issues"
-                exit 1
-            }
-            echo "✅ Formatting check passed"
-        else
-            echo "⚠️  gradlew not found, skipping format check"
-        fi
+        exit 0
+    fi
+    
+    # Fast formatting check with parallel execution and configuration cache
+    if [ -f "./gradlew" ]; then
+        ./gradlew spotlessCheck --no-daemon --parallel --configuration-cache > /dev/null 2>&1 || {
+            echo "❌ Formatting check failed. Run './gradlew format' to fix"
+            exit 1
+        }
     fi
 fi
 
@@ -47,76 +37,49 @@ STAGED_YAML_FILES=$(echo "$STAGED_FILES" | grep -E '\.(yml|yaml)$' || true)
 
 if [ -n "$STAGED_YAML_FILES" ]; then
     YAML_COUNT=$(echo "$STAGED_YAML_FILES" | wc -l | tr -d ' ')
-    echo "📝 Checking formatting for $YAML_COUNT YAML file(s)..."
     
-    if command -v npx >/dev/null 2>&1; then
-        YAML_CHECK_FAILED=0
+    # Skip if many files (let CI handle it)
+    if [ "$YAML_COUNT" -gt 5 ]; then
+        exit 0
+    fi
+    
+    # Fast YAML check (only if prettier is available locally)
+    if [ -f "node_modules/.bin/prettier" ]; then
         for file in $STAGED_YAML_FILES; do
-            if [ -f "$file" ] && [ ! -d "$file" ]; then
-                # Skip node_modules, build, .jmix, helm
-                case "$file" in
-                    */node_modules/*|*/build/*|*/.jmix/*|*/helm/*)
-                        continue
-                        ;;
-                esac
-                
-                if ! npx prettier --check "$file" > /dev/null 2>&1; then
-                    echo "❌ YAML formatting check failed for: $file"
-                    echo "💡 Run 'npx prettier --write $file' to fix"
-                    YAML_CHECK_FAILED=1
-                fi
-            fi
+            case "$file" in
+                */node_modules/*|*/build/*|*/.jmix/*|*/helm/*)
+                    continue
+                    ;;
+            esac
+            [ -f "$file" ] && [ ! -d "$file" ] && node_modules/.bin/prettier --check "$file" > /dev/null 2>&1 || {
+                echo "❌ YAML formatting failed: $file. Run 'npx prettier --write $file'"
+                exit 1
+            }
         done
-        
-        if [ "$YAML_CHECK_FAILED" -eq 1 ]; then
-            exit 1
-        fi
-        echo "✅ YAML formatting check passed"
     fi
 fi
 
-# Check for ASCII-only text in staged files (quick check)
+# Check for ASCII-only text in staged files (fast check)
 STAGED_CODE_FILES=$(echo "$STAGED_FILES" | grep -E '\.(java|properties|xml)$' || true)
 
 if [ -n "$STAGED_CODE_FILES" ]; then
     CODE_COUNT=$(echo "$STAGED_CODE_FILES" | wc -l | tr -d ' ')
-    echo "📝 Checking for ASCII-only text in $CODE_COUNT code file(s)..."
     
-    # Quick check: if many files, skip (let CI handle it)
-    if [ "$CODE_COUNT" -gt 10 ]; then
-        echo "⚠️  Many files changed ($CODE_COUNT), skipping ASCII-only check"
-        echo "💡 CI will run full ASCII-only check"
-    else
-        # Quick check for non-ASCII characters
-        # This catches any non-ASCII text (all languages except ASCII)
-        VIOLATIONS_FOUND=0
+    # Skip if many files (let CI handle it)
+    if [ "$CODE_COUNT" -le 10 ]; then
+        # Fast check for non-ASCII characters (bytes > 127)
         for file in $STAGED_CODE_FILES; do
-            if [ -f "$file" ] && [ ! -d "$file" ]; then
-                # Skip localization files (messages_*.properties - non-ASCII allowed)
-                case "$file" in
-                    */messages_*.properties)
-                        continue
-                        ;;
-                esac
-                
-                # Check for non-ASCII characters (bytes > 127)
-                # Use od to check for bytes outside ASCII range (0x00-0x7F)
-                if LC_ALL=C od -An -tx1 "$file" 2>/dev/null | LC_ALL=C grep -q '[89abcdef][0-9a-f]'; then
-                    echo "❌ Non-ASCII characters found in: $file"
-                    echo "💡 Code must contain only ASCII characters"
-                    VIOLATIONS_FOUND=1
-                fi
-            fi
+            case "$file" in
+                */messages_*.properties)
+                    continue
+                    ;;
+            esac
+            [ -f "$file" ] && [ ! -d "$file" ] && LC_ALL=C od -An -tx1 "$file" 2>/dev/null | LC_ALL=C grep -q '[89abcdef][0-9a-f]' && {
+                echo "❌ Non-ASCII found in: $file. Run './gradlew lintEnglishOnly'"
+                exit 1
+            }
         done
-        
-        if [ "$VIOLATIONS_FOUND" -eq 1 ]; then
-            echo "❌ ASCII-only check failed"
-            echo "💡 Run './gradlew lintEnglishOnly' for detailed report"
-            exit 1
-        fi
-        echo "✅ ASCII-only check passed"
     fi
 fi
 
-echo "✅ Pre-commit checks passed"
 exit 0
