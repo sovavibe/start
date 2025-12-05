@@ -83,8 +83,8 @@ if [ -n "$STAGED_CODE_FILES" ]; then
         echo "💡 CI will run full English-only check"
     else
         # Quick check for Cyrillic in staged files
-        VIOLATIONS=0
-        echo "$STAGED_CODE_FILES" | while read -r file; do
+        VIOLATIONS_FOUND=0
+        for file in $STAGED_CODE_FILES; do
             if [ -f "$file" ] && [ ! -d "$file" ]; then
                 # Skip messages_ru.properties (Russian localization is allowed)
                 case "$file" in
@@ -97,12 +97,12 @@ if [ -n "$STAGED_CODE_FILES" ]; then
                 if grep -q "[А-Яа-яЁё]" "$file" 2>/dev/null; then
                     echo "❌ Non-English text found in: $file"
                     echo "💡 Code must contain only English text"
-                    VIOLATIONS=1
+                    VIOLATIONS_FOUND=1
                 fi
             fi
         done
         
-        if [ "$VIOLATIONS" -eq 1 ]; then
+        if [ "$VIOLATIONS_FOUND" -eq 1 ]; then
             echo "❌ English-only check failed"
             echo "💡 Run './gradlew lintEnglishOnly' for detailed report"
             exit 1
