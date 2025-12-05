@@ -203,6 +203,7 @@ jobs:
           name: application-jar
           path: build/libs/*.jar
           retention-days: 7
+          if-no-files-found: warn
 
   security:
     name: Security Checks
@@ -246,6 +247,7 @@ jobs:
           name: owasp-report
           path: build/reports/dependency-check-report.html
           retention-days: 30
+          if-no-files-found: warn
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
