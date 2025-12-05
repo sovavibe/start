@@ -60,12 +60,21 @@ Search codebase first | Follow existing patterns | Use context7 MCP docs | Maint
 **Branches**: See `@branch-naming.mdc` for naming conventions | **Commits**: See `@conventional-commits.mdc` for format | **PRs**: See `@github.mdc` for workflow | **Auto PR**: Use `./scripts/create-pr.sh` to create PR with auto-generated description from diff
 
 ## COMMUNICATION LANGUAGE
-**CRITICAL**: Language usage is strict and context-dependent:
-- **Code & Documentation**: ALWAYS English (comments, JavaDoc, README, code, commit messages, rules documentation)
+**CRITICAL - MANDATORY**: Language usage is strict and context-dependent. **MUST BE ENFORCED BY ALL AGENTS**:
+- **Code & Documentation**: **MANDATORY - ALWAYS English** (comments, JavaDoc, README, code, commit messages, rules documentation, strings, error messages, log messages)
 - **Chat with User**: ✅ Use Russian when user communicates in Russian | ✅ Use English when user communicates in English | Adapt to user's language preference
 - **Brevity**: Be concise, avoid verbose explanations unless requested
+- **ENFORCEMENT**: 
+  - ❌ **NEVER** write code comments in Russian or any non-English language
+  - ❌ **NEVER** write JavaDoc in Russian or any non-English language
+  - ❌ **NEVER** write commit messages in Russian or any non-English language
+  - ❌ **NEVER** write code strings in Russian or any non-English language (except localization files)
+  - ❌ **NEVER** write error messages in Russian or any non-English language
+  - ✅ **ALWAYS** use English for all code, comments, documentation, commit messages
 - **Examples**: 
   - ✅ Chat in Russian: "Файлы успешно добавлены в git"
   - ✅ Code comment: `// Loads user from database` (always English)
   - ✅ Rule documentation: "Use DataManager.create() instead of new Entity()" (always English)
-  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных`
+  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных` **FORBIDDEN**
+  - ❌ Commit message in Russian: `feat: добавить проверку` **FORBIDDEN**
+  - ❌ Code string in Russian: `String message = "Ошибка";` **FORBIDDEN**

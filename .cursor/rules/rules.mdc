@@ -44,15 +44,24 @@ See `@vaadin-best-practices.mdc` | Quick: @Route lifecycle, @UIScope patterns
 Conventional: `type(scope): description` | Types: feat|fix|docs|refactor|perf|test|build|chore | Scopes: jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test | See `@conventional-commits.mdc` for details
 
 ## COMMUNICATION LANGUAGE
-**CRITICAL**: Language usage is strict and context-dependent:
-- **Code & Documentation**: ALWAYS English (comments, JavaDoc, README, code, commit messages, rules documentation)
+**CRITICAL - MANDATORY**: Language usage is strict and context-dependent. **MUST BE ENFORCED BY ALL AGENTS**:
+- **Code & Documentation**: **MANDATORY - ALWAYS English** (comments, JavaDoc, README, code, commit messages, rules documentation, strings, error messages, log messages)
 - **Chat with User**: ✅ Use Russian when user communicates in Russian | ✅ Use English when user communicates in English | Adapt to user's language preference
 - **Brevity**: Be concise, avoid verbose explanations unless requested
+- **ENFORCEMENT**: 
+  - ❌ **NEVER** write code comments in Russian or any non-English language
+  - ❌ **NEVER** write JavaDoc in Russian or any non-English language
+  - ❌ **NEVER** write commit messages in Russian or any non-English language
+  - ❌ **NEVER** write code strings in Russian or any non-English language (except localization files)
+  - ❌ **NEVER** write error messages in Russian or any non-English language
+  - ✅ **ALWAYS** use English for all code, comments, documentation, commit messages
 - **Examples**: 
   - ✅ Chat in Russian: "Файлы успешно добавлены в git"
   - ✅ Code comment: `// Loads user from database` (always English)
   - ✅ Rule documentation: "Use DataManager.create() instead of new Entity()" (always English)
-  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных`
+  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных` **FORBIDDEN**
+  - ❌ Commit message in Russian: `feat: добавить проверку` **FORBIDDEN**
+  - ❌ Code string in Russian: `String message = "Ошибка";` **FORBIDDEN**
 
 ## PROHIBITIONS
 System.out.println → SLF4J | System.getenv() → @Value | @Autowired fields → constructor (tests: allowed) | Dead code → remove | Workarounds → refactor | @SuppressWarnings → document why
