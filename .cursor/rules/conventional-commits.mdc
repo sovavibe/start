@@ -18,8 +18,17 @@ version: "1.1.0"
 ## TYPES
 `feat` | `fix` | `docs` | `style` | `refactor` | `perf` | `test` | `build` | `ci` | `chore` | `revert`
 
-## SCOPES (Jmix/Vaadin)
-`jmix` | `vaadin` | `entity` | `view` | `service` | `security` | `liquibase` | `ui` | `api` | `db` | `config` | `test` | `ci` | `deps` | `docs` | `scripts` | `gradle` | `copyright` | `checkstyle`
+## SCOPES
+**Framework & UI:** `jmix` | `vaadin` | `ui` | `frontend`  
+**Application layers:** `entity` | `view` | `service` | `api`  
+**Infrastructure:** `config` | `db` | `docker` | `kubernetes` | `k8s` | `helm` | `observability`  
+**Security:** `security` | `auth`  
+**Database:** `liquibase` | `migration`  
+**Quality & Tools:** `test` | `checkstyle` | `pmd` | `spotbugs` | `sonar` | `quality` | `format` | `lint`  
+**CI/CD & DevOps:** `ci` | `github` | `workflow`  
+**Dependencies & Build:** `deps` | `gradle` | `npm` | `node`  
+**Documentation & Scripts:** `docs` | `scripts` | `makefile` | `husky` | `commitlint`  
+**Other:** `copyright` | `rules` | `cleanup` | `logging` | `metrics` | `monitoring`
 
 ## RULES
 - Imperative mood: "add" not "added"/"adds"
