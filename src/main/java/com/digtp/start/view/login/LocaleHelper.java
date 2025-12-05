@@ -48,9 +48,11 @@ public class LocaleHelper {
     public void initLocales(final JmixLoginForm login) {
         // Use LinkedHashMap to preserve locale insertion order for UI display
         // ComponentUtils.setItemsMap requires Map, but order matters for locale selection
+        // Error Prone StrictUnusedVariable requires underscore prefix for unused lambda parameters
         final Map<Locale, String> locales = coreProperties.getAvailableLocales().stream()
                 .collect(Collectors.toMap(
-                        Function.identity(), messageTools::getLocaleDisplayName, (s1, _s2) -> s1, LinkedHashMap::new));
+                        Function.identity(), messageTools::getLocaleDisplayName,
+                        (s1, _s2) -> s1, LinkedHashMap::new));
 
         ComponentUtils.setItemsMap(login, locales);
         login.setSelectedLocale(VaadinSession.getCurrent().getLocale());
@@ -59,9 +61,9 @@ public class LocaleHelper {
     /**
      * Updates login form internationalization for locale change.
      *
-     * @param login         the login form component
+     * @param login the login form component
      * @param messageBundle the message bundle for translations
-     * @param _event        locale change event (unused, required by framework interface)
+     * @param _event locale change event (unused, required by framework interface)
      */
     public void updateLoginI18n(
             final JmixLoginForm login,
@@ -69,6 +71,7 @@ public class LocaleHelper {
             // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter in method signature.
             // Parameter may be unused but is required by framework contract.
             // No centralized config for interface parameters.
+            // Error Prone StrictUnusedVariable requires underscore prefix for unused parameters
             @SuppressWarnings("unused") final LocaleChangeEvent _event) {
         final JmixLoginI18n loginI18n = JmixLoginI18n.createDefault();
 

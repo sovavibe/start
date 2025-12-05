@@ -68,17 +68,6 @@ public class AuditService {
     }
 
     /**
-     * Logs user deletion event.
-     *
-     * @param userId   deleted user ID, must not be null
-     * @param username deleted user username, must not be null
-     */
-    public void logUserDeleted(@Nullable final UUID userId, @Nullable final String username) {
-        final String currentUser = getCurrentUsername();
-        auditLogger.info("USER_DELETED: userId={}, username={}, deletedBy={}", userId, username, currentUser);
-    }
-
-    /**
      * Logs successful login event.
      *
      * @param username username of the user who logged in, must not be null

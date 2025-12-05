@@ -11,6 +11,7 @@ import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.ReflectionTestUtils;
 import com.digtp.start.view.login.LoginView;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.textfield.PasswordField;
@@ -32,13 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
-@SuppressWarnings({
-    "PMD.AvoidAccessibilityAlteration", // Test: reflection via invokeMethod helper to access private methods.
-    // Standard pattern in tests - allows testing private methods without making them package-private.
-    "PMD.AvoidDuplicateLiterals" // Test: GET_EDITED_ENTITY_METHOD constant string used multiple times via invokeMethod
-    // calls.
-    // Acceptable in tests - improves readability over extracting to separate constant.
-})
 @ExtendWith(AuthenticatedAsAdmin.class)
 class UserDetailViewTest extends AbstractIntegrationTest {
 
@@ -92,7 +86,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword);
 
         // Assert
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -112,7 +106,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(null);
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -133,7 +127,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword);
 
         // Assert - validation should pass
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -214,7 +208,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue("");
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -235,7 +229,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword + "different");
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -256,7 +250,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(shortPassword);
 
         // Assert - validation should fail but view should still exist
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
     }
 
@@ -282,7 +276,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         assertThat(saveButton).isNotNull();
 
         // Assert - view should be valid and ready to save
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
         assertThat(usernameField.getValue()).isEqualTo(username);
         assertThat(passwordField.getValue()).isEqualTo(validPassword);
@@ -338,9 +332,9 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         // Act & Assert - onReady should be called during view initialization
         // The else branch (existing user) should be executed
         assertThat(view).isNotNull();
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
-        final User editedEntity2 = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity2 = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity2.getId()).isEqualTo(savedUser.getId());
     }
 
@@ -376,7 +370,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
 
         // Act & Assert - validation should pass for existing user with password change
         // This covers the else if branch in onValidation for existing users
-        final User editedEntity = invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
+        final User editedEntity = ReflectionTestUtils.invokeMethod(User.class, view, GET_EDITED_ENTITY_METHOD, new Class<?>[0]);
         assertThat(editedEntity).isNotNull();
         assertThat(passwordField.getValue()).isEqualTo(newPassword);
     }
@@ -396,7 +390,13 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
-            savedUser = null; // NOPMD - NullAssignment: prevents accidental reuse of removed entity
+            // Reset to prevent accidental reuse of removed entity in next test
+            savedUser = null;
         }
+    }
+
+    @Override
+    protected void setUp() {
+        // No setup needed for this test class
     }
 }

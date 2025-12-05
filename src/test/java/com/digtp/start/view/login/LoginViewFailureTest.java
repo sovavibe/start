@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.digtp.start.StartApplication;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.ReflectionTestUtils;
 import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
 import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.ViewNavigators;
@@ -21,7 +22,6 @@ import io.jmix.flowui.testassist.UiTest;
 import io.jmix.flowui.testassist.UiTestUtils;
 import io.jmix.flowui.view.View;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
-import java.lang.reflect.Method;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,13 +41,9 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-@SuppressWarnings({
-    "PMD.AvoidAccessibilityAlteration", // Test: reflection to call private onLogin method for testing login failure
-    // scenarios. Standard pattern in tests - allows testing private methods without making them package-private.
-    "removal" // LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code
-    // (LoginView.onLogin).
-    // Test must mock deprecated API to test production code. Suppression matches production code suppression.
-})
+// LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code (LoginView.onLogin)
+// Test must mock deprecated API to test production code. Suppression matches production code suppression
+@SuppressWarnings("removal")
 class LoginViewFailureTest extends AbstractIntegrationTest {
 
     private static final String ON_LOGIN_METHOD = "onLogin";
@@ -56,7 +52,8 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
     ViewNavigators viewNavigators;
 
     // DeprecatedForRemovalApiUsage disabled in build.gradle (Error Prone)
-    @SuppressWarnings("java:S5738") // @MockBean is Spring Boot standard, still supported
+    // @MockBean is Spring Boot standard, still supported
+    @SuppressWarnings("java:S5738")
     @MockBean
     LoginViewSupport loginViewSupport;
 
@@ -76,8 +73,8 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getPassword()).thenReturn("wrongpassword");
 
         // Act - use reflection to call onLogin method
-        final Method method = loginView.getClass().getMethod(ON_LOGIN_METHOD, LoginEvent.class);
-        method.invoke(loginView, loginEvent);
+        ReflectionTestUtils.invokeMethod(
+                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
 
         // Assert
         verify(loginForm).setError(true);
@@ -97,8 +94,8 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getUsername()).thenReturn("disableduser");
 
         // Act - use reflection to call onLogin method
-        final Method method = loginView.getClass().getMethod(ON_LOGIN_METHOD, LoginEvent.class);
-        method.invoke(loginView, loginEvent);
+        ReflectionTestUtils.invokeMethod(
+                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
 
         // Assert
         verify(loginForm).setError(true);
@@ -118,8 +115,8 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getUsername()).thenReturn("lockeduser");
 
         // Act - use reflection to call onLogin method
-        final Method method = loginView.getClass().getMethod(ON_LOGIN_METHOD, LoginEvent.class);
-        method.invoke(loginView, loginEvent);
+        ReflectionTestUtils.invokeMethod(
+                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
 
         // Assert
         verify(loginForm).setError(true);
@@ -140,8 +137,8 @@ class LoginViewFailureTest extends AbstractIntegrationTest {
         when(loginEvent.getUsername()).thenReturn("denieduser");
 
         // Act - use reflection to call onLogin method
-        final Method method = loginView.getClass().getMethod(ON_LOGIN_METHOD, LoginEvent.class);
-        method.invoke(loginView, loginEvent);
+        ReflectionTestUtils.invokeMethod(
+                Void.class, loginView, ON_LOGIN_METHOD, new Class<?>[] {LoginEvent.class}, loginEvent);
 
         // Assert
         verify(loginForm).setError(true);

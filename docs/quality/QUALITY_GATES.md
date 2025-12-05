@@ -195,7 +195,9 @@ make analyze-full
   - Annotated packages: `com.digtp.start`
   - Excluded: Jmix entities, test classes, framework annotations
 - **UnusedMethod**: Dead code detection
-  - Excluded annotations: Spring `@Bean`, `@Component`, Jmix `@Install`, etc.
+  - Excluded annotations: Only method-level annotations (Spring `@Bean`, `@EventListener`, `@Scheduled`, Jmix `@Install`, `@Subscribe`)
+  - Class-level annotations (`@Service`, `@Component`, `@Repository`, `@Controller`, `@Configuration`) do NOT exclude methods
+  - Rationale: Class-level annotations mark the class as a Spring bean but don't indicate that all methods are framework callbacks
 - **TypeParameterUnusedInFormals**: Suppressed for test reflection utilities
 
 **NullAway Configuration**:

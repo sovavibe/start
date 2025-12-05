@@ -72,7 +72,6 @@ public class UserDetailView extends StandardDetailView<User> {
     private ComboBox<String> timeZoneField;
 
     @ViewComponent
-    @SuppressWarnings("java:S1948") // Jmix View: @ViewComponent fields are framework-managed, not serializable
     private MessageBundle messageBundle;
 
     /**

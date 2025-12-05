@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.digtp.start.StartApplication;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.ReflectionTestUtils;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.page.Page;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
@@ -21,7 +22,6 @@ import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
 import io.jmix.flowui.testassist.UiTest;
 import io.jmix.flowui.testassist.UiTestUtils;
 import io.jmix.flowui.view.View;
-import java.lang.reflect.Method;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +34,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-@SuppressWarnings(
-        "PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods via invokeMethod helper.
-// Standard pattern in tests - allows testing private methods without making them package-private.
 class LoginViewTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -69,8 +66,8 @@ class LoginViewTest extends AbstractIntegrationTest {
             when(ui.getPage()).thenReturn(page);
 
             // Act - use reflection to call localeChange method
-            final Method method = loginView.getClass().getMethod("localeChange", LocaleChangeEvent.class);
-            method.invoke(loginView, event);
+            ReflectionTestUtils.invokeMethod(
+                    Void.class, loginView, "localeChange", new Class<?>[] {LocaleChangeEvent.class}, event);
 
             // Assert - method should complete without errors
             assertThat(loginView).isNotNull();

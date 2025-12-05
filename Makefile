@@ -337,6 +337,19 @@ analyze-reports: analyze ## Open code quality reports
 		echo "Reports available in: build/reports/"; \
 	fi
 
+sonar: ## Run SonarCloud analysis (requires SONAR_TOKEN environment variable)
+	@echo "$(GREEN)Running SonarCloud analysis...$(RESET)"
+	@if [ -z "$$SONAR_TOKEN" ]; then \
+		echo "$(YELLOW)⚠️  SONAR_TOKEN environment variable not set$(RESET)"; \
+		echo "$(YELLOW)   Analysis will be skipped. Set SONAR_TOKEN to run analysis$(RESET)"; \
+		echo "$(YELLOW)   Get token from: https://sonarcloud.io/account/security$(RESET)"; \
+		exit 0; \
+	fi
+	@echo "$(YELLOW)Note: This will apply settings from config/sonar-project.properties to SonarCloud$(RESET)"
+	@echo "$(YELLOW)      After analysis, sync settings in IntelliJ IDEA:$(RESET)"
+	@echo "$(YELLOW)      Settings → Tools → SonarLint → Project Settings → Update binding$(RESET)"
+	./gradlew sonar --no-daemon
+
 ##@ CI/CD
 
 ci: ## Run full CI pipeline (format check + analysis + tests + build)

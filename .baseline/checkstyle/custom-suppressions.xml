@@ -220,4 +220,15 @@
             checks="IllegalThrows"
             files=".*/config/.*Aspect\.java$"
             message=".*"/>
+
+    <!--
+    Error Prone compatibility: Suppress LocalVariableName for unused parameters with underscore prefix
+    Error Prone's StrictUnusedVariable requires underscore prefix for intentionally unused variables
+    This conflicts with Checkstyle's LocalVariableName rule which forbids underscore prefix
+    Applies to all Java files as this pattern can occur anywhere (lambda parameters, method parameters, etc.)
+    -->
+    <suppress
+            checks="LocalVariableName"
+            files=".*\.java$"
+            message=".*"/>
 </suppressions>

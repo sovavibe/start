@@ -58,7 +58,6 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private JmixLoginForm login;
 
     @ViewComponent
-    @SuppressWarnings("java:S1948") // Jmix View: @ViewComponent fields are framework-managed, not serializable
     private MessageBundle messageBundle;
 
     @Value("${ui.login.defaultUsername:}")

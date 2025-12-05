@@ -35,14 +35,12 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication(exclude = ProjectInfoAutoConfiguration.class)
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({
-    "PMD.LongVariable", // Framework: AppShellConfigurator interface requires methods with long parameter names.
-    // Example: configurePage(InitialPageSettings settings) - "settings" is required by interface signature.
-    "PMD.FormalParameterNamingConventions", // Framework: Vaadin route parameters use framework conventions.
-    // Example: @Route("users/:id") - ":id" is Vaadin route convention, not Java naming.
-    "PMD.MissingSerialVersionUID" // False positive: AppShellConfigurator is not Serializable.
-    // No serialVersionUID needed.
-})
+// Framework: AppShellConfigurator interface requires methods with long parameter names
+// Example: configurePage(InitialPageSettings settings) - "settings" is required by interface signature
+// Vaadin route parameters use framework conventions
+// Example: @Route("users/:id") - ":id" is Vaadin route convention, not Java naming
+// False positive: AppShellConfigurator is not Serializable. No serialVersionUID needed
+@SuppressWarnings({"PMD.LongVariable", "PMD.FormalParameterNamingConventions", "PMD.MissingSerialVersionUID"})
 public class StartApplication implements AppShellConfigurator {
 
     /**

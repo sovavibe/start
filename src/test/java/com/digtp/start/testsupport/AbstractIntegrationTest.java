@@ -6,7 +6,6 @@ package com.digtp.start.testsupport;
 
 import io.jmix.flowui.testassist.UiTestUtils;
 import io.jmix.flowui.view.View;
-import java.lang.reflect.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -31,11 +30,20 @@ import org.springframework.test.context.DynamicPropertySource;
  * }</pre>
  */
 @Slf4j
-@SuppressWarnings(
-        "PMD.AbstractClassWithoutAbstractMethod") // Framework: abstract base class for tests provides common methods
-// (invokeMethod, etc.).
-// No abstract methods but provides shared functionality. Standard pattern for test base classes.
+// Framework: abstract base class for tests provides common methods (invokeMethod, etc.)
+// No abstract methods but provides shared functionality. Standard pattern for test base classes
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class AbstractIntegrationTest {
+
+    /**
+     * Template method for test setup.
+     *
+     * <p>Subclasses can override this method to perform test-specific setup.
+     * Default implementation does nothing.
+     */
+    protected void setUp() {
+        // Default implementation - subclasses can override
+    }
 
     @DynamicPropertySource
     static void configureProperties(final DynamicPropertyRegistry registry) {
@@ -62,9 +70,8 @@ public abstract class AbstractIntegrationTest {
     /**
      * Invokes a method on an object using reflection.
      *
-     * <p>Helper method to invoke private/protected methods in tests using reflection
-     * to avoid ClassCastException with Jmix class loaders. Uses type-safe cast via
-     * {@code Class.cast()} to avoid unchecked warnings.
+     * <p>Delegates to {@link ReflectionTestUtils#invokeMethod} for reflection operations.
+     * This method is provided for backward compatibility with existing tests.
      *
      * @param <T> return type of the method
      * @param returnType class of the return type (for type-safe casting)
@@ -74,11 +81,9 @@ public abstract class AbstractIntegrationTest {
      * @param args arguments to pass to the method
      * @return result of method invocation
      * @throws ReflectiveOperationException if method cannot be found or invoked
+     * @deprecated Use {@link ReflectionTestUtils#invokeMethod} directly instead
      */
-    @SuppressWarnings(
-            "PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods for testing internal
-    // logic.
-    // Standard pattern in tests - allows testing private methods without making them package-private.
+    @Deprecated(forRemoval = false)
     protected static <T> T invokeMethod(
             final Class<T> returnType,
             final Object object,
@@ -86,15 +91,6 @@ public abstract class AbstractIntegrationTest {
             final Class<?>[] paramTypes,
             final Object... args)
             throws ReflectiveOperationException {
-        // Try getDeclaredMethod first (for private/protected methods), then getMethod (for public/inherited methods)
-        Method method;
-        try {
-            method = object.getClass().getDeclaredMethod(methodName, paramTypes);
-            method.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            method = object.getClass().getMethod(methodName, paramTypes);
-        }
-        final Object result = method.invoke(object, args);
-        return returnType.cast(result);
+        return ReflectionTestUtils.invokeMethod(returnType, object, methodName, paramTypes, args);
     }
 }

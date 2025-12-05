@@ -1,0 +1,29 @@
+---
+globs: ["**/*.java"]
+alwaysApply: false
+autoFix: false
+version: "1.0.0"
+---
+
+# @SuppressWarnings FORMATTING
+
+## RULE
+Comment BEFORE annotation, annotation on single line
+
+## CORRECT
+```java
+// Comment explaining WHY
+@SuppressWarnings("PMD.RuleName")
+@SuppressWarnings({"PMD.Rule1", "PMD.Rule2"})
+```
+
+## WRONG
+```java
+@SuppressWarnings("PMD.RuleName") // Comment after
+@SuppressWarnings(
+        "PMD.RuleName") // Comment after
+@SuppressWarnings({
+    "PMD.Rule1", // Comment inside
+    "PMD.Rule2"
+})
+```

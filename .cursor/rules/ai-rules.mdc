@@ -1,7 +1,7 @@
 ---
 alwaysApply: true
 autoFix: false
-version: "2.0.0"
+version: "2.1.0"
 ---
 
 # AI ASSISTANT RULES
@@ -47,11 +47,20 @@ Production-ready code | Senior+ level | Fix root causes, not symptoms | Refactor
 4. ✅ Code follows project conventions and standards
 5. ✅ Production-ready quality (no workarounds, proper error handling)
 6. ✅ All tests pass (if applicable)
+7. ✅ **Cleanup after iterations**: Remove temporary files, symlinks, test artifacts, legacy code, unused imports, commented-out code, debug statements | Delete files created during exploration if not needed | Remove workarounds replaced by proper solutions | Clean up after refactoring (remove old implementations)
 
 **Formatting**: See `@palantir-baseline-integration.mdc` → FORMATTING
 
 ## CI/CD BEST PRACTICES
 **GitHub Actions**: Use latest stable versions, pin major versions (v5, v6), enable caching | **Parallelization**: Split jobs (format-check, code-quality, test, build) for faster execution | **Timeouts**: Set timeouts for all jobs (10-30 min) | **Dependabot**: Group updates, limit PRs, monthly schedule, auto-merge safe updates | **Security**: Use GITHUB_TOKEN, scan dependencies (Trivy, OWASP), upload SARIF reports | **Commitlint**: Enforced via GitHub Actions (see `@conventional-commits.mdc`) | **Branch naming**: Enforced via GitHub Actions (see `@branch-naming.mdc`) | **PR creation**: Use `./scripts/create-pr.sh` for auto-generated descriptions
+
+**SonarCloud Configuration**: When modifying `config/sonar-project.properties` (adding/removing rules, changing multicriteria), **MUST**:
+1. Run `make sonar` (or `./gradlew sonar`) to apply settings to SonarCloud server
+2. **CRITICAL**: Inform user to sync settings in IntelliJ IDEA if using Connected Mode:
+   - Settings → Tools → SonarLint → Project Settings → "Update binding"
+   - Or: File → Invalidate Caches / Restart
+3. Settings apply automatically in CI/CD, but IDE Connected Mode requires manual sync
+4. If user reports SonarLint issues after config changes, remind about sync step
 
 ## CONTEXT
 Search codebase first | Follow existing patterns | Use context7 MCP docs | Maintain consistency | See `@context-management.mdc` for details | See `@rules.mdc` for security, logging, testing, prohibitions, metrics

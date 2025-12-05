@@ -11,6 +11,7 @@ import com.digtp.start.StartApplication;
 import com.digtp.start.entity.User;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
 import com.digtp.start.testsupport.AuthenticatedAsAdmin;
+import com.digtp.start.testsupport.ReflectionTestUtils;
 import com.digtp.start.view.user.UserListView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -33,16 +34,6 @@ import org.springframework.test.context.ActiveProfiles;
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
-@SuppressWarnings({
-    "PMD.AvoidAccessibilityAlteration", // Test: reflection to call private methods (userMenuButtonRenderer,
-    // userMenuHeaderRenderer).
-    // Standard pattern in tests - allows testing private methods without making them package-private.
-    "PMD.TypeParameterUnusedInFormals", // Test: generic type parameters in reflection helper methods for type safety.
-    // Example: invokeRendererMethod() uses generics for type-safe reflection, parameter may be unused in signature.
-    "PMD.AvoidDuplicateLiterals" // Test: method name string literals ("userMenuButtonRenderer",
-    // "userMenuHeaderRenderer") repeated for clarity.
-    // Acceptable in tests - improves readability over extracting constants.
-})
 @ExtendWith(AuthenticatedAsAdmin.class)
 // java:S5976 excluded via config/sonar-project.properties
 class MainViewTest extends AbstractIntegrationTest {
@@ -73,8 +64,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final String userName =
-                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = ReflectionTestUtils.invokeMethod(
+                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_FIRST_NAME + " " + TEST_LAST_NAME);
     }
@@ -87,8 +78,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, null);
 
-        final String userName =
-                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = ReflectionTestUtils.invokeMethod(
+                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_FIRST_NAME);
     }
@@ -101,8 +92,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, null, TEST_LAST_NAME);
 
-        final String userName =
-                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = ReflectionTestUtils.invokeMethod(
+                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_LAST_NAME);
     }
@@ -115,8 +106,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final User user = createTestUser(TEST_USERNAME, null, null);
 
-        final String userName =
-                invokeMethod(String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
+        final String userName = ReflectionTestUtils.invokeMethod(
+                String.class, mainView, "generateUserName", new Class<?>[] {User.class}, user);
 
         assertThat(userName).isEqualTo(TEST_USERNAME);
     }
@@ -130,8 +121,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
         // Authenticated user is "admin" (from AuthenticatedAsAdmin), user is different
         // So isSubstituted should return true
-        final boolean isSubstituted =
-                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
+                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
 
         assertThat(isSubstituted).isTrue();
     }
@@ -147,8 +138,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final User user = (User) adminUserDetails;
 
         // No substitution - authenticated user is the same as the user
-        final boolean isSubstituted =
-                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
+                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
 
         assertThat(isSubstituted).isFalse();
     }
@@ -161,8 +152,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
 
         // When user is null, isSubstituted should return false
-        final boolean isSubstituted =
-                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, (Object) null);
+        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
+                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, (Object) null);
 
         assertThat(isSubstituted).isFalse();
     }
@@ -179,8 +170,8 @@ class MainViewTest extends AbstractIntegrationTest {
         // The method checks authenticatedUser == null, which should return false
         // In normal flow, authenticatedUser is always set by AuthenticatedAsAdmin, so this branch
         // is hard to test without mocking CurrentUserSubstitution
-        final boolean isSubstituted =
-                invokeMethod(Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
+        final boolean isSubstituted = ReflectionTestUtils.invokeMethod(
+                Boolean.class, mainView, "isSubstituted", new Class<?>[] {User.class}, user);
         // In test context, authenticatedUser is always set, so this should return true (user != admin)
         assertThat(isSubstituted).isTrue();
     }
@@ -194,7 +185,7 @@ class MainViewTest extends AbstractIntegrationTest {
         // When name does not equal username, else branch is taken (adds subtext with username)
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component = invokeMethod(
+        final Component component = ReflectionTestUtils.invokeMethod(
                 Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
@@ -208,8 +199,8 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
 
         final String expectedName = TEST_FIRST_NAME + " " + TEST_LAST_NAME;
-        final Avatar avatar =
-                invokeMethod(Avatar.class, mainView, "createAvatar", new Class<?>[] {String.class}, expectedName);
+        final Avatar avatar = ReflectionTestUtils.invokeMethod(
+                Avatar.class, mainView, "createAvatar", new Class<?>[] {String.class}, expectedName);
 
         assertThat(avatar).isNotNull();
         assertThat(avatar.getName()).isEqualTo(expectedName);
@@ -220,7 +211,8 @@ class MainViewTest extends AbstractIntegrationTest {
     void testUserMenuButtonRendererWithUser() throws ReflectiveOperationException {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component = invokeRendererMethod("userMenuButtonRenderer", user);
+        final Component component = ReflectionTestUtils.invokeMethod(
+                Component.class, getMainView(), "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
@@ -233,7 +225,7 @@ class MainViewTest extends AbstractIntegrationTest {
         final View<?> mainView = getCurrentViewAsView();
         final UserDetails nonUser = mock(UserDetails.class);
 
-        final Component component = invokeMethod(
+        final Component component = ReflectionTestUtils.invokeMethod(
                 Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, nonUser);
 
         assertThat(component).isNull();
@@ -243,7 +235,8 @@ class MainViewTest extends AbstractIntegrationTest {
     void testUserMenuHeaderRendererWithUser() throws ReflectiveOperationException {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
 
-        final Component component = invokeRendererMethod("userMenuHeaderRenderer", user);
+        final Component component = ReflectionTestUtils.invokeMethod(
+                Component.class, getMainView(), "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
     }
@@ -258,7 +251,7 @@ class MainViewTest extends AbstractIntegrationTest {
         // When name equals username, different branch is taken (adds subtext class)
         final User user = createTestUser(TEST_USERNAME, null, null);
 
-        final Component component = invokeMethod(
+        final Component component = ReflectionTestUtils.invokeMethod(
                 Component.class, mainView, "userMenuHeaderRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull();
@@ -273,7 +266,7 @@ class MainViewTest extends AbstractIntegrationTest {
         // Create user different from authenticated user (admin) to trigger substitution
         final User user = createTestUser("substituted.user", "Substituted", "User");
 
-        final Component component = invokeMethod(
+        final Component component = ReflectionTestUtils.invokeMethod(
                 Component.class, mainView, "userMenuButtonRenderer", new Class<?>[] {UserDetails.class}, user);
 
         assertThat(component).isNotNull().isInstanceOf(Div.class);
@@ -289,32 +282,30 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     /**
-     * Helper method to navigate to MainView and invoke a renderer method via reflection.
+     * Gets MainView instance for testing.
      *
-     * <p>Used by multiple tests to avoid code duplication while testing different renderer methods.
+     * <p>Navigates to MainView and returns it for use in tests.
      *
-     * @param methodName name of the renderer method to invoke
-     * @param userDetails user details to pass to the renderer method
-     * @return component returned by the renderer method
-     * @throws ReflectiveOperationException if reflection fails
+     * @return MainView instance
      */
-    private Component invokeRendererMethod(final String methodName, final UserDetails userDetails)
-            throws ReflectiveOperationException {
+    private View<?> getMainView() {
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
         final View<?> currentView = getCurrentViewAsView();
         viewNavigators.view(currentView, MainView.class).navigate();
-        final View<?> mainView = getCurrentViewAsView();
-        return invokeMethod(Component.class, mainView, methodName, new Class<?>[] {UserDetails.class}, userDetails);
+        return getCurrentViewAsView();
     }
 
     @AfterEach
-    @SuppressWarnings(
-            "PMD.NullAssignment") // Test cleanup: assign null after removing entity to prevent reuse in next test.
-    // Standard pattern: dataManager.remove(savedUser); savedUser = null; - ensures clean state.
     void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
+            // Reset to prevent accidental reuse of removed entity in next test
             savedUser = null;
         }
+    }
+
+    @Override
+    protected void setUp() {
+        // No setup needed for this test class
     }
 }
