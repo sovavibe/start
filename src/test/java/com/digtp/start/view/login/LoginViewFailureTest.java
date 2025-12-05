@@ -41,9 +41,13 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-@SuppressWarnings(
-        "PMD.AvoidAccessibilityAlteration") // Test: reflection to call private onLogin method for testing login failure
-// scenarios. Standard pattern in tests - allows testing private methods without making them package-private.
+@SuppressWarnings({
+    "PMD.AvoidAccessibilityAlteration", // Test: reflection to call private onLogin method for testing login failure
+    // scenarios. Standard pattern in tests - allows testing private methods without making them package-private.
+    "removal" // LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code
+    // (LoginView.onLogin).
+    // Test must mock deprecated API to test production code. Suppression matches production code suppression.
+})
 class LoginViewFailureTest extends AbstractIntegrationTest {
 
     private static final String ON_LOGIN_METHOD = "onLogin";

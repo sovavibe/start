@@ -205,6 +205,6 @@
     -->
     <suppress
             checks="AvoidFullyQualifiedNames"
-            files=".*[/\\]package-info\.java$"
+            files=".*/package-info\.java$|.*\\package-info\.java$"
             message=".*"/>
 </suppressions>
