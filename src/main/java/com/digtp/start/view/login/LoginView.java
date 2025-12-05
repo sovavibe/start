@@ -85,6 +85,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     }
 
     @Subscribe("login")
+    @SuppressWarnings(
+            "removal") // LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
     public void onLogin(final LoginEvent event) {
         try {
             loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
