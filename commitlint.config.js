@@ -31,6 +31,7 @@ export default {
         'build',
         'ci',
         'chore',
+        'init',
         'revert',
       ],
     ],
