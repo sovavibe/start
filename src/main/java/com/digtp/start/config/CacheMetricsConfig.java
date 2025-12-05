@@ -74,6 +74,7 @@ public class CacheMetricsConfig implements ApplicationListener<ApplicationReadyE
                         && cache.getNativeCache()
                                 // FQN required to resolve name conflict:
                                 // com.github.benmanes.caffeine.cache.Cache vs org.springframework.cache.Cache
+                                // suppress:checkstyle:AvoidFullyQualifiedNames
                                 instanceof com.github.benmanes.caffeine.cache.Cache<?, ?> caffeineCache) {
                     // Register metrics for Caffeine cache
                     CaffeineCacheMetrics.monitor(meterRegistry, caffeineCache, cacheName);
