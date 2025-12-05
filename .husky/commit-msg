@@ -47,7 +47,8 @@ fi
 # Validate commit message (suppress errors if dependencies are missing)
 if ! $COMMITLINT_CMD --edit "$1" 2>/dev/null; then
     # If commitlint fails, check if it's due to missing dependencies
-    if [ -f "package.json" ] && ! grep -q "@commitlint/config-conventional" node_modules/@commitlint/config-conventional/package.json 2>/dev/null; then
+    # Check if node_modules/@commitlint directory exists (more reliable than checking specific file)
+    if [ -f "package.json" ] && [ ! -d "node_modules/@commitlint" ]; then
         echo "⚠️  commitlint dependencies not installed, skipping check"
         echo "💡 Run 'npm install' to install commitlint dependencies"
         exit 0
