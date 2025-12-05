@@ -208,7 +208,7 @@ Step 4: What area does this affect?
 > docs
 
 Step 5: Generating branch name...
-Branch name: docs/docs-update-setup-documentation
+Branch name: docs/update-setup-documentation
 
 Step 8: Did you make any code/documentation changes?
 > y
