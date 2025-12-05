@@ -28,3 +28,10 @@ version: "1.0.0"
 - **Framework docs**: Use context7 MCP instead of external docs
 - **Rule lookup**: Reference `@rules.mdc` for project standards
 - **Code style**: Follow existing patterns in codebase
+
+## LARGE CODEBASE OPTIMIZATION
+- **Scoped search**: Use semantic search with specific directories/packages
+- **Incremental context**: Load only relevant rules via `@filename.mdc` references
+- **File references**: Use `@filepath` to include specific files instead of entire directories
+- **Pattern matching**: Search for patterns before asking questions
+- **Rule selection**: Apply only relevant rules (see `@ai-rules.mdc` → RULE SELECTION)

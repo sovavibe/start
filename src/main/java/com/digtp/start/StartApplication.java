@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start;
 
@@ -46,23 +35,20 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication(exclude = ProjectInfoAutoConfiguration.class)
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentDefaultAccessModifier, PMD.CommentRequired
-// - java:S1948 excluded via config/sonar-project.properties
 @SuppressWarnings({
-    "java:S1948",
-    "PMD.MissingSerialVersionUID",
-    "PMD.LongVariable",
-    "PMD.FormalParameterNamingConventions"
+    "PMD.LongVariable", // Framework: AppShellConfigurator interface requires methods with long parameter names.
+    // Example: configurePage(InitialPageSettings settings) - "settings" is required by interface signature.
+    "PMD.FormalParameterNamingConventions", // Framework: Vaadin route parameters use framework conventions.
+    // Example: @Route("users/:id") - ":id" is Vaadin route convention, not Java naming.
+    "PMD.MissingSerialVersionUID" // False positive: AppShellConfigurator is not Serializable.
+    // No serialVersionUID needed.
 })
 public class StartApplication implements AppShellConfigurator {
 
     /**
      * Spring environment for accessing application properties.
      */
-    // Framework pattern: Environment is Spring framework dependency, not serializable (expected)
-    @SuppressWarnings("java:S1948")
-    private final Environment environment;
+    private final transient Environment environment;
 
     /**
      * Application entry point.

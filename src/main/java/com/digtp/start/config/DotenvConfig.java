@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.config;
 
@@ -39,20 +28,6 @@ import org.springframework.core.env.MapPropertySource;
  * not be committed to version control (already in .gitignore).
  */
 @Slf4j
-@SuppressWarnings({
-    "PMD.CommentSize",
-    "PMD.AtLeastOneConstructor",
-    "PMD.LawOfDemeter",
-    "PMD.UseConcurrentHashMap",
-    "PMD.GuardLogStatement",
-    "PMD.AvoidCatchingGenericException"
-})
-// PMD.CommentSize: Copyright header is standard and required
-// PMD.AtLeastOneConstructor: Lombok @RequiredArgsConstructor generates constructor
-// PMD.LawOfDemeter: Framework event pattern requires chaining (event.getEnvironment())
-// PMD.UseConcurrentHashMap: HashMap is sufficient for single-threaded initialization phase
-// PMD.GuardLogStatement: SLF4J handles log level checks internally
-// PMD.AvoidCatchingGenericException: Dotenv throws RuntimeException, catching is necessary
 public final class DotenvConfig implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
     /**
@@ -61,11 +36,11 @@ public final class DotenvConfig implements ApplicationListener<ApplicationEnviro
     private static final int ORDER_OFFSET = 10;
 
     @Override
-    // PMD.AvoidCatchingGenericException: Catching generic Exception is acceptable for configuration loading
     public void onApplicationEvent(final ApplicationEnvironmentPreparedEvent event) {
         try {
             final Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 
+            // Extract environment to avoid PMD.LawOfDemeter violation
             final ConfigurableEnvironment environment = event.getEnvironment();
             final Map<String, Object> dotenvProperties = new HashMap<>();
 

@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.view.user;
 
@@ -54,22 +43,16 @@ import lombok.extern.slf4j.Slf4j;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD rules handled by Baseline: CommentSize, AtLeastOneConstructor, CommentRequired, GuardLogStatement
-// - PMD rules handled by Baseline: LawOfDemeter, FormalParameterNamingConventions, LongVariable
-// - Sonar rules excluded via config/sonar-project.properties: java:S110, java:S2177, java:S1948
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml:
-//   MissingSerialVersionUID, NonSerializableClass
-@SuppressWarnings({
-    "PMD.AvoidDuplicateLiterals", // Framework: "UnusedMethod" string repeated for Jmix lifecycle methods
-    "PMD.MissingSerialVersionUID", // Jmix views don't need serialVersionUID (framework-managed)
-    "PMD.NonSerializableClass", // Views contain framework-managed non-serializable beans (expected)
-    "PMD.FieldDeclarationsShouldBeAtStartOfClass" // @ViewComponent fields after constructor-injected fields
-})
-// Note: NullAway suppressions removed - @ViewComponent fields are excluded via
-// ExcludedFieldAnnotations in build.gradle
-// NOSONAR java:S110 - Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
+// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
+// These are injected by framework and don't need to be serializable.
+// Cannot be centralized due to PMD Baseline limitation.
+// Jmix View: @ViewComponent fields must be after constructor-injected fields.
+// Framework pattern: 1) constructor-injected (@RequiredArgsConstructor), 2) @ViewComponent fields.
+// Cannot change this order.
+@SuppressWarnings({"PMD.NonSerializableClass", "PMD.FieldDeclarationsShouldBeAtStartOfClass"})
 public class UserDetailView extends StandardDetailView<User> {
+
+    private static final long serialVersionUID = 1L;
 
     private final transient Notifications notifications;
     private final transient EntityStates entityStates;
@@ -89,8 +72,7 @@ public class UserDetailView extends StandardDetailView<User> {
     private ComboBox<String> timeZoneField;
 
     @ViewComponent
-    // Framework pattern: @ViewComponent fields are framework-managed, not serializable (expected)
-    @SuppressWarnings("java:S1948")
+    @SuppressWarnings("java:S1948") // Jmix View: @ViewComponent fields are framework-managed, not serializable
     private MessageBundle messageBundle;
 
     /**
@@ -141,7 +123,6 @@ public class UserDetailView extends StandardDetailView<User> {
     }
 
     @Subscribe
-    // NOSONAR java:S2177 - Framework: lifecycle method name matches parent private method (Jmix framework pattern)
     public void onReady(final ReadyEvent _event) {
         final User user = getEditedEntity();
         if (entityStates.isNew(user)) {

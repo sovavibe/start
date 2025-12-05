@@ -1,23 +1,12 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.service;
 
 import com.digtp.start.config.SecurityConstants;
 import com.digtp.start.entity.User;
-import com.palantir.logsafe.Preconditions;
+import com.palantir.logsafe.exceptions.SafeIllegalArgumentException;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +24,6 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.AtLeastOneConstructor, PMD.CommentRequired
-// - PMD.GuardLogStatement, PMD.LawOfDemeter
 public class UserService {
 
     private final PasswordEncoder passwordEncoder;
@@ -137,7 +123,7 @@ public class UserService {
      * @param user user entity to prepare, must not be null
      * @param password plain text password (can be null for existing users when not changing password)
      * @param isNew true if creating new user, false if updating existing user
-     * @throws IllegalArgumentException if password validation fails, or if password is required
+     * @throws SafeIllegalArgumentException if password validation fails, or if password is required
      * (new user) but missing
      * @since 1.0
      * <p>Example:
@@ -155,23 +141,20 @@ public class UserService {
      * userService.prepareUserForSave(existingUser, null, false);
      * }</pre>
      */
-    @SuppressWarnings(
-            "NullAway") // password is validated before use - isNotNullOrEmpty and requirePasswordForNewUser ensure
-    // non-null
     public void prepareUserForSave(@NonNull final User user, @Nullable final String password, final boolean isNew) {
         if (isNew) {
-            // requirePasswordForNewUser validates and returns non-null password
-            final String nonNullPassword = requirePasswordForNewUser(password);
-            encodeAndSetPassword(user, nonNullPassword);
+            // For new users, password is required - validate and use directly
+            if (password == null || password.isEmpty()) {
+                throw new SafeIllegalArgumentException("Password is required for new users");
+            }
+            // After null check, password is guaranteed to be non-null for NullAway
+            encodeAndSetPassword(user, password);
             log.info("Prepared new user for save: username={}", user.getUsername());
         } else {
-            // Check if password is provided for update
-            if (SecurityConstants.isNotNullOrEmpty(password)) {
-                // After isNotNullOrEmpty check, password is guaranteed to be non-null
-                // Preconditions.checkNotNull ensures non-null and satisfies NullAway
-                // NullAway: password is guaranteed non-null after isNotNullOrEmpty check
-                final String nonNullPassword = Preconditions.checkNotNull(password, "Password must not be null");
-                encodeAndSetPassword(user, nonNullPassword);
+            // For existing users, password is optional - only encode if provided
+            if (password != null && !password.isEmpty()) {
+                // After null check, password is guaranteed to be non-null for NullAway
+                encodeAndSetPassword(user, password);
                 log.info("Prepared user password update: id={}, username={}", user.getId(), user.getUsername());
             } else {
                 // No password change - log
@@ -196,29 +179,5 @@ public class UserService {
         validatePasswordStrength(password);
         final String encodedPassword = encodePassword(password);
         user.setPassword(encodedPassword);
-    }
-
-    /**
-     * Validates that password is provided for new user creation.
-     *
-     * <p>Throws IllegalArgumentException if password is null or empty, as new users
-     * require a password to be set.
-     *
-     * @param password password to validate, can be null or empty
-     * @return non-null password after validation
-     * @throws IllegalArgumentException if password is null or empty
-     */
-    @NonNull
-    // password is validated before use - isNullOrEmpty check ensures non-null after validation
-    // Using IllegalArgumentException for simplicity, SafeIllegalArgumentException requires additional dependency
-    @SuppressWarnings({"NullAway", "PreferSafeLoggableExceptions"})
-    private String requirePasswordForNewUser(@Nullable final String password) {
-        if (SecurityConstants.isNullOrEmpty(password)) {
-            throw new IllegalArgumentException("Password is required for new users");
-        }
-        // After isNullOrEmpty check, password is guaranteed to be non-null
-        // Preconditions.checkNotNull ensures non-null and satisfies NullAway
-        // NullAway: password is guaranteed non-null after isNullOrEmpty check
-        return Preconditions.checkNotNull(password, "Password must not be null");
     }
 }

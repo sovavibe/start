@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.config;
 
@@ -51,15 +40,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(1) // Execute early, before security filters
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.AtLeastOneConstructor, PMD.CommentRequired, PMD.GuardLogStatement
-@SuppressWarnings({
-    "PMD.CommentSize",
-    "PMD.AtLeastOneConstructor",
-    "PMD.CommentRequired",
-    "PMD.GuardLogStatement",
-    "PMD.SignatureDeclareThrowsException"
-})
 public final class LoggingMdcFilter implements Filter {
 
     private static final String REQUEST_ID_KEY = "requestId";
@@ -118,15 +98,10 @@ public final class LoggingMdcFilter implements Filter {
         }
 
         final Object principal = authentication.getPrincipal();
-        if (principal instanceof User user) {
-            // User entity - return UUID
-            return user.getId() != null ? user.getId().toString() : null;
-        } else if (principal instanceof UserDetails userDetails) {
-            // Standard Spring Security UserDetails - return username
-            return userDetails.getUsername();
-        }
-
-        // Fallback: use principal name if available
-        return authentication.getName();
+        return switch (principal) {
+            case User user -> user.getId() != null ? user.getId().toString() : null;
+            case UserDetails userDetails -> userDetails.getUsername();
+            default -> authentication.getName();
+        };
     }
 }

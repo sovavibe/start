@@ -20,16 +20,16 @@ Java 21 (virtual threads, pattern matching, records) | Jmix 2.7.1 | Vaadin FlowU
 **Limits**: 250 lines/file, 10 cyclomatic, 10 cognitive complexity | **Refactor** if exceeded: extract methods, split files | See `@code-quality.mdc` for details
 
 ## WORKFLOW
-Linters run at end only | Use `make analyze-full` (not `./gradlew codeQualityFull`) | Format: `./gradlew format` (Palantir Baseline) | Fix root causes, not symptoms | Production-ready, maintainable, testable | See `@ai-rules.mdc` for AI workflow
+Linters run at end only | Use `make analyze-full` (not `./gradlew codeQualityFull`) | Fix root causes, not symptoms | Production-ready, maintainable, testable | See `@ai-rules.mdc` for AI workflow | See `@palantir-baseline-integration.mdc` → FORMATTING
 
 ## PALANTIR BASELINE
-**CRITICAL**: Use Baseline out-of-the-box, do NOT customize unless absolutely necessary | Baseline manages versions, configurations, and defaults | ❌ Do NOT override Baseline-managed versions (Error Prone, Checkstyle, PMD, SpotBugs) | ✅ Let Baseline manage everything | See `@palantir-baseline-integration.mdc` for details | Format: `./gradlew format` | Suppressions: `@suppress-policy.mdc`
+See `@palantir-baseline-integration.mdc` | Suppressions: `@suppress-policy.mdc`
 
 ## DATABASE
-See `@jmix-data-access.mdc` | DataManager: `create()`, `save()`, `load()`, `remove()` | ❌ `new Entity()` → ✅ `dataManager.create()`
+See `@jmix-data-access.mdc`
 
 ## JMIX
-See `@jmix-best-practices.mdc` | Quick: `dataManager.create()` not `new Entity()`
+See `@jmix-best-practices.mdc`
 
 ## VAADIN
 See `@vaadin-best-practices.mdc` | Quick: @Route lifecycle, @UIScope patterns
@@ -45,14 +45,14 @@ Conventional: `type(scope): description` | Types: feat|fix|docs|refactor|perf|te
 
 ## COMMUNICATION LANGUAGE
 **CRITICAL**: Language usage is strict and context-dependent:
-- **Code & Documentation**: ALWAYS English (comments, JavaDoc, README, code, commit messages)
-- **Chat with User**: ALWAYS Russian (explanations, questions, responses, discussions)
+- **Code & Documentation**: ALWAYS English (comments, JavaDoc, README, code, commit messages, rules documentation)
+- **Chat with User**: ✅ Use Russian when user communicates in Russian | ✅ Use English when user communicates in English | Adapt to user's language preference
 - **Brevity**: Be concise, avoid verbose explanations unless requested
 - **Examples**: 
-  - ✅ Code comment: `// Loads user from database`
-  - ✅ Chat: "Создал сервис для логирования"
-  - ❌ Code comment: `// Загружает пользователя из базы`
-  - ❌ Chat: "Created service for logging"
+  - ✅ Chat in Russian: "Файлы успешно добавлены в git"
+  - ✅ Code comment: `// Loads user from database` (always English)
+  - ✅ Rule documentation: "Use DataManager.create() instead of new Entity()" (always English)
+  - ❌ Code comment in Russian: `// Загружает пользователя из базы данных`
 
 ## PROHIBITIONS
 System.out.println → SLF4J | System.getenv() → @Value | @Autowired fields → constructor (tests: allowed) | Dead code → remove | Workarounds → refactor | @SuppressWarnings → document why

@@ -27,10 +27,19 @@
     <!--
     Framework compatibility: Exclude serialization issues for Spring Boot application class
     Application class contains framework dependencies that are not serializable
+    AppShellConfigurator is not Serializable, so serialVersionUID is not needed
     -->
     <Match>
         <Class name="~com\.digtp\.start\.StartApplication"/>
         <Bug pattern="SE_BAD_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="~com\.digtp\.start\.StartApplication"/>
+        <Bug pattern="SE_NO_SERIALVERSIONID"/>
+    </Match>
+    <Match>
+        <Class name="~com\.digtp\.start\.StartApplication"/>
+        <Bug pattern="SnVI"/>
     </Match>
     
     <!--

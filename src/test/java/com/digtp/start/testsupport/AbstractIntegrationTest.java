@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.testsupport;
 
@@ -42,14 +31,13 @@ import org.springframework.test.context.DynamicPropertySource;
  * }</pre>
  */
 @Slf4j
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable
-@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
+@SuppressWarnings(
+        "PMD.AbstractClassWithoutAbstractMethod") // Framework: abstract base class for tests provides common methods
+// (invokeMethod, etc.).
+// No abstract methods but provides shared functionality. Standard pattern for test base classes.
 public abstract class AbstractIntegrationTest {
 
     @DynamicPropertySource
-    // PMD.GuardLogStatement suppressed via @SuppressWarnings (Palantir Baseline defaults)
     static void configureProperties(final DynamicPropertyRegistry registry) {
         // Use singleton container instance shared across all test classes
         registry.add("main.datasource.url", PostgresTestContainer::getJdbcUrl);
@@ -75,10 +63,11 @@ public abstract class AbstractIntegrationTest {
      * Invokes a method on an object using reflection.
      *
      * <p>Helper method to invoke private/protected methods in tests using reflection
-     * to avoid ClassCastException with Jmix class loaders. Centralizes the unchecked
-     * cast operation.
+     * to avoid ClassCastException with Jmix class loaders. Uses type-safe cast via
+     * {@code Class.cast()} to avoid unchecked warnings.
      *
      * @param <T> return type of the method
+     * @param returnType class of the return type (for type-safe casting)
      * @param object object on which to invoke the method
      * @param methodName name of the method to invoke
      * @param paramTypes parameter types of the method
@@ -86,9 +75,16 @@ public abstract class AbstractIntegrationTest {
      * @return result of method invocation
      * @throws ReflectiveOperationException if method cannot be found or invoked
      */
-    @SuppressWarnings({"unchecked", "PMD.AvoidAccessibilityAlteration"}) // Test: reflection to access private methods
+    @SuppressWarnings(
+            "PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods for testing internal
+    // logic.
+    // Standard pattern in tests - allows testing private methods without making them package-private.
     protected static <T> T invokeMethod(
-            final Object object, final String methodName, final Class<?>[] paramTypes, final Object... args)
+            final Class<T> returnType,
+            final Object object,
+            final String methodName,
+            final Class<?>[] paramTypes,
+            final Object... args)
             throws ReflectiveOperationException {
         // Try getDeclaredMethod first (for private/protected methods), then getMethod (for public/inherited methods)
         Method method;
@@ -98,6 +94,7 @@ public abstract class AbstractIntegrationTest {
         } catch (NoSuchMethodException e) {
             method = object.getClass().getMethod(methodName, paramTypes);
         }
-        return (T) method.invoke(object, args);
+        final Object result = method.invoke(object, args);
+        return returnType.cast(result);
     }
 }

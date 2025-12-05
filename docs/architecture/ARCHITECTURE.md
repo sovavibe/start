@@ -31,7 +31,7 @@ graph TB
     style DB fill:#336791,stroke:#1e4a6b,stroke-width:2px,color:#fff
     style User fill:#95a5a6,stroke:#7f8c8d,stroke-width:2px,color:#fff
     style Sonar fill:#4e9a06,stroke:#3d7505,stroke-width:2px,color:#fff
-    style Grafana fill:#f57900,stroke:#cc6600,stroke-width:2px,color:#fff
+    style Grafana fill:#cc6600,stroke:#b85500,stroke-width:2px,color:#fff
 ```
 
 **Actors:**
@@ -87,7 +87,7 @@ graph TB
     
     style AppContainer fill:#4a90e2,stroke:#2c5aa0,stroke-width:3px,color:#fff
     style Database fill:#336791,stroke:#1e4a6b,stroke-width:2px,color:#fff
-    style Observability fill:#f57900,stroke:#cc6600,stroke-width:2px,color:#fff
+    style Observability fill:#cc6600,stroke:#b85500,stroke-width:2px,color:#fff
     style Browser fill:#95a5a6,stroke:#7f8c8d,stroke-width:2px,color:#fff
 ```
 
@@ -178,12 +178,12 @@ graph TB
     SecurityConfig --> UserRepo
     PasswordValidator --> SecurityConstants
     
-    style Presentation fill:#e8f4f8,stroke:#4a90e2,stroke-width:2px
-    style Business fill:#e8f5e9,stroke:#4caf50,stroke-width:2px
-    style Data fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    style Security fill:#fce4ec,stroke:#e91e63,stroke-width:2px
-    style Infra fill:#f3e5f5,stroke:#9c27b0,stroke-width:2px
-    style DB fill:#e3f2fd,stroke:#2196f3,stroke-width:3px
+    style Presentation fill:#1e3a5f,stroke:#2c5a8a,stroke-width:2px,color:#fff
+    style Business fill:#2d5a2d,stroke:#3d6b3d,stroke-width:2px,color:#fff
+    style Data fill:#8b6914,stroke:#b8860b,stroke-width:2px,color:#fff
+    style Security fill:#5a2d3d,stroke:#6b3d4d,stroke-width:2px,color:#fff
+    style Infra fill:#5a3d5a,stroke:#6b4d6b,stroke-width:2px,color:#fff
+    style DB fill:#1e3a5f,stroke:#2c5a8a,stroke-width:3px,color:#fff
 ```
 
 **Detailed Component Structure:**
@@ -507,12 +507,12 @@ flowchart LR
     H --> I[DataContainer]
     I -->|Display| A
     
-    style A fill:#e8f4f8,stroke:#4a90e2
-    style B fill:#e8f5e9,stroke:#4caf50
-    style C fill:#fff3e0,stroke:#ff9800
-    style D fill:#fff3e0,stroke:#ff9800
-    style G fill:#e3f2fd,stroke:#2196f3
-    style I fill:#e8f4f8,stroke:#4a90e2
+    style A fill:#1e3a5f,stroke:#2c5a8a,stroke-width:2px,color:#fff
+    style B fill:#2d5a2d,stroke:#3d6b3d,stroke-width:2px,color:#fff
+    style C fill:#8b6914,stroke:#b8860b,stroke-width:2px,color:#fff
+    style D fill:#8b6914,stroke:#b8860b,stroke-width:2px,color:#fff
+    style G fill:#1e3a5f,stroke:#2c5a8a,stroke-width:2px,color:#fff
+    style I fill:#1e3a5f,stroke:#2c5a8a,stroke-width:2px,color:#fff
 ```
 
 **Write Operation:**
@@ -531,13 +531,13 @@ flowchart TD
     J -->|Refresh| A
     G -->|Error| A
     
-    style A fill:#e8f4f8,stroke:#4a90e2
-    style B fill:#e8f5e9,stroke:#4caf50
-    style C fill:#e8f5e9,stroke:#4caf50
-    style D fill:#fff3e0,stroke:#ff9800
-    style E fill:#fff9c4,stroke:#fbc02d
-    style H fill:#e3f2fd,stroke:#2196f3
-    style G fill:#ffebee,stroke:#f44336
+    style A fill:#1e3a5f,stroke:#2c5a8a,stroke-width:2px,color:#fff
+    style B fill:#2d5a2d,stroke:#3d6b3d,stroke-width:2px,color:#fff
+    style C fill:#2d5a2d,stroke:#3d6b3d,stroke-width:2px,color:#fff
+    style D fill:#8b6914,stroke:#b8860b,stroke-width:2px,color:#fff
+    style E fill:#8b6914,stroke:#b8860b,stroke-width:2px,color:#fff
+    style H fill:#1e3a5f,stroke:#2c5a8a,stroke-width:2px,color:#fff
+    style G fill:#5a2d2d,stroke:#6b3d3d,stroke-width:2px,color:#fff
 ```
 
 **Data Flow:**
@@ -592,7 +592,7 @@ graph TB
     style External fill:#95a5a6,stroke:#7f8c8d,stroke-width:2px,color:#fff
     style AppPod fill:#4a90e2,stroke:#2c5aa0,stroke-width:2px,color:#fff
     style DBPod fill:#336791,stroke:#1e4a6b,stroke-width:2px,color:#fff
-    style ObsPod fill:#f57900,stroke:#cc6600,stroke-width:2px,color:#fff
+    style ObsPod fill:#cc6600,stroke:#b85500,stroke-width:2px,color:#fff
 ```
 
 **Deployment Options:**

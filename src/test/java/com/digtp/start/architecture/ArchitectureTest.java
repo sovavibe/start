@@ -1,17 +1,6 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.architecture;
 
@@ -42,16 +31,14 @@ import org.junit.jupiter.api.Test;
  * </ul>
  */
 @AnalyzeClasses(packages = "com.digtp.start", importOptions = ImportOption.DoNotIncludeTests.class)
-// Test patterns: ArchUnit test conventions require snake_case rule names and ArchRule types
-// - PMD rules handled by Baseline: CommentSize, CommentRequired, CommentDefaultAccessModifier,
-//   AtLeastOneConstructor, LongVariable
-// - ArchUnit-specific: FieldNamingConventions (snake_case), LooseCoupling (ArchRule type required)
-// - Checkstyle rules excluded via .baseline/checkstyle/custom-suppressions.xml: ConstantName (ArchUnit convention)
 @SuppressWarnings({
-    "PMD.CommentSize", // Copyright header is standard and required (Apache License)
-    "PMD.CommentRequired", // Test class documentation
-    "PMD.CommentDefaultAccessModifier", // ArchUnit test rules use package-private
-    "PMD.FieldNamingConventions", // ArchUnit convention uses snake_case for rule names
+    "PMD.CommentRequired", // ArchUnit test: rule names are self-documenting (e.g., "servicesShouldNotDependOnViews").
+    // ArchUnit convention - descriptive rule names don't require additional comments.
+    "PMD.CommentDefaultAccessModifier", // ArchUnit test: rules use package-private access (ArchUnit convention).
+    // Example: static final ArchRule servicesShouldNotDependOnViews = ... - package-private is standard for ArchUnit.
+    "PMD.FieldNamingConventions", // ArchUnit convention uses snake_case for rule names (e.g.,
+    // "services_should_not_depend_on_views").
+    // ArchUnit standard - snake_case makes rules more readable in test output.
     "PMD.AtLeastOneConstructor", // Test class doesn't need explicit constructor
     "PMD.LongVariable", // ArchUnit rule names are descriptive
     "PMD.LooseCoupling" // ArchUnit requires ArchRule type (not interface)

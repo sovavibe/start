@@ -1,23 +1,12 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.security;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import com.digtp.start.config.SecurityConstants;
@@ -30,17 +19,15 @@ import io.jmix.securityflowui.password.PasswordValidationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@ExtendWith(AuthenticatedAsAdmin.class)
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable, PMD.UnitTestContainsTooManyAsserts, PMD.UnitTestAssertionsShouldIncludeMessage
-// - PMD.LawOfDemeter, PMD.AvoidDuplicateLiterals
+@ExtendWith({AuthenticatedAsAdmin.class, MockitoExtension.class})
 class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -49,27 +36,18 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     @Autowired
     private DataManager dataManager;
 
-    private User savedUser;
+    @Mock
+    private PasswordValidationContext<User> passwordContext;
 
-    /**
-     * Creates a typed mock for PasswordValidationContext to avoid unchecked warnings.
-     * This is a helper method that centralizes the unchecked cast in one place.
-     */
-    @SuppressWarnings("unchecked") // Generic type erasure requires unchecked cast
-    private PasswordValidationContext<User> createPasswordContext() {
-        return mock(PasswordValidationContext.class);
-    }
+    private User savedUser;
 
     @Test
     void testValidateValidPassword() {
         // Arrange
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn(validPassword);
-        when(context.getUser()).thenReturn(null);
 
         // Act & Assert
-        assertThatCode(() -> passwordValidator.validate(context)).doesNotThrowAnyException();
+        verifyValidPasswordAccepted(validPassword, null);
     }
 
     @Test
@@ -80,23 +58,19 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
         savedUser = dataManager.save(user);
 
         final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn(validPassword);
-        when(context.getUser()).thenReturn(user);
 
         // Act & Assert
-        assertThatCode(() -> passwordValidator.validate(context)).doesNotThrowAnyException();
+        verifyValidPasswordAccepted(validPassword, user);
     }
 
     @Test
     void testValidateNullPassword() {
         // Arrange
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn(null);
-        when(context.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn(null);
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
-        assertThatThrownBy(() -> passwordValidator.validate(context))
+        assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
                 .isInstanceOf(PasswordValidationException.class)
                 .hasMessage("Password cannot be empty");
     }
@@ -104,12 +78,11 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     @Test
     void testValidateEmptyPassword() {
         // Arrange
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn("");
-        when(context.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn("");
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
-        assertThatThrownBy(() -> passwordValidator.validate(context))
+        assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
                 .isInstanceOf(PasswordValidationException.class)
                 .hasMessage("Password cannot be empty");
     }
@@ -118,12 +91,11 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     void testValidatePasswordTooShort() {
         // Arrange
         final String shortPassword = "short";
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn(shortPassword);
-        when(context.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn(shortPassword);
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
-        assertThatThrownBy(() -> passwordValidator.validate(context))
+        assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
                 .isInstanceOf(PasswordValidationException.class)
                 .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
@@ -132,12 +104,11 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     void testValidatePasswordBoundary() {
         // Arrange
         final String boundaryPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH - 1);
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn(boundaryPassword);
-        when(context.getUser()).thenReturn(null);
+        lenient().when(passwordContext.getPassword()).thenReturn(boundaryPassword);
+        lenient().when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
-        assertThatThrownBy(() -> passwordValidator.validate(context))
+        assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
                 .isInstanceOf(PasswordValidationException.class)
                 .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
@@ -146,25 +117,25 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
     void testValidatePasswordExactMinimumLength() {
         // Arrange
         final String exactPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn(exactPassword);
-        when(context.getUser()).thenReturn(null);
+        when(passwordContext.getPassword()).thenReturn(exactPassword);
+        when(passwordContext.getUser()).thenReturn(null);
 
         // Act & Assert
-        assertThatCode(() -> passwordValidator.validate(context)).doesNotThrowAnyException();
+        assertThatCode(() -> passwordValidator.validate(passwordContext)).doesNotThrowAnyException();
     }
 
-    @Test
-    @SuppressWarnings("java:S4144") // Test method has similar structure but tests different scenario (null user)
-    void testValidatePasswordWithNullUser() {
-        // Arrange
-        final String validPassword = "a".repeat(SecurityConstants.MIN_PASSWORD_LENGTH);
-        final PasswordValidationContext<User> context = createPasswordContext();
-        when(context.getPassword()).thenReturn(validPassword);
-        when(context.getUser()).thenReturn(null);
-
-        // Act & Assert
-        assertThatCode(() -> passwordValidator.validate(context)).doesNotThrowAnyException();
+    /**
+     * Helper method to verify that a valid password is accepted by the validator.
+     *
+     * <p>Used by multiple tests to avoid code duplication while testing different scenarios.
+     *
+     * @param password password to validate
+     * @param user user context (can be null)
+     */
+    private void verifyValidPasswordAccepted(final String password, final User user) {
+        when(passwordContext.getPassword()).thenReturn(password);
+        when(passwordContext.getUser()).thenReturn(user);
+        assertThatCode(() -> passwordValidator.validate(passwordContext)).doesNotThrowAnyException();
     }
 
     @AfterEach

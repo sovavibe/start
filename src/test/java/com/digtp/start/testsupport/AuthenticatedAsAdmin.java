@@ -1,21 +1,11 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.testsupport;
 
 import io.jmix.core.security.SystemAuthenticator;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -29,10 +19,7 @@ import org.springframework.test.context.TestContextManager;
  * <p>This class is not intended for extension. It implements JUnit extension callbacks
  * and should be used as-is via {@code @ExtendWith} annotation.
  */
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable
-@SuppressWarnings("PMD.EmptyCatchBlock") // Test: idempotent operations may throw if already executed
+@Slf4j
 public final class AuthenticatedAsAdmin implements BeforeEachCallback, AfterEachCallback {
 
     /**
@@ -67,15 +54,17 @@ public final class AuthenticatedAsAdmin implements BeforeEachCallback, AfterEach
         final Object testInstance = context.getRequiredTestInstance();
         try {
             testContextManager.prepareTestInstance(testInstance);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // If already prepared by SpringExtension, ignore - this is expected behavior
-            // PMD.EmptyCatchBlock: Exception is intentionally ignored (idempotent operation)
+            // (idempotent operation)
+            log.debug("TestContextManager already prepared by SpringExtension: {}", e.getMessage());
         }
         try {
             testContextManager.beforeTestMethod(testInstance, context.getRequiredTestMethod());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // If already called by SpringExtension, ignore - this is expected behavior
-            // PMD.EmptyCatchBlock: Exception is intentionally ignored (idempotent operation)
+            // (idempotent operation)
+            log.debug("beforeTestMethod already called by SpringExtension: {}", e.getMessage());
         }
         return testContextManager.getTestContext().getApplicationContext();
     }

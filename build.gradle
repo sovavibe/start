@@ -151,12 +151,16 @@ dependencies {
     
     // Safe logging for Error Prone PreferSafeLoggableExceptions
     implementation 'com.palantir.safe-logging:preconditions:3.0.0'
+    
+    // JSpecify for null marking annotations (Error Prone RequireExplicitNullMarking)
+    compileOnly 'org.jspecify:jspecify:0.3.0'
 
     // Testing
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
-    testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
+    // Version managed by Jmix BOM (2.7.1), but explicitly specified for IDE compatibility
+    testImplementation 'io.jmix.flowui:jmix-flowui-test-assist:2.7.1'
     testImplementation 'org.testcontainers:postgresql:1.21.3'
     testImplementation 'org.testcontainers:junit-jupiter:1.21.3'
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.4.1'
@@ -668,6 +672,12 @@ tasks.register("buildInfo") {
         println("Or check build.gradle for: group, version, java version")
     }
 }
+
+// Baseline Configuration Tasks
+// NOTE: Custom Checkstyle rules should be added manually to .baseline/checkstyle/checkstyle.xml
+// After running ./gradlew baselineUpdateConfig, manually add custom rules before "<!-- Stricter checks end -->"
+// The config is version-controlled in git, so changes are visible and reviewable
+// See docs/quality/CUSTOM_CHECKSTYLE_RULES.md for examples
 
 // ============================================================================
 // BASELINE CLASS UNIQUENESS

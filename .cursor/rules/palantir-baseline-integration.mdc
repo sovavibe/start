@@ -34,11 +34,6 @@ version: "1.1.0"
 - **Comments**: `// CHECKSTYLE:OFF` ... `// CHECKSTYLE:ON` (for IllegalImport, etc.)
 - **File-level**: `.baseline/checkstyle/custom-suppressions.xml` (NOT `checkstyle-suppressions.xml`)
 
-## COPYRIGHT
-- **Templates**: `.baseline/copyright/*.txt` | Largest file (lexicographically) used for new files
-- **Current**: `001_apache-2.0.txt` - Apache License 2.0, Digital Technologies and Platforms LLC
-- **Update**: `./gradlew format` auto-updates copyright headers
-
 ## UPDATE
 - `./gradlew baselineUpdateConfig` - updates `.baseline/checkstyle/checkstyle.xml` and `checkstyle-suppressions.xml` (does NOT overwrite `custom-suppressions.xml`)
 

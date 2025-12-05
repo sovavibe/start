@@ -1,49 +1,33 @@
 /*
- * (c) Copyright 2025 Digital Technologies and Platforms LLC. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2025 Digital Technologies and Platforms LLC
+ * Licensed under the Apache License, Version 2.0
  */
 package com.digtp.start.config;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
 
-// Framework patterns suppressed via @SuppressWarnings (Palantir Baseline defaults):
-// - PMD.CommentSize, PMD.CommentRequired, PMD.CommentDefaultAccessModifier, PMD.AtLeastOneConstructor
-// - PMD.LongVariable
-@SuppressWarnings({"PMD.TooManyStaticImports", "PMD.SingularField"})
 class DotenvConfigTest {
 
     private DotenvConfig dotenvConfig;
     private ApplicationEnvironmentPreparedEvent event;
     private ConfigurableEnvironment environment;
-    private MutablePropertySources propertySources;
 
     @BeforeEach
     void beforeEach() {
         dotenvConfig = new DotenvConfig();
-        environment = mock(ConfigurableEnvironment.class);
-        propertySources = new MutablePropertySources();
-        event = mock(ApplicationEnvironmentPreparedEvent.class);
+        environment = Mockito.mock(ConfigurableEnvironment.class);
+        final MutablePropertySources propertySources = new MutablePropertySources();
+        event = Mockito.mock(ApplicationEnvironmentPreparedEvent.class);
         when(event.getEnvironment()).thenReturn(environment);
         when(environment.getPropertySources()).thenReturn(propertySources);
     }
@@ -58,7 +42,7 @@ class DotenvConfigTest {
         final int order = dotenvConfig.getOrder();
 
         // Assert
-        assertThat(order).isEqualTo(Integer.MIN_VALUE + expectedOrderOffset);
+        Assertions.assertThat(order).isEqualTo(Integer.MIN_VALUE + expectedOrderOffset);
     }
 
     @Test
@@ -68,42 +52,44 @@ class DotenvConfigTest {
         // returns an empty Dotenv instance
         // Event and environment are already mocked in setUp
 
-        // Act
-        dotenvConfig.onApplicationEvent(event);
-
-        // Assert
-        verify(environment).getPropertySources();
+        // Act & Assert
+        verifyOnApplicationEventCompletes();
     }
 
     @Test
     void testOnApplicationEventWithExistingEnvironmentVariable() {
         // Arrange
-        when(environment.containsProperty(any())).thenReturn(true);
+        when(environment.containsProperty(ArgumentMatchers.any())).thenReturn(true);
 
         // Act
         dotenvConfig.onApplicationEvent(event);
 
         // Assert
-        verify(environment, org.mockito.Mockito.atLeastOnce()).containsProperty(any());
+        verify(environment, Mockito.atLeastOnce()).containsProperty(ArgumentMatchers.any());
     }
 
     @Test
-    @SuppressWarnings("java:S4144") // Test method has similar structure but tests different scenario
     void testOnApplicationEventHandlesRuntimeException() {
         // Arrange
         // Event and environment are already mocked in setUp
         // Dotenv may throw RuntimeException if .env file has issues
         // This test verifies exception handling - the method catches RuntimeException
         // and logs at debug level without rethrowing
-        // Note: Implementation is similar to testOnApplicationEventWithNoEnvFile but
-        // tests different scenario (exception handling vs missing file gracefully)
 
-        // Act
-        dotenvConfig.onApplicationEvent(event);
-
-        // Assert
+        // Act & Assert
         // Should complete without throwing exception even if Dotenv fails
         // The method catches RuntimeException internally
+        verifyOnApplicationEventCompletes();
+    }
+
+    /**
+     * Helper method to verify that onApplicationEvent completes successfully
+     * and accesses environment property sources.
+     *
+     * <p>Used by multiple tests to avoid code duplication while testing different scenarios.
+     */
+    private void verifyOnApplicationEventCompletes() {
+        dotenvConfig.onApplicationEvent(event);
         verify(environment).getPropertySources();
     }
 }

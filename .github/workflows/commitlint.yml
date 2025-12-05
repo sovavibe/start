@@ -1,0 +1,119 @@
+name: Commit & Branch Linting
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  lint-commits:
+    name: Lint Commits
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          # Configure npm registry and retry logic
+          npm config set registry https://registry.npmjs.org/
+          # Retry npm ci up to 3 times in case of network issues
+          for i in 1 2 3; do
+            if npm ci --legacy-peer-deps; then
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 10
+          done
+          # If npm ci fails, try npm install as fallback
+          echo "npm ci failed, trying npm install as fallback..."
+          npm install --legacy-peer-deps || exit 1
+
+      - name: Validate commit messages
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # For PRs, check all commits in the PR (excluding merge commits)
+            BASE_SHA=${{ github.event.pull_request.base.sha }}
+            HEAD_SHA=${{ github.event.pull_request.head.sha }}
+            npx commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+          else
+            # For pushes, check only the last commit
+            npx commitlint --from HEAD~1 --to HEAD --verbose
+          fi
+
+  lint-branch:
+    name: Lint Branch Name
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate branch name
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          
+          # Skip validation for protected branches
+          if [[ "$BRANCH_NAME" == "main" || "$BRANCH_NAME" == "develop" || "$BRANCH_NAME" == "master" ]]; then
+            echo "✅ Protected branch, skipping validation"
+            exit 0
+          fi
+          
+          # Validate branch name format
+          # 1. Task format: <type>/task-<number>/<description> or <type>/<scope>-task-<number>/<description>
+          if echo "$BRANCH_NAME" | grep -qE '^(feat|fix|docs|refactor|perf|test|build|chore|revert)/task-[0-9]+/[a-z0-9-]+$'; then
+            # Task format without scope (e.g., feat/task-111/add-login-form)
+            echo "✅ Branch name is valid (task format): $BRANCH_NAME"
+          elif echo "$BRANCH_NAME" | grep -qE '^(feat|fix|docs|refactor|perf|test|build|chore|revert)/(jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test|ci|deps|docs)-task-[0-9]+/[a-z0-9-]+$'; then
+            # Task format with scope (e.g., feat/vaadin-task-123/add-user-profile)
+            echo "✅ Branch name is valid (task format with scope): $BRANCH_NAME"
+          # 2. Docs type with optional scope
+          elif echo "$BRANCH_NAME" | grep -qE '^docs/[a-z0-9-]+$'; then
+            # docs type with optional scope (e.g., docs/add-sdlc-and-workflow-automation)
+            echo "✅ Branch name is valid (docs type with optional scope): $BRANCH_NAME"
+          # 3. Standard format with required scope
+          elif echo "$BRANCH_NAME" | grep -qE '^(feat|fix|docs|refactor|perf|test|build|chore|revert)/(jmix|vaadin|entity|view|service|security|liquibase|ui|api|db|config|test|ci|deps|docs)-[a-z0-9-]+$'; then
+            # Standard format with required scope
+            echo "✅ Branch name is valid: $BRANCH_NAME"
+          else
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo ""
+            echo "Branch name must follow one of these formats:"
+            echo "  - <type>/<scope>-<description>"
+            echo "  - <type>/task-<number>/<description>"
+            echo "  - <type>/<scope>-task-<number>/<description>"
+            echo "  - docs/<description> (scope optional for docs)"
+            echo ""
+            echo "Types: feat, fix, docs, refactor, perf, test, build, chore, revert"
+            echo "Scopes: jmix, vaadin, entity, view, service, security, liquibase, ui, api, db, config, test, ci, deps, docs"
+            echo ""
+            echo "Examples:"
+            echo "  ✅ feat/vaadin-add-login-form"
+            echo "  ✅ fix/jmix-resolve-datamanager-npe"
+            echo "  ✅ refactor/service-extract-payment-logic"
+            echo "  ✅ docs/add-sdlc-and-workflow-automation"
+            echo "  ✅ docs/ci-add-sdlc-and-workflow-automation"
+            echo "  ✅ feat/task-111/add-login-form"
+            echo "  ✅ feat/vaadin-task-123/add-user-profile"
+            echo ""
+            echo "See .cursor/rules/branch-naming.mdc for details"
+            exit 1
+          fi
+
