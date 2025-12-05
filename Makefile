@@ -498,17 +498,9 @@ observability-down: ## Stop observability stack
 	@echo "$(GREEN)Stopping observability stack...$(RESET)"
 	docker-compose -f docker-compose.observability.yml down
 
-check-devops: ## Check DevOps infrastructure status
-	@echo "$(GREEN)Checking DevOps infrastructure...$(RESET)"
-	@./scripts/check-devops.sh
-
 health: ## Check application health
 	@echo "$(GREEN)Checking application health...$(RESET)"
 	@curl -sf http://localhost:8080/actuator/health | jq . || echo "$(YELLOW)Application not responding$(RESET)"
-
-test-observability: ## Test observability stack (Grafana + Loki + OpenTelemetry)
-	@echo "$(GREEN)Testing observability stack...$(RESET)"
-	@./scripts/test-observability.sh
 
 ##@ CodeMachine
 
