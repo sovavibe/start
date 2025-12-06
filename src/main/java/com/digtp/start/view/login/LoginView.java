@@ -42,10 +42,26 @@ import org.springframework.security.authentication.LockedException;
 @ViewDescriptor(path = "login-view.xml")
 @Slf4j
 @RequiredArgsConstructor
-// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
-// These are injected by framework and don't need to be serializable.
-// Cannot be centralized due to PMD Baseline limitation.
-@SuppressWarnings("PMD.NonSerializableClass")
+// Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+@SuppressWarnings({
+    // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
+    "java:S1948", // non-serializable field
+    // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+    "java:S110", // too many parents
+    // Framework: Jmix lifecycle methods may have same names as parent methods
+    "java:S2177", // method name conflict
+    // Framework: Jmix views extend StandardView which requires design for extension
+    "java:S2150", // design for extension
+    // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
+    "java:S1186", // missing javadoc
+    // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field
+    // injection)
+    "java:S6813", // field injection
+    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
+    "java:S117", // unused variable
+    // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
+    "PMD.NonSerializableClass"
+})
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private static final long serialVersionUID = 1L;
@@ -58,7 +74,6 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private JmixLoginForm login;
 
     @ViewComponent
-    @SuppressWarnings("java:S1948") // Jmix View: @ViewComponent fields are framework-managed, not serializable
     private MessageBundle messageBundle;
 
     @Value("${ui.login.defaultUsername:}")
@@ -67,6 +82,13 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     @Value("${ui.login.defaultPassword:}")
     private String defaultPassword;
 
+    /**
+     * Initializes the view.
+     *
+     * <p>This method is safe to override. Override to customize view initialization.
+     *
+     * @param _event initialization event (unused, required by framework)
+     */
     @Subscribe
     public void onInit(final InitEvent _event) {
         log.debug("Login view initialized");
@@ -84,9 +106,16 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         }
     }
 
+    /**
+     * Handles login event.
+     *
+     * <p>This method is safe to override. Override to customize login handling.
+     *
+     * @param event login event
+     */
     @Subscribe("login")
-    @SuppressWarnings(
-            "removal") // LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
+    // Framework: LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
+    @SuppressWarnings("removal") // deprecated API
     public void onLogin(final LoginEvent event) {
         try {
             loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
@@ -110,14 +139,21 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     private String getLoginFailureReason(final Exception exception) {
         return switch (exception) {
-            case BadCredentialsException ignored -> "invalid credentials";
-            case DisabledException ignored -> "account disabled";
-            case LockedException ignored -> "account locked";
-            case AccessDeniedException ignored -> "access denied";
+            case BadCredentialsException _ignored -> "invalid credentials";
+            case DisabledException _ignored -> "account disabled";
+            case LockedException _ignored -> "account locked";
+            case AccessDeniedException _ignored -> "access denied";
             default -> "unknown error";
         };
     }
 
+    /**
+     * Handles locale change.
+     *
+     * <p>This method is safe to override. Override to customize locale change handling.
+     *
+     * @param event locale change event (passed to helper method)
+     */
     @Override
     public void localeChange(final LocaleChangeEvent event) {
         UI.getCurrent().getPage().setTitle(messageBundle.getMessage("LoginView.title"));

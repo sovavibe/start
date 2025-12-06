@@ -4,11 +4,14 @@
  */
 package com.digtp.start.config;
 
+import com.palantir.logsafe.exceptions.SafeRuntimeException;
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,6 +41,17 @@ public class PerformanceLoggingAspect {
      */
     private static final long VIEW_THRESHOLD_MS = 500;
 
+    private final Environment environment;
+
+    /**
+     * Creates PerformanceLoggingAspect with environment for profile checking.
+     *
+     * @param environment Spring environment for checking active profiles
+     */
+    public PerformanceLoggingAspect(final Environment environment) {
+        this.environment = environment;
+    }
+
     /**
      * Logs slow service method executions.
      *
@@ -46,11 +60,22 @@ public class PerformanceLoggingAspect {
      *
      * @param joinPoint method execution join point
      * @return method return value
-     * @throws Throwable if method execution throws exception
+     * @throws Exception if method execution throws exception
      */
     @Around("execution(public * com.digtp.start.service..*(..))")
-    public Object logServicePerformance(final ProceedingJoinPoint joinPoint) throws Throwable {
-        return logPerformance(joinPoint, SERVICE_THRESHOLD_MS, "service");
+    public Object logServicePerformance(final ProceedingJoinPoint joinPoint) throws Exception {
+        try {
+            return logPerformance(joinPoint, SERVICE_THRESHOLD_MS, "service");
+        } catch (final Exception e) {
+            throw e;
+        } catch (final Throwable t) {
+            // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+            // Errors should not be caught - rethrow immediately
+            if (t instanceof Error error) {
+                throw error;
+            }
+            throw new SafeRuntimeException("Unexpected error in service method", t);
+        }
     }
 
     /**
@@ -61,30 +86,77 @@ public class PerformanceLoggingAspect {
      *
      * @param joinPoint method execution join point
      * @return method return value
-     * @throws Throwable if method execution throws exception
+     * @throws Exception if method execution throws exception
      */
     @Around("execution(public * com.digtp.start.view..*(..))")
-    public Object logViewPerformance(final ProceedingJoinPoint joinPoint) throws Throwable {
-        return logPerformance(joinPoint, VIEW_THRESHOLD_MS, "view");
+    public Object logViewPerformance(final ProceedingJoinPoint joinPoint) throws Exception {
+        try {
+            return logPerformance(joinPoint, VIEW_THRESHOLD_MS, "view");
+        } catch (final Exception e) {
+            throw e;
+        } catch (final Throwable t) {
+            // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+            // Errors should not be caught - rethrow immediately
+            if (t instanceof Error error) {
+                throw error;
+            }
+            throw new SafeRuntimeException("Unexpected error in view method", t);
+        }
     }
 
     /**
      * Logs performance if execution time exceeds threshold.
      *
+     * <p>Optimizations:
+     * <ul>
+     *   <li>Disabled in production profile to avoid overhead</li>
+     *   <li>Only logs if DEBUG level is enabled (checked early)</li>
+     *   <li>Minimal overhead when logging is disabled</li>
+     * </ul>
+     *
      * @param joinPoint method execution join point
      * @param thresholdMs threshold in milliseconds
      * @param layer layer name (service/view) for logging
      * @return method return value
-     * @throws Throwable if method execution throws exception
+     * @throws Exception if method execution throws exception
      */
     private Object logPerformance(final ProceedingJoinPoint joinPoint, final long thresholdMs, final String layer)
-            throws Throwable {
+            throws Exception {
+        // Early exit if disabled in production or DEBUG logging is off
+        final boolean isProduction =
+                Arrays.asList(environment.getActiveProfiles()).contains("prod");
+        if (isProduction || !log.isDebugEnabled()) {
+            try {
+                return joinPoint.proceed();
+            } catch (final Exception e) {
+                throw e;
+            } catch (final Throwable t) {
+                // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+                // Errors should not be caught - rethrow immediately
+                if (t instanceof Error error) {
+                    throw error;
+                }
+                throw new SafeRuntimeException("Unexpected error in method execution", t);
+            }
+        }
+
         final long startTime = System.currentTimeMillis();
         try {
-            return joinPoint.proceed();
+            try {
+                return joinPoint.proceed();
+            } catch (final Exception e) {
+                throw e;
+            } catch (final Throwable t) {
+                // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+                // Errors should not be caught - rethrow immediately
+                if (t instanceof Error error) {
+                    throw error;
+                }
+                throw new SafeRuntimeException("Unexpected error in method execution", t);
+            }
         } finally {
             final long duration = System.currentTimeMillis() - startTime;
-            if (duration > thresholdMs && log.isDebugEnabled()) {
+            if (duration > thresholdMs) {
                 final String methodName = getMethodName(joinPoint);
                 final String className = getClassName(joinPoint);
                 log.debug(

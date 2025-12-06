@@ -21,7 +21,6 @@ import io.jmix.flowui.testassist.FlowuiTestAssistConfiguration;
 import io.jmix.flowui.testassist.UiTest;
 import io.jmix.flowui.testassist.UiTestUtils;
 import io.jmix.flowui.view.View;
-import java.lang.reflect.Method;
 import java.util.Locale;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,9 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-@SuppressWarnings(
-        "PMD.AvoidAccessibilityAlteration") // Test: reflection to access private methods via invokeMethod helper.
-// Standard pattern in tests - allows testing private methods without making them package-private.
 class LoginViewTest extends AbstractIntegrationTest {
 
     @Autowired
@@ -54,11 +50,10 @@ class LoginViewTest extends AbstractIntegrationTest {
     }
 
     @Test
-    void testLocaleChange() throws ReflectiveOperationException {
+    void testLocaleChange() {
         // Arrange
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        // Use View<?> to avoid ClassCastException with Jmix class loaders
-        final View<?> loginView = getCurrentViewAsView();
+        final LoginView loginView = (LoginView) getCurrentViewAsView();
         final LocaleChangeEvent event = mock(LocaleChangeEvent.class);
         when(event.getLocale()).thenReturn(Locale.FRENCH);
 
@@ -68,9 +63,8 @@ class LoginViewTest extends AbstractIntegrationTest {
             uiMock.when(UI::getCurrent).thenReturn(ui);
             when(ui.getPage()).thenReturn(page);
 
-            // Act - use reflection to call localeChange method
-            final Method method = loginView.getClass().getMethod("localeChange", LocaleChangeEvent.class);
-            method.invoke(loginView, event);
+            // Act - call localeChange method directly (public interface method)
+            loginView.localeChange(event);
 
             // Assert - method should complete without errors
             assertThat(loginView).isNotNull();

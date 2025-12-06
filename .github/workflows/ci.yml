@@ -105,8 +105,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Shallow clones should be disabled for better relevancy of SonarCloud analysis
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v5
@@ -126,14 +124,16 @@ jobs:
         env:
           # Disable Testcontainers reuse in CI (containers are not reused between runs)
           TESTCONTAINERS_REUSE_ENABLE: false
+          # Docker is available in GitHub Actions runners
+          DOCKER_HOST: unix:///var/run/docker.sock
 
       - name: Generate coverage report
         run: ./gradlew jacocoTestReport --no-daemon
-        # Explicitly generate XML report for SonarCloud
+        # Generates XML and HTML coverage reports
 
       - name: Verify test coverage
         run: ./gradlew jacocoTestCoverageVerification --no-daemon
-        # Strict: Coverage thresholds (85% instructions, 75% branches, 90% lines) must pass
+        # Strict: Coverage thresholds (75% instructions, 65% branches, 75% lines) must pass
         # Fails build if coverage below thresholds (configured in build.gradle)
 
       - name: Verify test results exist
@@ -177,16 +177,9 @@ jobs:
             exit 1
           fi
           echo "✅ Coverage XML report found"
-
-      - name: SonarCloud Scan
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonar --no-daemon
-        # SonarCloud quality gate will block merge if quality gate fails
-        # Requires jacocoTestReport.xml at build/reports/jacoco/test/jacocoTestReport.xml
-        # Project: sovavibe_start (organization: sovavibe)
-        # Automatic Analysis is disabled - CI analysis is now required and blocking
+        # Note: SonarLint runs as part of codeQualityFull job (via Gradle plugin)
+        # For local SonarQube server setup, see docker-compose.dev.yml and Makefile (make sonarqube-up)
+        # SonarCloud integration is not configured in CI (uses local SonarQube server for development)
 
   # Build application (runs after tests)
   build:

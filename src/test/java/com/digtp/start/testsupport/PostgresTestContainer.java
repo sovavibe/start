@@ -15,41 +15,48 @@ import org.testcontainers.utility.DockerImageName;
  * <p>This container is started once and reused across all test classes,
  * significantly reducing test execution time.
  *
- * <p>The container is automatically started when first accessed and
+ * <p>The container is lazily initialized when first accessed and
  * stopped when JVM exits (via Ryuk).
  */
 public final class PostgresTestContainer {
 
-    private static final PostgreSQLContainer<?> INSTANCE = new PostgreSQLContainer<>(
-                    DockerImageName.parse("postgres:16-alpine"))
-            .withDatabaseName("testdb")
-            .withUsername("test")
-            .withPassword("test")
-            .withReuse(true)
-            .waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*\\n", 1))
-            .withStartupTimeout(Duration.ofSeconds(30));
-
-    static {
-        INSTANCE.start();
-    }
+    private static PostgreSQLContainer<?> instance;
 
     private PostgresTestContainer() {
         // Utility class
     }
 
-    public static PostgreSQLContainer<?> getInstance() {
-        return INSTANCE;
+    /**
+     * Gets singleton PostgreSQL container instance.
+     *
+     * <p>Container is intentionally not closed as it's a singleton reused across all tests.
+     * Cleanup is handled by Testcontainers' Ryuk when JVM exits.
+     *
+     * @return singleton PostgreSQL container instance
+     */
+    private static synchronized PostgreSQLContainer<?> getInstance() {
+        if (instance == null) {
+            instance = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"))
+                    .withDatabaseName("testdb")
+                    .withUsername("test")
+                    .withPassword("test")
+                    .withReuse(true)
+                    .waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*\\n", 1))
+                    .withStartupTimeout(Duration.ofSeconds(30));
+            instance.start();
+        }
+        return instance;
     }
 
     public static String getJdbcUrl() {
-        return INSTANCE.getJdbcUrl();
+        return getInstance().getJdbcUrl();
     }
 
     public static String getUsername() {
-        return INSTANCE.getUsername();
+        return getInstance().getUsername();
     }
 
     public static String getPassword() {
-        return INSTANCE.getPassword();
+        return getInstance().getPassword();
     }
 }

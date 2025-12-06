@@ -7,6 +7,7 @@ package com.digtp.start.user;
 import com.digtp.start.StartApplication;
 import com.digtp.start.entity.User;
 import com.digtp.start.testsupport.AbstractIntegrationTest;
+import com.digtp.start.testsupport.TestFixtures;
 import com.digtp.start.view.user.UserListView;
 import io.jmix.core.DataManager;
 import io.jmix.flowui.ViewNavigators;
@@ -56,14 +57,14 @@ class UserUiTest extends AbstractIntegrationTest {
 
         // Set username and password in the fields
         final TypedTextField<String> usernameField = UiTestUtils.getComponent(userDetailView, "usernameField");
-        final String username = "test-user-" + System.currentTimeMillis();
+        final String username = TestFixtures.uniqueUsername();
         usernameField.setValue(username);
 
         final JmixPasswordField passwordField = UiTestUtils.getComponent(userDetailView, "passwordField");
-        passwordField.setValue("test-passwd");
+        passwordField.setValue(TestFixtures.ALTERNATIVE_TEST_PASSWORD);
 
         final JmixPasswordField confirmPasswordField = UiTestUtils.getComponent(userDetailView, "confirmPasswordField");
-        confirmPasswordField.setValue("test-passwd");
+        confirmPasswordField.setValue(TestFixtures.ALTERNATIVE_TEST_PASSWORD);
 
         // Click "OK"
         final JmixButton commitAndCloseBtn = UiTestUtils.getComponent(userDetailView, "saveAndCloseButton");
@@ -89,7 +90,7 @@ class UserUiTest extends AbstractIntegrationTest {
     void afterEach() {
         dataManager
                 .load(User.class)
-                .query("e.username like ?1", "test-user-%")
+                .query("e.username like ?1", TestFixtures.TEST_USER_PREFIX + "%")
                 .list()
                 .forEach(dataManager::remove);
     }

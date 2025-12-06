@@ -42,7 +42,8 @@ public class AuditService {
      * <p>Note: Named logger is required for separate audit log configuration.
      * Cannot use class-based logger (PreferSafeLogger) for named logger.
      */
-    @SuppressWarnings("PreferSafeLogger")
+    // Framework: Named logger is required for separate audit log configuration
+    @SuppressWarnings("PreferSafeLogger") // named logger
     private static final Logger auditLogger = LoggerFactory.getLogger("com.digtp.start.audit");
 
     /**
@@ -65,17 +66,6 @@ public class AuditService {
     public void logUserUpdated(@Nullable final UUID userId, @Nullable final String username) {
         final String currentUser = getCurrentUsername();
         auditLogger.info("USER_UPDATED: userId={}, username={}, updatedBy={}", userId, username, currentUser);
-    }
-
-    /**
-     * Logs user deletion event.
-     *
-     * @param userId   deleted user ID, must not be null
-     * @param username deleted user username, must not be null
-     */
-    public void logUserDeleted(@Nullable final UUID userId, @Nullable final String username) {
-        final String currentUser = getCurrentUsername();
-        auditLogger.info("USER_DELETED: userId={}, username={}, deletedBy={}", userId, username, currentUser);
     }
 
     /**

@@ -1,9 +1,0 @@
----
-globs: ["**/AppShell*.java"]
-autoFix: true
-version: "6.0.0"
----
-
-# PWA
-
-See `@vaadin-best-practices.mdc` → PWA section for complete guidelines.

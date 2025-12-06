@@ -26,8 +26,50 @@ services:
     networks:
       - start-network-dev
 
+  sonarqube:
+    build:
+      context: .
+      dockerfile: docker/sonarqube/Dockerfile
+    container_name: start-sonarqube-dev
+    env_file:
+      - .env
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: 'true'
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonar
+      SONAR_JDBC_USERNAME: ${POSTGRES_USER:-start}
+      SONAR_JDBC_PASSWORD: ${POSTGRES_PASSWORD:-start}
+      SONAR_JDBC_MAX_ACTIVE: 20
+      SONAR_JDBC_MAX_IDLE: 5
+      SONAR_JDBC_MIN_IDLE: 2
+      # Quality Profile initialization credentials (from .env)
+      # NEVER hardcode credentials in Dockerfile or docker-compose!
+      SONAR_USER: ${SONAR_USER:-admin}
+      SONAR_PASSWORD: ${SONAR_PASSWORD:-admin}
+      SONAR_PROJECT_KEY: ${SONAR_PROJECT_KEY:-sovavibe}
+    ports:
+      - '9000:9000'
+    volumes:
+      - sonarqube_data_dev:/opt/sonarqube/data
+      - sonarqube_extensions_dev:/opt/sonarqube/extensions
+      - sonarqube_logs_dev:/opt/sonarqube/logs
+      # Mount config file for Quality Profile initialization
+      - ./config/sonar-project.properties:/config/sonar-project.properties:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:9000/api/system/status || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - start-network-dev
+
 volumes:
   postgres_data_dev:
+  sonarqube_data_dev:
+  sonarqube_extensions_dev:
+  sonarqube_logs_dev:
 
 networks:
   start-network-dev:

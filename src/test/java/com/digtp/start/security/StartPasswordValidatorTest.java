@@ -71,8 +71,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
-                .isInstanceOf(PasswordValidationException.class)
-                .hasMessage("Password cannot be empty");
+            .isInstanceOf(PasswordValidationException.class)
+            .hasMessage("Password cannot be empty");
     }
 
     @Test
@@ -83,8 +83,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
-                .isInstanceOf(PasswordValidationException.class)
-                .hasMessage("Password cannot be empty");
+            .isInstanceOf(PasswordValidationException.class)
+            .hasMessage("Password cannot be empty");
     }
 
     @Test
@@ -96,8 +96,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
-                .isInstanceOf(PasswordValidationException.class)
-                .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
+            .isInstanceOf(PasswordValidationException.class)
+            .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
     @Test
@@ -109,8 +109,8 @@ class StartPasswordValidatorTest extends AbstractIntegrationTest {
 
         // Act & Assert
         assertThatThrownBy(() -> passwordValidator.validate(passwordContext))
-                .isInstanceOf(PasswordValidationException.class)
-                .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
+            .isInstanceOf(PasswordValidationException.class)
+            .hasMessageContaining("at least " + SecurityConstants.MIN_PASSWORD_LENGTH);
     }
 
     @Test

@@ -1,9 +1,0 @@
----
-globs: ["**/view/**/*.xml"]
-autoFix: true
-version: "4.0.0"
----
-
-# UI/UX
-
-See `@vaadin-best-practices.mdc` → UI/UX section for complete guidelines.

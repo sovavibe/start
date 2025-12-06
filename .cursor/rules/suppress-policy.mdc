@@ -2,36 +2,97 @@
 globs: ["**/entity/**/*.java", "**/view/**/*.java", "**/service/**/*.java", "**/test/**/*.java", "**/*Test*.java", "build.gradle", "config/spotbugs/**", "config/sonar-project.properties", ".baseline/**"]
 alwaysApply: false
 autoFix: false
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # SUPPRESSION POLICY
 
 ## PRINCIPLES
-**Vibe Coding**: Minimal suppressions, maximum code quality | **Token Economy**: Optimize suppression usage | **Framework-Specific**: Only suppress Jmix/Vaadin/Lombok false positives | **Central First**: Prefer central config for mass patterns, inline only for unique cases | **AI-Friendly**: See `@ai-false-positives.mdc` for quick decision making
+**Vibe Coding**: Minimal suppressions, maximum code quality | **Token Economy**: Optimize suppression usage | **Framework-Specific**: Only suppress Jmix/Vaadin/Lombok false positives | **Inline First**: SonarLint suppressions are inline (visible, local, documented) | **AI-Friendly**: See `@ai-false-positives.mdc` for quick decision making
 
 ## WHEN TO SUPPRESS
 
-### ✅ Inline `@SuppressWarnings` (Preferred)
-**When**: Framework-specific false positives that cannot be fixed in code
+### ✅ Inline `@SuppressWarnings` (Required for PMD and SonarLint)
+**When**: 
+- **PMD**: Always required (Baseline limitation - cannot centralize)
+- **SonarLint**: Always required (inline suppressions are visible, local, documented)
+- **Other tools**: Only when central config doesn't cover the case
 
 **Requirements**:
-- ✅ Always include justification comment
+- ✅ Always include justification comment explaining WHY
 - ✅ Be specific: Use exact rule name (`PMD.RuleName`, `java:S110`, `checkstyle:rulename`)
 - ✅ Minimal scope: method > class > package
 - ✅ Framework-specific only: Jmix/Vaadin/Lombok patterns, not general code quality
+- ✅ Format: Use array format for multiple rules with comments
 
-**Examples**: Jmix View lifecycle (`onInit`, `onReady`), Lombok-generated code, test reflection patterns
-
+**Format for one rule**:
 ```java
-@SuppressWarnings("java:S110") // Framework: Jmix views extend multiple framework classes
-public class UserDetailView extends StandardDetailView<User> { }
+// Framework: [reason why suppression is needed]
+@SuppressWarnings("PMD.RuleName") // rule name or error description (only if not obvious from rule name)
 ```
 
-### ✅ Centralized Configs (Mass Framework Patterns)
-**Where**: `config/spotbugs/exclude.xml` (EclipseLink), `config/sonar-project.properties` (Jmix/Vaadin), `.baseline/checkstyle/custom-suppressions.xml` (Lombok)
+**Examples for single suppression**:
+```java
+// Framework: LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
+@SuppressWarnings("removal") // deprecated API (not obvious from name)
+
+// Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
+@SuppressWarnings("java:S1172") // unused parameter (not obvious from code)
+
+// Framework: Pattern matching switch expression - unused variables are intentional
+@SuppressWarnings("java:S117") // unused variable (not obvious from code)
+
+// Framework: Abstract base class for tests provides common methods
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // no comment - rule name is self-explanatory
+```
+
+**Format for several rules**:
+```java
+// Framework: [optional general reason] (if all rules share same reason)
+@SuppressWarnings({
+    // Framework: [reason for rule 1]
+    "PMD.Rule1", // rule name 1 (only if not obvious from rule name)
+    // Framework: [reason for rule 2]
+    "PMD.Rule2" // rule name 2 (only if not obvious from rule name)
+})
+```
+
+**Note**: For PMD rules with self-explanatory names (e.g., `PMD.NonSerializableClass`, `PMD.NullAssignment`, `PMD.AbstractClassWithoutAbstractMethod`), omit the inline comment as the rule name already describes the issue.
+
+**Examples for multiple suppressions**:
+```java
+// Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+@SuppressWarnings({
+    // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
+    "java:S1948", // non-serializable field
+    // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+    "java:S110", // too many parents
+    // Framework: Jmix lifecycle methods may have same names as parent methods
+    "java:S2177" // method name conflict
+})
+public class LoginView extends StandardView {
+    // ...
+}
+```
+
+**Examples**: 
+- PMD: `PMD.NonSerializableClass` for View classes (cannot centralize)
+- SonarLint: `java:S110`, `java:S1948`, etc. for View classes (inline for visibility)
+
+### ✅ Centralized Configs (XML/Non-Java Files Only)
+**Where**: 
+- `sonar-project.properties` (SonarLint/SonarQube) - XML files only (xml:S2068 for UI labels)
+- `config/spotbugs/exclude.xml` (SpotBugs) - EclipseLink, framework lifecycle
+- `.baseline/checkstyle/custom-suppressions.xml` (Checkstyle) - Lombok, framework patterns
 
 **Requirements**: Narrow scope (package patterns), documented, framework-only
+
+**When to use**: 
+- XML files (cannot use inline annotations)
+- SpotBugs patterns (EclipseLink, framework lifecycle)
+- Checkstyle patterns (Lombok, framework patterns)
+
+**IMPORTANT**: SonarLint suppressions are now inline in Java code for visibility and documentation!
 
 ### ❌ NEVER Global Rule Disabling
 **Forbidden**: PMD custom rulesets overriding Baseline, global Checkstyle suppressions, Error Prone disabling without justification
@@ -40,18 +101,31 @@ public class UserDetailView extends StandardDetailView<User> { }
 
 ## SUPPRESSION HIERARCHY (Most to Least Preferred)
 1. **Fix the code** - Best, no suppression needed
-2. **Inline `@SuppressWarnings`** - Visible, local, documented
-3. **Central config (narrow scope)** - Mass framework patterns only
+2. **Inline `@SuppressWarnings`** - Visible, local, documented (required for PMD and SonarLint)
+3. **Central config (narrow scope)** - XML files, SpotBugs, Checkstyle patterns only
 4. **Global rule disabling** - ❌ NEVER (except Baseline-managed)
+
+**IMPORTANT**: 
+- **SonarLint**: Use inline `@SuppressWarnings` in Java code (visible, local, documented)
+- **PMD**: Must use inline `@SuppressWarnings` (Baseline limitation, cannot centralize)
+- **SpotBugs**: Use central config (`config/spotbugs/exclude.xml`) for EclipseLink patterns
+- **Checkstyle**: Use central config (`.baseline/checkstyle/custom-suppressions.xml`) for Lombok patterns
+- **XML files**: Use central config in `sonar-project.properties` (cannot use inline annotations)
 
 ## FRAMEWORK PATTERNS
 
-| Context | Rules | Format |
-|---------|-------|--------|
-| Jmix/Vaadin | S110, S2177, S1948 | `@SuppressWarnings("java:S110") // Framework: reason` |
-| Lombok | AtLeastOneConstructor, javadoc | `@SuppressWarnings("PMD.RuleName")` |
-| EclipseLink | ES/EI patterns | `config/spotbugs/exclude.xml` |
-| Tests | AvoidAccessibilityAlteration, NullAssignment | `@SuppressWarnings("PMD.RuleName") // Test: reason` |
+| Context | Rules | Centralized? | Format |
+|---------|-------|--------------|--------|
+| Jmix/Vaadin Views | S110, S2177, S1948, S2150, S1186, S6813, S1172 | ❌ No (Inline) | Inline: `@SuppressWarnings({"java:S110", ...})` |
+| Jmix/Vaadin Views | PMD.NonSerializableClass | ❌ No (PMD Baseline limitation) | Inline: `@SuppressWarnings("PMD.NonSerializableClass")` |
+| Jmix/Vaadin Views | PMD.FieldDeclarationsShouldBeAtStartOfClass | ❌ No (Jmix convention) | Inline: `@SuppressWarnings("PMD.FieldDeclarationsShouldBeAtStartOfClass")` |
+| Framework Interfaces | PMD.LongVariable, PMD.FormalParameterNamingConventions | ❌ No (Framework requirements) | Inline: `@SuppressWarnings("PMD.RuleName")` |
+| Tests | S5738, S5976, S5853, S4144, S1130 | ❌ No (Inline) | Inline: `@SuppressWarnings({"java:S5738", ...})` |
+| Unused variables | java:S117 | ❌ No (Inline) | Inline: `@SuppressWarnings("java:S117")` (Error Prone conflict) |
+| XML files | xml:S2068 | ✅ Yes (XML files) | Central: `sonar-project.properties` |
+| Lombok | AtLeastOneConstructor, javadoc | ✅ Yes (Checkstyle) | Central: `.baseline/checkstyle/custom-suppressions.xml` |
+| EclipseLink | ES/EI patterns | ✅ Yes (SpotBugs) | Central: `config/spotbugs/exclude.xml` |
+| Test Reflection | PMD.AvoidAccessibilityAlteration | ✅ Fixed | Use `ReflectionTestUtils.invokeMethod()` instead |
 
 ## QUALITY GATES & MAINTENANCE
 - CI fails on violations: `ignoreFailures = false`

@@ -31,24 +31,13 @@ import org.junit.jupiter.api.Test;
  * </ul>
  */
 @AnalyzeClasses(packages = "com.digtp.start", importOptions = ImportOption.DoNotIncludeTests.class)
-@SuppressWarnings({
-    "PMD.CommentRequired", // ArchUnit test: rule names are self-documenting (e.g., "servicesShouldNotDependOnViews").
-    // ArchUnit convention - descriptive rule names don't require additional comments.
-    "PMD.CommentDefaultAccessModifier", // ArchUnit test: rules use package-private access (ArchUnit convention).
-    // Example: static final ArchRule servicesShouldNotDependOnViews = ... - package-private is standard for ArchUnit.
-    "PMD.FieldNamingConventions", // ArchUnit convention uses snake_case for rule names (e.g.,
-    // "services_should_not_depend_on_views").
-    // ArchUnit standard - snake_case makes rules more readable in test output.
-    "PMD.AtLeastOneConstructor", // Test class doesn't need explicit constructor
-    "PMD.LongVariable", // ArchUnit rule names are descriptive
-    "PMD.LooseCoupling" // ArchUnit requires ArchRule type (not interface)
-})
 class ArchitectureTest {
 
+    /**
+     * Rule: Services should not access Views (presentation layer).
+     */
     @ArchTest
-    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
-    // PMD.FieldNamingConventions suppressed at class level (ArchUnit snake_case convention)
-    static final ArchRule services_should_not_access_views = noClasses()
+    static final ArchRule servicesShouldNotAccessViews = noClasses()
             .that()
             .resideInAPackage("..service..")
             .should()
@@ -56,10 +45,11 @@ class ArchitectureTest {
             .resideInAPackage("..view..")
             .because("Services should not depend on presentation layer (Views)");
 
+    /**
+     * Rule: Views should not access Repositories directly.
+     */
     @ArchTest
-    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
-    // PMD.FieldNamingConventions suppressed at class level (ArchUnit snake_case convention)
-    static final ArchRule views_should_not_access_repositories_directly = noClasses()
+    static final ArchRule viewsShouldNotAccessRepositoriesDirectly = noClasses()
             .that()
             .resideInAPackage("..view..")
             .should()
@@ -67,10 +57,11 @@ class ArchitectureTest {
             .resideInAPackage("..repository..")
             .because("Views should access data through services, not repositories directly");
 
+    /**
+     * Rule: Entities must be located in entity package.
+     */
     @ArchTest
-    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
-    // PMD.FieldNamingConventions suppressed at class level (ArchUnit snake_case convention)
-    static final ArchRule entities_should_be_in_entity_package = classes()
+    static final ArchRule entitiesShouldBeInEntityPackage = classes()
             .that()
             .areAnnotatedWith(JmixEntity.class)
             .or()
@@ -79,22 +70,24 @@ class ArchitectureTest {
             .resideInAPackage("..entity..")
             .because("Entities must be located in entity package for consistency");
 
+    /**
+     * Rule: No cyclic dependencies between packages.
+     */
     @ArchTest
-    // Checkstyle:ConstantName excluded via .baseline/checkstyle/custom-suppressions.xml
-    // PMD.FieldNamingConventions, PMD.LooseCoupling suppressed at class level (ArchUnit conventions)
-    static final ArchRule no_cycles_between_packages = SlicesRuleDefinition.slices()
+    static final ArchRule noCyclesBetweenPackages = SlicesRuleDefinition.slices()
             .matching("com.digtp.start.(*)..")
             .should()
             .beFreeOfCycles()
             .because("Cyclic dependencies between packages indicate architectural problems");
 
+    /**
+     * Verifies that architecture rules are properly loaded and executed.
+     */
     @Test
-    // PMD.LooseCoupling suppressed at class level (ArchUnit ArchRule type required)
     void architectureRulesAreDefined() {
         // This test ensures ArchUnit rules are loaded and executed
         // Individual rules are tested via @ArchTest annotations above
         final JavaClasses classes = new ClassFileImporter().importPackages("com.digtp.start");
-        // PMD: UseCollectionIsEmpty - isEmpty() not available on JavaClasses, size() check is appropriate
         Assertions.assertFalse(classes.isEmpty(), "No classes found for architecture testing");
     }
 }

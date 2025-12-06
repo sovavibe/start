@@ -43,13 +43,28 @@ import lombok.extern.slf4j.Slf4j;
 @EditedEntityContainer("userDc")
 @Slf4j
 @RequiredArgsConstructor
-// Jmix View: contains framework-managed non-serializable beans (MessageBundle, UI components).
-// These are injected by framework and don't need to be serializable.
-// Cannot be centralized due to PMD Baseline limitation.
-// Jmix View: @ViewComponent fields must be after constructor-injected fields.
-// Framework pattern: 1) constructor-injected (@RequiredArgsConstructor), 2) @ViewComponent fields.
-// Cannot change this order.
-@SuppressWarnings({"PMD.NonSerializableClass", "PMD.FieldDeclarationsShouldBeAtStartOfClass"})
+// Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
+@SuppressWarnings({
+    // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
+    "java:S1948", // non-serializable field
+    // Framework: Jmix views extend multiple framework classes (StandardDetailView, etc.)
+    "java:S110", // too many parents
+    // Framework: Jmix lifecycle methods may have same names as parent methods
+    "java:S2177", // method name conflict
+    // Framework: Jmix views extend StandardDetailView which requires design for extension
+    "java:S2150", // design for extension
+    // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
+    "java:S1186", // missing javadoc
+    // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field
+    // injection)
+    "java:S6813", // field injection
+    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
+    "java:S117", // unused variable
+    // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
+    "PMD.NonSerializableClass",
+    // Framework: Jmix View: @ViewComponent fields must be after constructor-injected fields
+    "PMD.FieldDeclarationsShouldBeAtStartOfClass"
+})
 public class UserDetailView extends StandardDetailView<User> {
 
     private static final long serialVersionUID = 1L;
@@ -72,7 +87,6 @@ public class UserDetailView extends StandardDetailView<User> {
     private ComboBox<String> timeZoneField;
 
     @ViewComponent
-    @SuppressWarnings("java:S1948") // Jmix View: @ViewComponent fields are framework-managed, not serializable
     private MessageBundle messageBundle;
 
     /**
@@ -84,6 +98,13 @@ public class UserDetailView extends StandardDetailView<User> {
      */
     private transient boolean wasNewOnSave;
 
+    /**
+     * Initializes the view.
+     *
+     * <p>This method is safe to override. Override to customize view initialization.
+     *
+     * @param _event initialization event (unused, required by framework)
+     */
     @Subscribe
     public void onInit(final InitEvent _event) {
         timeZoneField.setItems(getAvailableTimeZoneIds());
@@ -110,6 +131,13 @@ public class UserDetailView extends StandardDetailView<User> {
      */
     private static final List<String> AVAILABLE_TIME_ZONE_IDS = List.of(TimeZone.getAvailableIDs());
 
+    /**
+     * Initializes entity when view is opened.
+     *
+     * <p>This method is safe to override. Override to customize entity initialization.
+     *
+     * @param event entity initialization event
+     */
     @Subscribe
     public void onInitEntity(final InitEntityEvent<User> event) {
         final User user = event.getEntity();
@@ -122,6 +150,13 @@ public class UserDetailView extends StandardDetailView<User> {
                 Objects.toString(user.getUsername(), "not set"));
     }
 
+    /**
+     * Called when view is ready.
+     *
+     * <p>This method is safe to override. Override to customize view ready behavior.
+     *
+     * @param _event ready event (unused, required by framework)
+     */
     @Subscribe
     public void onReady(final ReadyEvent _event) {
         final User user = getEditedEntity();
@@ -133,6 +168,13 @@ public class UserDetailView extends StandardDetailView<User> {
         }
     }
 
+    /**
+     * Validates entity before save.
+     *
+     * <p>This method is safe to override. Override to customize validation logic.
+     *
+     * @param event validation event
+     */
     @Subscribe
     public void onValidation(final ValidationEvent event) {
         final User user = getEditedEntity();
@@ -208,6 +250,13 @@ public class UserDetailView extends StandardDetailView<User> {
         }
     }
 
+    /**
+     * Called before entity is saved.
+     *
+     * <p>This method is safe to override. Override to customize pre-save logic.
+     *
+     * @param _event before save event (unused, required by framework)
+     */
     @Subscribe
     public void onBeforeSave(final BeforeSaveEvent _event) {
         final User user = getEditedEntity();
@@ -238,6 +287,13 @@ public class UserDetailView extends StandardDetailView<User> {
         }
     }
 
+    /**
+     * Called after entity is saved.
+     *
+     * <p>This method is safe to override. Override to customize post-save logic.
+     *
+     * @param _event after save event (unused, required by framework)
+     */
     @Subscribe
     public void onAfterSave(final AfterSaveEvent _event) {
         final User user = getEditedEntity();

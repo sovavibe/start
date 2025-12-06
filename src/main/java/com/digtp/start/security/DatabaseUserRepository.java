@@ -26,11 +26,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DatabaseUserRepository extends AbstractDatabaseUserRepository<User> {
 
+    /**
+     * Returns User entity class.
+     *
+     * <p>This method is safe to override. Override to return a custom User subclass.
+     *
+     * @return User entity class
+     */
     @Override
     protected Class<User> getUserClass() {
         return User.class;
     }
 
+    /**
+     * Initializes system user with full access role.
+     *
+     * <p>This method is safe to override. Override to customize system user initialization.
+     * Call super.initSystemUser() to preserve default behavior.
+     *
+     * @param systemUser system user to initialize
+     */
     @Override
     protected void initSystemUser(final User systemUser) {
         final Collection<GrantedAuthority> authorities = getGrantedAuthoritiesBuilder()
@@ -40,6 +55,14 @@ public class DatabaseUserRepository extends AbstractDatabaseUserRepository<User>
         log.info("System user initialized with full access role: username={}", systemUser.getUsername());
     }
 
+    /**
+     * Initializes anonymous user.
+     *
+     * <p>This method is safe to override. Override to customize anonymous user initialization.
+     * Call super.initAnonymousUser() to preserve default behavior.
+     *
+     * @param anonymousUser anonymous user to initialize
+     */
     @Override
     protected void initAnonymousUser(final User anonymousUser) {
         log.debug("Anonymous user initialized: username={}", anonymousUser.getUsername());
