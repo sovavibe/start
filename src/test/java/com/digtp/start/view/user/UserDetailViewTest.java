@@ -402,16 +402,13 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     }
 
     @AfterEach
+    // Test: Null assignment in cleanup is valid pattern for test isolation
+    @SuppressWarnings("PMD.NullAssignment")
     void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
             // Reset to prevent accidental reuse of removed entity in next test
             savedUser = null;
         }
-    }
-
-    @Override
-    protected void setUp() {
-        // No setup needed for this test class
     }
 }

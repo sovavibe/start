@@ -34,6 +34,8 @@ class SecurityConstantsTest {
     }
 
     @Test
+    // Test: setAccessible() is valid for testing private constructors (utility class pattern)
+    @SuppressWarnings("PMD.AvoidAccessibilityAlteration")
     void testSecurityConstantsCannotBeInstantiated() throws ReflectiveOperationException {
         // Arrange & Act - verify constructor exists but is private (utility class pattern)
         final Constructor<SecurityConstants> constructor = SecurityConstants.class.getDeclaredConstructor();

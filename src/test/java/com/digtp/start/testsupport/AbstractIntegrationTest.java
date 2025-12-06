@@ -35,15 +35,8 @@ import org.springframework.test.context.DynamicPropertySource;
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class AbstractIntegrationTest {
 
-    /**
-     * Template method for test setup.
-     *
-     * <p>Subclasses can override this method to perform test-specific setup.
-     * Default implementation does nothing.
-     */
-    protected void setUp() {
-        // Default implementation - subclasses can override
-    }
+    // Note: Use @BeforeEach annotation for test setup instead of setUp() method
+    // This follows JUnit 5 best practices and satisfies Checkstyle rules
 
     @DynamicPropertySource
     static void configureProperties(final DynamicPropertyRegistry registry) {

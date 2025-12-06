@@ -483,9 +483,9 @@ tasks.register("lintEnglishOnly") {
 
     doLast {
         def sourceDirs = [
-                project.file("src/main/java"),
-                project.file("src/test/java"),
-                project.file("src/main/resources")
+                layout.projectDirectory.dir("src/main/java").asFile,
+                layout.projectDirectory.dir("src/test/java").asFile,
+                layout.projectDirectory.dir("src/main/resources").asFile
         ]
 
         def excludePatterns = [
@@ -503,9 +503,10 @@ tasks.register("lintEnglishOnly") {
 
         sourceDirs.each { sourceDir ->
             if (sourceDir.exists()) {
+                def projectDir = layout.projectDirectory.asFile
                 sourceDir.eachFileRecurse { file ->
                     // Skip excluded files
-                    def relativePath = project.relativePath(file)
+                    def relativePath = projectDir.toPath().relativize(file.toPath()).toString()
                     // Skip localization files (messages_*.properties)
                     if (file.name.startsWith("messages_") && file.name.endsWith(".properties")) {
                         return
@@ -569,8 +570,8 @@ tasks.register("ciBuild") {
 tasks.register("lockDependencies") {
     description = "Lock dependency versions"
     group = JavaBasePlugin.VERIFICATION_GROUP
-    def resolvableConfigs = project.configurations.findAll { it.canBeResolved }
     doLast {
+        def resolvableConfigs = configurations.findAll { it.canBeResolved }
         resolvableConfigs.each { config ->
             try {
                 config.resolve()
@@ -590,9 +591,9 @@ tasks.register("updateDependencies") {
 tasks.register("managedVersions") {
     description = "Prints dependency versions from Spring Boot BOM"
     group = JavaBasePlugin.VERIFICATION_GROUP
-    def dependencyManagement = project.extensions.findByName("dependencyManagement")
-    def hasManagedVersions = dependencyManagement != null && dependencyManagement.hasProperty("managedVersions")
     doLast {
+        def dependencyManagement = extensions.findByName("dependencyManagement")
+        def hasManagedVersions = dependencyManagement != null && dependencyManagement.hasProperty("managedVersions")
         if (hasManagedVersions) {
             println("Managed dependency versions:")
             dependencyManagement.managedVersions.each { key, value ->

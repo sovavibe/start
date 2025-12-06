@@ -207,7 +207,7 @@ class MainViewTest extends AbstractIntegrationTest {
     // java:S5853 excluded via sonar-project.properties
     void testUserMenuButtonRendererWithUser() {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
-        final MainView mainView = (MainView) getMainView();
+        final MainView mainView = getMainView();
 
         final Component component = mainView.userMenuButtonRenderer(user);
 
@@ -230,7 +230,7 @@ class MainViewTest extends AbstractIntegrationTest {
     @Test
     void testUserMenuHeaderRendererWithUser() {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
-        final MainView mainView = (MainView) getMainView();
+        final MainView mainView = getMainView();
 
         final Component component = mainView.userMenuHeaderRenderer(user);
 
@@ -290,16 +290,13 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     @AfterEach
+    // Test: Null assignment in cleanup is valid pattern for test isolation
+    @SuppressWarnings("PMD.NullAssignment")
     void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
             // Reset to prevent accidental reuse of removed entity in next test
             savedUser = null;
         }
-    }
-
-    @Override
-    protected void setUp() {
-        // No setup needed for this test class
     }
 }
