@@ -4,11 +4,13 @@
  */
 package com.digtp.start.config;
 
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 /**
@@ -37,6 +39,17 @@ public class PerformanceLoggingAspect {
      * Threshold for slow view operations (milliseconds).
      */
     private static final long VIEW_THRESHOLD_MS = 500;
+
+    private final Environment environment;
+
+    /**
+     * Creates PerformanceLoggingAspect with environment for profile checking.
+     *
+     * @param environment Spring environment for checking active profiles
+     */
+    public PerformanceLoggingAspect(final Environment environment) {
+        this.environment = environment;
+    }
 
     /**
      * Logs slow service method executions.
@@ -71,6 +84,13 @@ public class PerformanceLoggingAspect {
     /**
      * Logs performance if execution time exceeds threshold.
      *
+     * <p>Optimizations:
+     * <ul>
+     *   <li>Disabled in production profile to avoid overhead</li>
+     *   <li>Only logs if DEBUG level is enabled (checked early)</li>
+     *   <li>Minimal overhead when logging is disabled</li>
+     * </ul>
+     *
      * @param joinPoint method execution join point
      * @param thresholdMs threshold in milliseconds
      * @param layer layer name (service/view) for logging
@@ -79,12 +99,19 @@ public class PerformanceLoggingAspect {
      */
     private Object logPerformance(final ProceedingJoinPoint joinPoint, final long thresholdMs, final String layer)
             throws Throwable {
+        // Early exit if disabled in production or DEBUG logging is off
+        final boolean isProduction =
+                Arrays.asList(environment.getActiveProfiles()).contains("prod");
+        if (isProduction || !log.isDebugEnabled()) {
+            return joinPoint.proceed();
+        }
+
         final long startTime = System.currentTimeMillis();
         try {
             return joinPoint.proceed();
         } finally {
             final long duration = System.currentTimeMillis() - startTime;
-            if (duration > thresholdMs && log.isDebugEnabled()) {
+            if (duration > thresholdMs) {
                 final String methodName = getMethodName(joinPoint);
                 final String className = getClassName(joinPoint);
                 log.debug(
