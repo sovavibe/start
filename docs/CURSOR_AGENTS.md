@@ -329,7 +329,11 @@ Create a complete Order management feature:
 
 ### Custom Agent Behavior
 
-You can influence agent behavior through:
+**Configuration System**:
+- **Primary**: `.cursor/rules/*.mdc` files (recommended, modern)
+- **Optional/Legacy**: `.cursorrules` file (may be deprecated)
+
+**How to Influence Agent Behavior**:
 
 1. **Rule References**: Use `@rule-name.mdc` in prompts
 2. **Explicit Instructions**: "Follow @jmix.mdc for entity creation"

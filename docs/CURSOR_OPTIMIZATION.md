@@ -16,11 +16,11 @@ Cursor uses rules and agents to provide AI-powered assistance. Optimizing these 
 
 ## Rule Structure
 
-### Current Setup
+### Current Setup (Recommended)
 
 ```
 .cursor/
-├── rules/
+├── rules/                    # PRIMARY configuration system
 │   ├── core.mdc              # Always applied (alwaysApply: true)
 │   ├── jmix.mdc              # Jmix-specific (glob patterns)
 │   ├── vaadin.mdc            # Vaadin-specific (glob patterns)
@@ -30,7 +30,11 @@ Cursor uses rules and agents to provide AI-powered assistance. Optimizing these 
 │   ├── git.mdc               # Git & CI/CD (glob patterns)
 │   └── palantir-style-guide.mdc  # Style guide (glob patterns)
 └── BUGBOT.md                 # Code review guidelines
+
+.cursorrules                  # OPTIONAL/LEGACY - quick reference only
 ```
+
+**Important**: `.cursor/rules/*.mdc` is the **primary and recommended** system. `.cursorrules` is optional/legacy.
 
 ### Rule Loading Strategy
 
@@ -167,19 +171,24 @@ Cursor supports different agent types:
 
 ## Configuration Files
 
-### `.cursorrules` (Optional)
+### `.cursorrules` (Legacy/Optional)
 
-You can create a `.cursorrules` file in project root for global settings. This file provides:
-- Quick reference for AI assistant
-- Project overview and principles
-- Links to detailed rules
+**Status**: ⚠️ **Legacy format** - May be deprecated in future Cursor versions
 
-**Current Setup**: ✅ Already configured in project root (`.cursorrules`)
+**Current Recommendation**:
+- **Primary**: Use `.cursor/rules/*.mdc` files (modern, recommended)
+- **Optional**: `.cursorrules` can coexist but is not required
+- **Best Practice**: Focus on `.cursor/rules/` configuration
+
+**If Using `.cursorrules`**:
+- Simple markdown file for quick reference
+- Provides project overview and principles
+- Links to detailed rules in `.cursor/rules/`
 
 **Note**: 
-- `.cursorrules` is a simple markdown file for quick reference
-- Detailed rules in `.cursor/rules/*.mdc` are more powerful (glob patterns, versioning, alwaysApply)
-- Both can coexist: `.cursorrules` for overview, `.cursor/rules/` for detailed configuration
+- `.cursor/rules/*.mdc` is the **primary and recommended** system
+- `.cursorrules` is legacy/optional and may be deprecated
+- All functionality is available via `.cursor/rules/` files
 
 ### Cursor Settings
 

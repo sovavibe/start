@@ -39,7 +39,7 @@ Create a Jmix entity following @jmix.mdc patterns
 │   └── ...
 └── BUGBOT.md          # PR review guidelines
 
-.cursorrules           # Quick reference (optional)
+.cursorrules           # Quick reference (optional/legacy - use .cursor/rules/ instead)
 
 docs/
 ├── CURSOR_OPTIMIZATION.md  # Optimization guide
