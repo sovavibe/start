@@ -28,8 +28,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-// Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
-@SuppressWarnings("java:S117") // unused variable
 public class LocaleHelper {
 
     /**
@@ -63,12 +61,8 @@ public class LocaleHelper {
      * @param messageBundle the message bundle for translations
      * @param _event locale change event (unused, required by framework interface)
      */
-    // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
-    @SuppressWarnings("java:S1172") // unused parameter
     public void updateLoginI18n(
-            final JmixLoginForm login,
-            final MessageBundle messageBundle,
-            @SuppressWarnings("unused") final LocaleChangeEvent _event) {
+            final JmixLoginForm login, final MessageBundle messageBundle, final LocaleChangeEvent _event) {
         final JmixLoginI18n loginI18n = JmixLoginI18n.createDefault();
 
         final JmixLoginI18n.JmixForm form = new JmixLoginI18n.JmixForm();

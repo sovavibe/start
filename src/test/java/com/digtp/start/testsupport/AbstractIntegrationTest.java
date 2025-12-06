@@ -31,9 +31,16 @@ import org.springframework.test.context.DynamicPropertySource;
  * }</pre>
  */
 @Slf4j
-// Framework: Abstract base class for tests provides common methods. Standard pattern for test base classes
-@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
-public abstract class AbstractIntegrationTest {
+public class AbstractIntegrationTest {
+
+    /**
+     * Protected constructor to prevent direct instantiation.
+     *
+     * <p>This class is designed to be extended by test classes, not instantiated directly.
+     */
+    protected AbstractIntegrationTest() {
+        // Base class - prevent direct instantiation
+    }
 
     /**
      * Template method for test setup.

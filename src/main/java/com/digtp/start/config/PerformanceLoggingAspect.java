@@ -62,16 +62,18 @@ public class PerformanceLoggingAspect {
      * @return method return value
      * @throws Exception if method execution throws exception
      */
-    // PMD.AvoidCatchingThrowable, java:S1181: Required for AOP - joinPoint.proceed() can throw Throwable
-    @SuppressWarnings({"PMD.AvoidCatchingThrowable", "java:S1181"})
     @Around("execution(public * com.digtp.start.service..*(..))")
     public Object logServicePerformance(final ProceedingJoinPoint joinPoint) throws Exception {
         try {
             return logPerformance(joinPoint, SERVICE_THRESHOLD_MS, "service");
         } catch (final Exception e) {
             throw e;
-            // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
         } catch (final Throwable t) {
+            // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+            // Errors should not be caught - rethrow immediately
+            if (t instanceof Error error) {
+                throw error;
+            }
             throw new SafeRuntimeException("Unexpected error in service method", t);
         }
     }
@@ -86,16 +88,18 @@ public class PerformanceLoggingAspect {
      * @return method return value
      * @throws Exception if method execution throws exception
      */
-    // PMD.AvoidCatchingThrowable, java:S1181: Required for AOP - joinPoint.proceed() can throw Throwable
-    @SuppressWarnings({"PMD.AvoidCatchingThrowable", "java:S1181"})
     @Around("execution(public * com.digtp.start.view..*(..))")
     public Object logViewPerformance(final ProceedingJoinPoint joinPoint) throws Exception {
         try {
             return logPerformance(joinPoint, VIEW_THRESHOLD_MS, "view");
         } catch (final Exception e) {
             throw e;
-            // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
         } catch (final Throwable t) {
+            // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+            // Errors should not be caught - rethrow immediately
+            if (t instanceof Error error) {
+                throw error;
+            }
             throw new SafeRuntimeException("Unexpected error in view method", t);
         }
     }
@@ -116,8 +120,6 @@ public class PerformanceLoggingAspect {
      * @return method return value
      * @throws Exception if method execution throws exception
      */
-    // PMD.AvoidCatchingThrowable, java:S1181: Required for AOP - joinPoint.proceed() can throw Throwable
-    @SuppressWarnings({"PMD.AvoidCatchingThrowable", "java:S1181"})
     private Object logPerformance(final ProceedingJoinPoint joinPoint, final long thresholdMs, final String layer)
             throws Exception {
         // Early exit if disabled in production or DEBUG logging is off
@@ -128,8 +130,12 @@ public class PerformanceLoggingAspect {
                 return joinPoint.proceed();
             } catch (final Exception e) {
                 throw e;
-                // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
             } catch (final Throwable t) {
+                // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+                // Errors should not be caught - rethrow immediately
+                if (t instanceof Error error) {
+                    throw error;
+                }
                 throw new SafeRuntimeException("Unexpected error in method execution", t);
             }
         }
@@ -140,8 +146,12 @@ public class PerformanceLoggingAspect {
                 return joinPoint.proceed();
             } catch (final Exception e) {
                 throw e;
-                // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
             } catch (final Throwable t) {
+                // Framework: AOP joinPoint.proceed() can throw Throwable (Error or Exception)
+                // Errors should not be caught - rethrow immediately
+                if (t instanceof Error error) {
+                    throw error;
+                }
                 throw new SafeRuntimeException("Unexpected error in method execution", t);
             }
         } finally {

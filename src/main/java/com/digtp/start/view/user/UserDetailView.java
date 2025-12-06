@@ -103,11 +103,9 @@ public class UserDetailView extends StandardDetailView<User> {
      *
      * <p>This method is safe to override. Override to customize view initialization.
      *
-     * @param _event initialization event
+     * @param _event initialization event (unused, required by framework)
      */
     @Subscribe
-    // Framework: Jmix lifecycle methods require InitEvent parameter signature
-    @SuppressWarnings("java:S1172") // unused parameter
     public void onInit(final InitEvent _event) {
         timeZoneField.setItems(getAvailableTimeZoneIds());
         log.debug("User detail view initialized");
@@ -157,7 +155,7 @@ public class UserDetailView extends StandardDetailView<User> {
      *
      * <p>This method is safe to override. Override to customize view ready behavior.
      *
-     * @param _event ready event
+     * @param _event ready event (unused, required by framework)
      */
     @Subscribe
     public void onReady(final ReadyEvent _event) {
@@ -257,7 +255,7 @@ public class UserDetailView extends StandardDetailView<User> {
      *
      * <p>This method is safe to override. Override to customize pre-save logic.
      *
-     * @param _event before save event
+     * @param _event before save event (unused, required by framework)
      */
     @Subscribe
     public void onBeforeSave(final BeforeSaveEvent _event) {
@@ -294,7 +292,7 @@ public class UserDetailView extends StandardDetailView<User> {
      *
      * <p>This method is safe to override. Override to customize post-save logic.
      *
-     * @param _event after save event
+     * @param _event after save event (unused, required by framework)
      */
     @Subscribe
     public void onAfterSave(final AfterSaveEvent _event) {

@@ -87,7 +87,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
      *
      * <p>This method is safe to override. Override to customize view initialization.
      *
-     * @param _event initialization event
+     * @param _event initialization event (unused, required by framework)
      */
     @Subscribe
     public void onInit(final InitEvent _event) {
@@ -137,14 +137,12 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         event.getSource().setError(true);
     }
 
-    // Framework: Pattern matching switch expression - unused variables are intentional (case labels)
-    @SuppressWarnings("java:S117") // unused variable
     private String getLoginFailureReason(final Exception exception) {
         return switch (exception) {
-            case BadCredentialsException ignored -> "invalid credentials";
-            case DisabledException ignored -> "account disabled";
-            case LockedException ignored -> "account locked";
-            case AccessDeniedException ignored -> "access denied";
+            case BadCredentialsException _ignored -> "invalid credentials";
+            case DisabledException _ignored -> "account disabled";
+            case LockedException _ignored -> "account locked";
+            case AccessDeniedException _ignored -> "access denied";
             default -> "unknown error";
         };
     }
@@ -154,11 +152,9 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
      *
      * <p>This method is safe to override. Override to customize locale change handling.
      *
-     * @param event locale change event
+     * @param event locale change event (passed to helper method)
      */
     @Override
-    // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
-    @SuppressWarnings("java:S1172") // unused parameter
     public void localeChange(final LocaleChangeEvent event) {
         UI.getCurrent().getPage().setTitle(messageBundle.getMessage("LoginView.title"));
         localeHelper.updateLoginI18n(login, messageBundle, event);

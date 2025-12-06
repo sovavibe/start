@@ -73,11 +73,9 @@ public class UserListView extends StandardListView<User> {
      *
      * <p>This method is safe to override. Override to customize view initialization.
      *
-     * @param _event initialization event
+     * @param _event initialization event (unused, required by framework)
      */
     @Subscribe
-    // Framework: Jmix lifecycle methods require InitEvent parameter signature
-    @SuppressWarnings("java:S1172") // unused parameter
     public void onInit(final InitEvent _event) {
         log.debug("User list view initialized");
     }
