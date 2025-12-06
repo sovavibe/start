@@ -2,6 +2,10 @@
 
 This document provides recommendations for optimizing Cursor IDE configuration for maximum efficiency with Vibe Coding principles.
 
+> **Last Updated**: 2025-01-XX  
+> **Cursor Version**: Current (as of document creation)  
+> **Status**: ✅ Verified against current Cursor capabilities
+
 ## Overview
 
 Cursor uses rules and agents to provide AI-powered assistance. Optimizing these configurations ensures:
@@ -165,38 +169,41 @@ Cursor supports different agent types:
 
 ### `.cursorrules` (Optional)
 
-You can create a `.cursorrules` file in project root for global settings:
+You can create a `.cursorrules` file in project root for global settings. This file provides:
+- Quick reference for AI assistant
+- Project overview and principles
+- Links to detailed rules
 
-```markdown
-# Project: Start - Vibe Coding Jmix Project
-# Tech Stack: Java 21, Jmix 2.7.1, Vaadin 24+, Spring Boot 3.x
+**Current Setup**: ✅ Already configured in project root (`.cursorrules`)
 
-## Principles
-- Production-ready code
-- Senior+ level standards
-- Minimal suppressions, maximum quality
-- Fix root causes, not symptoms
-
-## Rules Location
-See `.cursor/rules/` for detailed rules.
-
-## Quick Reference
-- Commands: `make analyze-full`, `make test`, `make format`
-- Quality: All checks must pass (ignoreFailures=false)
-- Coverage: 85% instructions, 75% branches, 90% lines
-```
-
-**Note**: This is optional. Rules in `.cursor/rules/` are more powerful and flexible.
+**Note**: 
+- `.cursorrules` is a simple markdown file for quick reference
+- Detailed rules in `.cursor/rules/*.mdc` are more powerful (glob patterns, versioning, alwaysApply)
+- Both can coexist: `.cursorrules` for overview, `.cursor/rules/` for detailed configuration
 
 ### Cursor Settings
 
-**Recommended Settings** (via Cursor UI):
-1. **Team Role**: Select based on your role (Analyst/Developer/Reviewer/Team Lead)
-2. **Agent Mode**: 
-   - Background: Enable for formatting, imports
-   - Chat: Full access to rules
-   - Review: Use BUGBOT.md guidelines
-3. **Context Window**: Use default (rules are optimized for token efficiency)
+**Recommended Settings** (via Cursor UI → Settings):
+1. **Team Role** (Features → Team Role):
+   - Select based on your role: Analyst/Developer/Reviewer/Team Lead
+   - Affects AI assistant behavior and priorities
+   
+2. **Background Agents** (Features → Background Agents):
+   - ✅ Enable: Formatting, import organization, simple refactorings
+   - ⚠️ Disable: Complex logic changes, architecture decisions
+   - Scope: Can limit to specific file types
+   
+3. **Bugbot** (Code Review):
+   - Automatically reviews PRs using `.cursor/BUGBOT.md` guidelines
+   - Configured via `.cursor/BUGBOT.md` file
+   - Works alongside `.cursor/rules/` for context-aware reviews
+   
+4. **Chat Agent**:
+   - Full access to rules in `.cursor/rules/`
+   - Auto-loads rules based on file context (glob patterns)
+   - Uses rule references (`@rule-name.mdc`) for efficiency
+   
+5. **Context Window**: Use default (rules are optimized for token efficiency)
 
 ## Best Practices
 
@@ -261,27 +268,51 @@ See `.cursor/rules/` for detailed rules.
 
 ## Future Enhancements
 
-### Potential Improvements
+### Potential Improvements (Based on Current Cursor Capabilities)
 
-1. **Negative Glob Patterns**: Exclude specific files/directories
-2. **Rule Dependencies**: Explicit dependencies between rules
-3. **Rule Testing**: Validate rules against codebase
-4. **Metrics**: Track rule usage and effectiveness
+1. **Negative Glob Patterns**: Currently not supported, but can be worked around with specific patterns
+2. **Rule Dependencies**: Use `@rule-name.mdc` references for implicit dependencies
+3. **Rule Testing**: Manually validate rules against codebase
+4. **Metrics**: Monitor token usage and response times manually
 
 ### Cursor Features to Watch
 
-1. **Agent Improvements**: Better context understanding
-2. **Rule System**: More advanced pattern matching
-3. **Performance**: Faster rule loading and matching
+1. **Agent Improvements**: Cursor regularly updates AI models and agent capabilities
+2. **Rule System**: Current system supports glob patterns, versioning, alwaysApply
+3. **Performance**: Rules are cached and loaded efficiently based on file context
+4. **Bugbot**: Continuously improved for better code review accuracy
+
+### Keeping Documentation Updated
+
+**When to Update**:
+- Cursor releases new features affecting rules/agents
+- Project standards change significantly
+- New patterns emerge that should be documented
+- Performance issues identified with current setup
+
+**How to Stay Current**:
+- Check [Cursor Changelog](https://cursor.com/docs) for updates
+- Review `.cursor/rules/` version numbers when updating
+- Test rule changes in development before committing
 
 ## References
 
-- [Cursor Documentation](https://cursor.com/docs)
-- [Cursor Rules Guide](https://cursor.com/docs/rules)
-- [Bugbot Documentation](https://cursor.com/ru/docs/bugbot)
-- Project Rules: `.cursor/rules/`
-- Quality Gates: `docs/quality/QUALITY_GATES.md`
-- SDLC: `docs/workflow/SDLC.md`
+### Official Cursor Documentation
+
+- **Main Docs**: [https://cursor.com/docs](https://cursor.com/docs)
+- **Rules System**: Rules are configured via `.cursor/rules/*.mdc` files with YAML frontmatter
+- **Bugbot**: [https://cursor.com/docs/bugbot](https://cursor.com/docs/bugbot) (automatic code review)
+- **Team Roles**: Configured via Cursor Settings → Features → Team Role
+- **Background Agents**: Configured via Cursor Settings → Features → Background Agents
+
+### Project-Specific
+
+- **Project Rules**: `.cursor/rules/` directory
+- **Bugbot Guidelines**: `.cursor/BUGBOT.md`
+- **Global Settings**: `.cursorrules` (optional, for quick reference)
+- **Quality Gates**: `docs/quality/QUALITY_GATES.md`
+- **SDLC**: `docs/workflow/SDLC.md`
+- **Roles Guide**: `docs/ROLES.md`
 
 ## Summary
 
