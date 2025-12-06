@@ -21,4 +21,47 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-// Test: Test methods may have similar structure but test different scenarios
+class DatabaseUserRepositoryTest extends AbstractIntegrationTest {
+
+    @Autowired
+    private DatabaseUserRepository userRepository;
+
+    @Autowired
+    private SystemAuthenticator systemAuthenticator;
+
+    @Test
+    void testGetUserClass() {
+        final Class<?> userClass = userRepository.getUserClass();
+
+        assertThat(userClass).isEqualTo(User.class);
+    }
+
+    @Test
+    void testGetSystemUser() {
+        systemAuthenticator.begin();
+
+        try {
+            final User systemUser = userRepository.getSystemUser();
+
+            assertThat(systemUser).isNotNull();
+            assertThat(systemUser.getUsername()).isEqualTo("system");
+
+            final Collection<? extends GrantedAuthority> authorities = systemUser.getAuthorities();
+            assertThat(authorities).isNotEmpty();
+            assertThat(authorities.stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .anyMatch(auth -> auth.contains(FullAccessRole.CODE)))
+                    .isTrue();
+        } finally {
+            systemAuthenticator.end();
+        }
+    }
+
+    @Test
+    void testGetAnonymousUser() {
+        final User anonymousUser = userRepository.getAnonymousUser();
+
+        assertThat(anonymousUser).isNotNull();
+        assertThat(anonymousUser.getUsername()).isEqualTo("anonymous");
+    }
+}

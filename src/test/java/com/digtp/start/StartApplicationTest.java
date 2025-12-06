@@ -21,4 +21,28 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-// Test: Test methods may have similar structure but test different scenarios
+class StartApplicationTest extends AbstractIntegrationTest {
+
+    @Autowired
+    Environment environment;
+
+    @Autowired
+    @Qualifier("dataSource")
+    DataSource dataSource;
+
+    @Autowired(required = false)
+    DataSourceProperties dataSourceProperties;
+
+    @Test
+    void testApplicationContextLoads() {
+        assertThat(environment).isNotNull();
+        assertThat(dataSource).isNotNull();
+    }
+
+    @Test
+    void testDataSourceProperties() {
+        if (dataSourceProperties != null) {
+            assertThat(dataSourceProperties).isNotNull();
+        }
+    }
+}

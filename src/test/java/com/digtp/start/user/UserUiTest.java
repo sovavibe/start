@@ -1,3 +1,4 @@
+/*
  * Copyright 2025 Digital Technologies and Platforms LLC
  * Licensed under the Apache License, Version 2.0
  */
@@ -32,4 +33,65 @@ import org.springframework.test.context.ActiveProfiles;
 @UiTest
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
-// Test: Test methods may have similar structure but test different scenarios
+class UserUiTest extends AbstractIntegrationTest {
+
+    @Autowired
+    DataManager dataManager;
+
+    @Autowired
+    ViewNavigators viewNavigators;
+
+    @Test
+    void testCreateUser() {
+        // Navigate to user list view
+        viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
+
+        final View<?> userListView = getCurrentViewAsView();
+
+        // click "Create" button
+        final JmixButton createBtn = UiTestUtils.getComponent(userListView, "createButton");
+        createBtn.click();
+
+        // Get detail view
+        final View<?> userDetailView = getCurrentViewAsView();
+
+        // Set username and password in the fields
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(userDetailView, "usernameField");
+        final String username = TestFixtures.uniqueUsername();
+        usernameField.setValue(username);
+
+        final JmixPasswordField passwordField = UiTestUtils.getComponent(userDetailView, "passwordField");
+        passwordField.setValue(TestFixtures.ALTERNATIVE_TEST_PASSWORD);
+
+        final JmixPasswordField confirmPasswordField = UiTestUtils.getComponent(userDetailView, "confirmPasswordField");
+        confirmPasswordField.setValue(TestFixtures.ALTERNATIVE_TEST_PASSWORD);
+
+        // Click "OK"
+        final JmixButton commitAndCloseBtn = UiTestUtils.getComponent(userDetailView, "saveAndCloseButton");
+        commitAndCloseBtn.click();
+
+        // Get navigated user list view
+        final View<?> userListViewAfterSave = getCurrentViewAsView();
+
+        // Check the created user is shown in the table
+        final DataGrid<User> usersDataGrid = UiTestUtils.getComponent(userListViewAfterSave, "usersDataGrid");
+
+        final DataGridItems<User> usersDataGridItems = usersDataGrid.getItems();
+        Assertions.assertNotNull(usersDataGridItems);
+
+        final User foundUser = usersDataGridItems.getItems().stream()
+                .filter(u -> u.getUsername().equals(username))
+                .findFirst()
+                .orElseThrow();
+        Assertions.assertNotNull(foundUser);
+    }
+
+    @AfterEach
+    void afterEach() {
+        dataManager
+                .load(User.class)
+                .query("e.username like ?1", TestFixtures.TEST_USER_PREFIX + "%")
+                .list()
+                .forEach(dataManager::remove);
+    }
+}

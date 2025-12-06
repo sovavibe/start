@@ -14,4 +14,13 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-// Test: Test methods may have similar structure but test different scenarios
+class StartSecurityConfigurationTest extends AbstractIntegrationTest {
+
+    @Autowired(required = false)
+    private StartSecurityConfiguration securityConfiguration;
+
+    @Test
+    void testSecurityConfigurationExists() {
+        assertThat(securityConfiguration).isNotNull();
+    }
+}

@@ -13,4 +13,13 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-// Test: Test methods may have similar structure but test different scenarios
+class OpenTelemetryAppenderInitializerTest extends AbstractIntegrationTest {
+
+    @Test
+    void testOpenTelemetryAppenderInitializerClassExists() {
+        // Test that OpenTelemetryAppenderInitializer class can be loaded
+        // Actual bean creation is conditional on management.otlp.logging.endpoint property
+        final Class<?> initializerClass = OpenTelemetryAppenderInitializer.class;
+        assertThat(initializerClass).isNotNull();
+    }
+}
