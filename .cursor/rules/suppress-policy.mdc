@@ -54,22 +54,16 @@ version: "1.2.0"
 })
 ```
 
-**Examples**:
+**Examples for multiple suppressions**:
 ```java
-// Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
-@SuppressWarnings("java:S1172")
-public void localeChange(final LocaleChangeEvent event) {
-    // ...
-}
-
 // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
 @SuppressWarnings({
     // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
-    "java:S1948",
+    "java:S1948", // non-serializable field
     // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
-    "java:S110",
+    "java:S110", // too many parents
     // Framework: Jmix lifecycle methods may have same names as parent methods
-    "java:S2177"
+    "java:S2177" // method name conflict
 })
 public class LoginView extends StandardView {
     // ...
