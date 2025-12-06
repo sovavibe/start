@@ -221,7 +221,7 @@ spotless {
         cleanthat().sourceCompatibility('21')
         formatAnnotations()
         lineEndings = 'UNIX'
-        palantirJavaFormat('2.68.0')
+        palantirJavaFormat('2.83.0') // Latest version as of 2025
         toggleOffOn()
     }
 }
