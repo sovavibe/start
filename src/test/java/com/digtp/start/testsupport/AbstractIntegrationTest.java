@@ -7,6 +7,7 @@ package com.digtp.start.testsupport;
 import io.jmix.flowui.testassist.UiTestUtils;
 import io.jmix.flowui.view.View;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -35,8 +36,16 @@ import org.springframework.test.context.DynamicPropertySource;
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class AbstractIntegrationTest {
 
-    // Note: Use @BeforeEach annotation for test setup instead of setUp() method
-    // This follows JUnit 5 best practices and satisfies Checkstyle rules
+    /**
+     * Template method for test setup.
+     *
+     * <p>Subclasses can override this method to perform test-specific setup.
+     * Default implementation does nothing.
+     */
+    @BeforeEach
+    protected void before() {
+        // Default implementation - subclasses can override
+    }
 
     @DynamicPropertySource
     static void configureProperties(final DynamicPropertyRegistry registry) {

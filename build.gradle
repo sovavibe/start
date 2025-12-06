@@ -370,19 +370,18 @@ tasks.named("jacocoTestReport") {
 tasks.named("jacocoTestCoverageVerification") {
     violationRules {
         rule {
-            // TODO: Increase coverage thresholds to 85%/75%/90% after adding more tests
-            // Current coverage: 77% instructions, 67% branches, 78% lines
+            // Quality gates: 85% instructions, 75% branches, 90% lines (as per README.md)
             limit {
                 counter = 'INSTRUCTION'
-                minimum = 0.75
+                minimum = 0.85
             }
             limit {
                 counter = 'BRANCH'
-                minimum = 0.65
+                minimum = 0.75
             }
             limit {
                 counter = 'LINE'
-                minimum = 0.75
+                minimum = 0.90
             }
         }
     }

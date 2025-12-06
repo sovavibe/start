@@ -5,11 +5,15 @@
 package com.digtp.start.view.login;
 
 import com.digtp.start.service.AuditService;
+import com.digtp.start.service.RateLimitingService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.component.loginform.JmixLoginForm;
@@ -21,10 +25,12 @@ import io.jmix.flowui.view.ViewController;
 import io.jmix.flowui.view.ViewDescriptor;
 import io.jmix.securityflowui.authentication.AuthDetails;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -68,6 +74,8 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     private final transient LoginViewSupport loginViewSupport;
     private final transient LocaleHelper localeHelper;
     private final transient AuditService auditService;
+    private final transient RateLimitingService rateLimitingService;
+    private final transient Environment environment;
 
     @ViewComponent
     private JmixLoginForm login;
@@ -89,6 +97,14 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     }
 
     private void initDefaultCredentials() {
+        // Only set default credentials in non-production profiles
+        final String[] activeProfiles = environment.getActiveProfiles();
+        final boolean isProduction = Arrays.asList(activeProfiles).contains("prod");
+        if (isProduction) {
+            log.debug("Default credentials disabled in production profile");
+            return;
+        }
+
         if (StringUtils.isNotBlank(defaultUsername)) {
             login.setUsername(defaultUsername);
         }
@@ -102,6 +118,24 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     // LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
     @SuppressWarnings("removal")
     public void onLogin(final LoginEvent event) {
+        // Check rate limiting before authentication
+        final String clientIp = getClientIpAddress();
+        if (!rateLimitingService.isLoginAllowed(clientIp)) {
+            final long remainingAttempts = rateLimitingService.getRemainingLoginAttempts(clientIp);
+            log.warn(
+                    "Login rate limit exceeded: username={}, ip={}, remainingAttempts={}",
+                    event.getUsername(),
+                    clientIp,
+                    remainingAttempts);
+            auditService.logLoginFailed(event.getUsername(), "rate limit exceeded");
+            event.getSource().setError(true);
+            final String message = messageBundle.getMessage("login.rateLimitExceeded");
+            final Notification notification = Notification.show(message);
+            notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+            notification.setPosition(Notification.Position.TOP_CENTER);
+            return;
+        }
+
         try {
             loginViewSupport.authenticate(AuthDetails.of(event.getUsername(), event.getPassword())
                     .withLocale(login.getSelectedLocale())
@@ -130,6 +164,26 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
             case AccessDeniedException ignored -> "access denied";
             default -> "unknown error";
         };
+    }
+
+    /**
+     * Gets client IP address from current Vaadin request.
+     *
+     * <p>Extracts IP address from VaadinRequest for rate limiting purposes.
+     * Falls back to "unknown" if IP cannot be determined.
+     *
+     * @return client IP address or "unknown" if not available
+     */
+    private String getClientIpAddress() {
+        try {
+            final VaadinRequest request = VaadinRequest.getCurrent();
+            if (request != null) {
+                return request.getRemoteAddr();
+            }
+        } catch (final Exception e) {
+            log.debug("Failed to get client IP address: {}", e.getMessage());
+        }
+        return "unknown";
     }
 
     @Override

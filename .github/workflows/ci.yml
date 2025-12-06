@@ -124,6 +124,8 @@ jobs:
         env:
           # Disable Testcontainers reuse in CI (containers are not reused between runs)
           TESTCONTAINERS_REUSE_ENABLE: false
+          # Docker is available in GitHub Actions runners
+          DOCKER_HOST: unix:///var/run/docker.sock
 
       - name: Generate coverage report
         run: ./gradlew jacocoTestReport --no-daemon
