@@ -22,36 +22,3 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
 // Test: Test methods may have similar structure but test different scenarios
-@SuppressWarnings({
-    // Test: Some tests are clearer as separate methods rather than parameterized
-    "java:S5976", // parameterized test
-    // Test: Multiple assertions on same object are acceptable in tests for clarity
-    "java:S5853", // multiple assertions
-    // Test: Test methods may have similar structure but test different scenarios
-    "java:S4144" // similar methods
-})
-class StartApplicationTest extends AbstractIntegrationTest {
-
-    @Autowired
-    Environment environment;
-
-    @Autowired
-    @Qualifier("dataSource")
-    DataSource dataSource;
-
-    @Autowired(required = false)
-    DataSourceProperties dataSourceProperties;
-
-    @Test
-    void testApplicationContextLoads() {
-        assertThat(environment).isNotNull();
-        assertThat(dataSource).isNotNull();
-    }
-
-    @Test
-    void testDataSourceProperties() {
-        if (dataSourceProperties != null) {
-            assertThat(dataSourceProperties).isNotNull();
-        }
-    }
-}

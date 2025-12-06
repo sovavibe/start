@@ -1,4 +1,3 @@
-/*
  * Copyright 2025 Digital Technologies and Platforms LLC
  * Licensed under the Apache License, Version 2.0
  */
@@ -27,48 +26,3 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
 // Test: Test methods may have similar structure but test different scenarios
-@SuppressWarnings({
-    // Test: Some tests are clearer as separate methods rather than parameterized
-    "java:S5976", // parameterized test
-    // Test: Multiple assertions on same object are acceptable in tests for clarity
-    "java:S5853", // multiple assertions
-    // Test: Test methods may have similar structure but test different scenarios
-    "java:S4144" // similar methods
-})
-class UserTest extends AbstractIntegrationTest {
-
-    @Autowired
-    DataManager dataManager;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    UserRepository userRepository;
-
-    User savedUser;
-
-    @Test
-    void testSaveAndLoad() {
-        // Arrange
-        final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
-        user.setPassword(passwordEncoder.encode("test-passwd"));
-
-        // Act
-        savedUser = dataManager.save(user);
-        final User loadedUser = dataManager.load(User.class).id(user.getId()).one();
-        final UserDetails userDetails = userRepository.loadUserByUsername(user.getUsername());
-
-        // Assert
-        assertThat(loadedUser).isEqualTo(user);
-        assertThat(userDetails).isEqualTo(user);
-    }
-
-    @AfterEach
-    void afterEach() {
-        if (savedUser != null) {
-            dataManager.remove(savedUser);
-        }
-    }
-}

@@ -24,15 +24,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-// Test: Test methods may have similar structure but test different scenarios
-@SuppressWarnings({
-    // Test: Some tests are clearer as separate methods rather than parameterized
-    "java:S5976", // parameterized test
-    // Test: Multiple assertions on same object are acceptable in tests for clarity
-    "java:S5853", // multiple assertions
-    // Test: Test methods may have similar structure but test different scenarios
-    "java:S4144" // similar methods
-})
 class UserListViewTest extends AbstractIntegrationTest {
 
     @Autowired

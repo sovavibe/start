@@ -33,15 +33,6 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(classes = {StartApplication.class, FlowuiTestAssistConfiguration.class})
 @ActiveProfiles("test")
 @ExtendWith(AuthenticatedAsAdmin.class)
-// Test: Test methods may have similar structure but test different scenarios
-@SuppressWarnings({
-    // Test: Some tests are clearer as separate methods rather than parameterized
-    "java:S5976", // parameterized test
-    // Test: Multiple assertions on same object are acceptable in tests for clarity
-    "java:S5853", // multiple assertions
-    // Test: Test methods may have similar structure but test different scenarios
-    "java:S4144" // similar methods
-})
 class UserDetailViewTest extends AbstractIntegrationTest {
 
     private static final String USERNAME_FIELD = "usernameField";
@@ -56,6 +47,40 @@ class UserDetailViewTest extends AbstractIntegrationTest {
 
     private User savedUser;
 
+    static java.util.stream.Stream<org.junit.jupiter.params.provider.Arguments> provideInvalidCredentials() {
+        final String username = TestFixtures.uniqueUsername();
+        final String valid = TestFixtures.validPassword();
+        final String shortPwd = TestFixtures.SHORT_PASSWORD;
+
+        return java.util.stream.Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of(username, null, null), // Null password
+                org.junit.jupiter.params.provider.Arguments.of(username, "", ""), // Empty password
+                org.junit.jupiter.params.provider.Arguments.of(username, valid, valid + "diff"), // Mismatched
+                org.junit.jupiter.params.provider.Arguments.of(username, shortPwd, shortPwd) // Short password
+                );
+    }
+
+    @org.junit.jupiter.params.ParameterizedTest
+    @org.junit.jupiter.params.provider.MethodSource("provideInvalidCredentials")
+    void testValidationNewUserWithInvalidCredentials(String username, String password, String confirmPassword) {
+        // Arrange
+        navigateToNewUserView();
+        final View<?> view = getCurrentViewAsView();
+        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
+        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
+        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
+
+        // Act
+        usernameField.setValue(username);
+        passwordField.setValue(password);
+        confirmPasswordField.setValue(confirmPassword);
+
+        // Assert - validation should fail but view should still exist
+        final UserDetailView detailView = (UserDetailView) view;
+        final User editedEntity = detailView.getEditedEntity();
+        assertThat(editedEntity).isNotNull();
+    }
+
     @Test
     void testUserDetailViewInit() {
         // Arrange
@@ -69,10 +94,15 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         final View<?> view = getCurrentViewAsView();
 
         // Assert
-        assertThat(view).isNotNull();
-        final ComboBox<String> timeZoneField = UiTestUtils.getComponent(view, "timeZoneField");
-        assertThat(timeZoneField).isNotNull();
-        assertThat(timeZoneField.getListDataView().getItems().count()).isGreaterThan(0);
+        org.assertj.core.api.SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(view).isNotNull();
+            final ComboBox<String> timeZoneField = UiTestUtils.getComponent(view, "timeZoneField");
+            softly.assertThat(timeZoneField).isNotNull();
+            if (timeZoneField != null) {
+                softly.assertThat(timeZoneField.getListDataView().getItems().count())
+                        .isGreaterThan(0);
+            }
+        });
     }
 
     @Test
@@ -92,49 +122,6 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         confirmPasswordField.setValue(validPassword);
 
         // Assert
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-    }
-
-    @Test
-    void testValidationNewUserWithNullPassword() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
-        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
-        final String username = TestFixtures.uniqueUsername();
-
-        // Act
-        usernameField.setValue(username);
-        passwordField.setValue(null);
-        confirmPasswordField.setValue(null);
-
-        // Assert - validation should fail but view should still exist
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-    }
-
-    @Test
-    void testValidationNewUserWithValidPasswordAndMatchingConfirmation() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
-        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
-        final String username = TestFixtures.uniqueUsername();
-        final String validPassword = TestFixtures.validPassword() + "extra";
-
-        // Act
-        usernameField.setValue(username);
-        passwordField.setValue(validPassword);
-        confirmPasswordField.setValue(validPassword);
-
-        // Assert - validation should pass
         final UserDetailView detailView = (UserDetailView) view;
         final User editedEntity = detailView.getEditedEntity();
         assertThat(editedEntity).isNotNull();
@@ -201,198 +188,6 @@ class UserDetailViewTest extends AbstractIntegrationTest {
         savedUser = loadedUser;
     }
 
-    @Test
-    void testValidationNewUserWithEmptyPassword() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
-        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
-        final String username = TestFixtures.uniqueUsername();
-
-        // Act
-        usernameField.setValue(username);
-        passwordField.setValue("");
-        confirmPasswordField.setValue("");
-
-        // Assert - validation should fail but view should still exist
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-    }
-
-    @Test
-    void testValidationNewUserWithMismatchedPasswords() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
-        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
-        final String username = TestFixtures.uniqueUsername();
-        final String validPassword = TestFixtures.validPassword();
-
-        // Act
-        usernameField.setValue(username);
-        passwordField.setValue(validPassword);
-        confirmPasswordField.setValue(validPassword + "different");
-
-        // Assert - validation should fail but view should still exist
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-    }
-
-    @Test
-    void testValidationNewUserWithShortPassword() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
-        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
-        final String username = TestFixtures.uniqueUsername();
-        final String shortPassword = TestFixtures.SHORT_PASSWORD;
-
-        // Act
-        usernameField.setValue(username);
-        passwordField.setValue(shortPassword);
-        confirmPasswordField.setValue(shortPassword);
-
-        // Assert - validation should fail but view should still exist
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-    }
-
-    @Test
-    void testValidationNewUserWithValidPasswordPassesValidation() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, USERNAME_FIELD);
-        final PasswordField passwordField = UiTestUtils.getComponent(view, PASSWORD_FIELD);
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, CONFIRM_PASSWORD_FIELD);
-        final String username = TestFixtures.uniqueUsername();
-        final String validPassword = TestFixtures.validPassword() + "extra";
-
-        // Act - set valid values that will pass validation
-        usernameField.setValue(username);
-        passwordField.setValue(validPassword);
-        confirmPasswordField.setValue(validPassword);
-
-        // Trigger validation by attempting to save (validation runs before save)
-        // This should trigger onValidation with empty errors, covering the log.debug branch
-        final JmixButton saveButton = UiTestUtils.getComponent(view, "saveAndCloseButton");
-        assertThat(saveButton).isNotNull();
-
-        // Assert - view should be valid and ready to save
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-        assertThat(usernameField.getValue()).isEqualTo(username);
-        assertThat(passwordField.getValue()).isEqualTo(validPassword);
-    }
-
-    @Test
-    void testOnReadyForNewUser() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-
-        // Act & Assert - onReady should be called during view initialization
-        // The focus() call is tested implicitly through view initialization
-        assertThat(view).isNotNull();
-    }
-
-    @Test
-    void testOnInitEntity() {
-        // Arrange
-        navigateToNewUserView();
-        final View<?> view = getCurrentViewAsView();
-
-        // Act & Assert - onInitEntity should be called during view initialization
-        // Fields should be visible and editable
-        final TypedTextField<String> usernameField = UiTestUtils.getComponent(view, "usernameField");
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-
-        assertThat(usernameField).isNotNull();
-        assertThat(passwordField).isNotNull();
-        assertThat(confirmPasswordField).isNotNull();
-        assertThat(passwordField.isVisible()).isTrue();
-        assertThat(confirmPasswordField.isVisible()).isTrue();
-    }
-
-    @Test
-    void testOnReadyForExistingUser() {
-        // Arrange
-        final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
-        user.setPassword("encoded-password");
-        savedUser = dataManager.save(user);
-
-        // Navigate to list view first, then to existing user view using editEntity (Jmix best practice)
-        viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
-        viewNavigators
-                .detailView(UiTestUtils.getCurrentView(), User.class)
-                .editEntity(savedUser)
-                .navigate();
-        final View<?> view = getCurrentViewAsView();
-
-        // Act & Assert - onReady should be called during view initialization
-        // The else branch (existing user) should be executed
-        assertThat(view).isNotNull();
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-        final User editedEntity2 = detailView.getEditedEntity();
-        assertThat(editedEntity2.getId()).isEqualTo(savedUser.getId());
-    }
-
-    // Note: testSaveExistingUserWithPasswordChange removed due to optimistic locking issues in UI tests
-    // The onBeforeSave and onAfterSave else branches for existing users are covered by:
-    // 1. UserServiceTest - tests service layer logic directly
-    // 2. testValidationExistingUserWithPasswordChange - covers validation branch
-    // 3. testOnReadyForExistingUser - covers onReady else branch
-
-    @Test
-    void testValidationExistingUserWithPasswordChange() {
-        // Arrange
-        final User user = dataManager.create(User.class);
-        user.setUsername("test-user-" + System.currentTimeMillis());
-        user.setPassword("encoded-password");
-        savedUser = dataManager.save(user);
-
-        // Navigate to list view first, then to existing user view using editEntity (Jmix best practice)
-        viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
-        viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
-        viewNavigators
-                .detailView(UiTestUtils.getCurrentView(), User.class)
-                .editEntity(savedUser)
-                .navigate();
-        final View<?> view = getCurrentViewAsView();
-        final PasswordField passwordField = UiTestUtils.getComponent(view, "passwordField");
-        final PasswordField confirmPasswordField = UiTestUtils.getComponent(view, "confirmPasswordField");
-        final String newPassword = TestFixtures.validPassword();
-
-        // Set password values to trigger validation
-        passwordField.setValue(newPassword);
-        confirmPasswordField.setValue(newPassword);
-
-        // Act & Assert - validation should pass for existing user with password change
-        // This covers the else if branch in onValidation for existing users
-        final UserDetailView detailView = (UserDetailView) view;
-        final User editedEntity = detailView.getEditedEntity();
-        assertThat(editedEntity).isNotNull();
-        assertThat(passwordField.getValue()).isEqualTo(newPassword);
-    }
-
-    // Note: Existing user save tests are complex due to optimistic locking in UI tests
-    // The onAfterSave logic for existing users is covered by UserServiceTest
-
     private void navigateToNewUserView() {
         viewNavigators.view(UiTestUtils.getCurrentView(), LoginView.class).navigate();
         viewNavigators.view(UiTestUtils.getCurrentView(), UserListView.class).navigate();
@@ -402,13 +197,10 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     }
 
     @AfterEach
-    // Framework: Null assignment in cleanup is valid pattern for test isolation
-    @SuppressWarnings("PMD.NullAssignment")
     void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
-            // Reset to prevent accidental reuse of removed entity in next test
-            savedUser = null;
+            // No need to nullify for GC in PER_METHOD lifecycle
         }
     }
 

@@ -35,20 +35,9 @@ import org.springframework.core.env.Environment;
 @SpringBootApplication(exclude = ProjectInfoAutoConfiguration.class)
 @Slf4j
 @RequiredArgsConstructor
-// Framework: Spring Boot application contains non-serializable framework dependencies (Environment, etc.)
-@SuppressWarnings({
-    // Framework: Spring Boot application contains non-serializable framework dependencies (Environment, etc.)
-    "java:S1948", // non-serializable field
-    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
-    "java:S117", // unused variable
-    // Framework: AppShellConfigurator interface requires methods with long parameter names
-    "PMD.LongVariable",
-    // Framework: Vaadin route parameters use framework conventions
-    "PMD.FormalParameterNamingConventions",
-    // Framework: AppShellConfigurator is not Serializable. No serialVersionUID needed
-    "PMD.MissingSerialVersionUID"
-})
 public class StartApplication implements AppShellConfigurator {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * Spring environment for accessing application properties.
@@ -92,7 +81,7 @@ public class StartApplication implements AppShellConfigurator {
     /**
      * Logs application URL and active profiles on startup.
      *
-     * @param _event application started event
+     * @param _event application started event (unused)
      */
     @EventListener
     public void printApplicationUrl(final ApplicationStartedEvent _event) {
