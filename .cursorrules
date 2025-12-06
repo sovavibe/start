@@ -1,0 +1,64 @@
+# Start - Vibe Coding Jmix Project
+
+## Project Overview
+Production-ready Jmix application template demonstrating **Vibe Coding** philosophy: strict quality gates, minimal suppressions, senior-level code standards.
+
+## Tech Stack
+- **Java 21** (virtual threads, pattern matching, records)
+- **Jmix 2.7.1** | **Vaadin FlowUI 24+** | **Spring Boot 3.x**
+- **PostgreSQL 16** | **Liquibase** | **EclipseLink**
+- **Quality**: Palantir Baseline (Checkstyle, PMD, SpotBugs, Spotless, Error-prone), SonarLint
+
+## Core Principles
+- **Production-ready code** from day one
+- **Senior+ level** standards
+- **Minimal suppressions, maximum quality** (vibe coding)
+- **Fix root causes, not symptoms**
+- **Refactor, not workarounds**
+
+## Quick Commands
+- `make analyze-full` - Check quality (Checkstyle, PMD, SpotBugs, SonarLint)
+- `make test` - Run tests
+- `make format` - Format code
+- `make setup` - Setup project
+
+## Quality Gates
+- **Coverage**: 85% instructions, 75% branches, 90% lines
+- **Complexity**: ≤10 cognitive/cyclomatic per method
+- **File Length**: ≤250 lines
+- **All checks**: Must pass (`ignoreFailures=false`)
+
+## Rules Location
+Detailed rules in `.cursor/rules/`:
+- `core.mdc` - Always applied (project standards, principles)
+- `jmix.mdc` - Jmix framework patterns
+- `vaadin.mdc` - Vaadin UI patterns
+- `patterns.mdc` - Architecture & error handling
+- `quality.mdc` - Quality & suppression policy
+- `git.mdc` - Git & CI/CD conventions
+
+## Code Review
+See `.cursor/BUGBOT.md` for Bugbot code review guidelines.
+
+## Documentation
+- Quick Start: `docs/QUICK_START.md`
+- Setup: `docs/getting-started/SETUP.md`
+- SDLC: `docs/workflow/SDLC.md`
+- Quality Gates: `docs/quality/QUALITY_GATES.md`
+- Cursor Optimization: `docs/CURSOR_OPTIMIZATION.md`
+
+## AI Assistant Behavior
+- **Autonomous**: End-to-end implementation
+- **Quality First**: Run `make analyze-full` before completion
+- **Context Aware**: Search codebase first, use existing patterns
+- **Token Efficient**: Reference rules (`@rule-name.mdc`) instead of copying
+- **Production Ready**: No workarounds, proper error handling
+
+## Before Completion Checklist
+1. ✅ Code compiles without errors
+2. ✅ Run `make analyze-full` - all linters pass
+3. ✅ Fix all linter violations
+4. ✅ Code follows project conventions
+5. ✅ Production-ready quality
+6. ✅ All tests pass
+7. ✅ Cleanup: Remove temporary files, unused imports, debug statements
