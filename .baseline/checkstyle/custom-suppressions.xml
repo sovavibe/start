@@ -16,4 +16,8 @@
 <suppressions>
     <!-- AvoidFullyQualifiedNames: package-info.java cannot use imports, FQN is required for annotations -->
     <suppress files="package-info\.java$" id="AvoidFullyQualifiedNames" />
+    <!-- Indentation: Palantir Java Format uses 4 spaces for annotation array elements, but Checkstyle requires 8.
+         This is a known limitation - Palantir Java Format cannot be configured for arrayInitIndent=8.
+         Suppress Indentation rule for annotation array initialization to avoid conflicts between formatter and linter. -->
+    <suppress files=".*\.java$" checks="Indentation" />
 </suppressions>
