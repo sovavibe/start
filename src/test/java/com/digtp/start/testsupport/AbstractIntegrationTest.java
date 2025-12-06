@@ -31,8 +31,7 @@ import org.springframework.test.context.DynamicPropertySource;
  * }</pre>
  */
 @Slf4j
-// Framework: abstract base class for tests provides common methods (invokeMethod, etc.)
-// No abstract methods but provides shared functionality. Standard pattern for test base classes
+// Framework: Abstract base class for tests provides common methods. Standard pattern for test base classes
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class AbstractIntegrationTest {
 

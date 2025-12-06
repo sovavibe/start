@@ -51,6 +51,7 @@ import org.springframework.security.core.userdetails.UserDetails;
     // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field
     // injection)
     "java:S6813",
+    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
     "java:S117",
     // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
     "PMD.NonSerializableClass"

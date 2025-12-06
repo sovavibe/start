@@ -133,7 +133,7 @@ jobs:
 
       - name: Verify test coverage
         run: ./gradlew jacocoTestCoverageVerification --no-daemon
-        # Strict: Coverage thresholds (85% instructions, 75% branches, 90% lines) must pass
+        # Strict: Coverage thresholds (75% instructions, 65% branches, 75% lines) must pass
         # Fails build if coverage below thresholds (configured in build.gradle)
 
       - name: Verify test results exist

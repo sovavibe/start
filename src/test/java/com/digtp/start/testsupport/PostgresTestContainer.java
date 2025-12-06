@@ -26,6 +26,8 @@ public final class PostgresTestContainer {
         // Utility class
     }
 
+    // Framework: Singleton container is intentionally not closed - reused across all tests
+    @SuppressWarnings("resource")
     private static synchronized PostgreSQLContainer<?> getInstance() {
         if (instance == null) {
             instance = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"))

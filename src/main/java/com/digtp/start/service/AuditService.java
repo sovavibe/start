@@ -42,6 +42,7 @@ public class AuditService {
      * <p>Note: Named logger is required for separate audit log configuration.
      * Cannot use class-based logger (PreferSafeLogger) for named logger.
      */
+    // Framework: Named logger is required for separate audit log configuration
     @SuppressWarnings("PreferSafeLogger")
     private static final Logger auditLogger = LoggerFactory.getLogger("com.digtp.start.audit");
 

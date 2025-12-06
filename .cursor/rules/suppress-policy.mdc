@@ -2,7 +2,7 @@
 globs: ["**/entity/**/*.java", "**/view/**/*.java", "**/service/**/*.java", "**/test/**/*.java", "**/*Test*.java", "build.gradle", "config/spotbugs/**", "config/sonar-project.properties", ".baseline/**"]
 alwaysApply: false
 autoFix: false
-version: "1.1.0"
+version: "1.2.0"
 ---
 
 # SUPPRESSION POLICY
@@ -27,18 +27,41 @@ version: "1.1.0"
 
 **Format for one rule**:
 ```java
-// Comment explaining WHY
+// Framework: [reason why suppression is needed]
 @SuppressWarnings("PMD.RuleName")
 ```
 
 **Format for several rules**:
 ```java
+// Framework: [optional general reason] (if all rules share same reason)
 @SuppressWarnings({
-    // Comment explaining WHY
+    // Framework: [reason for rule 1]
     "PMD.Rule1",
-    // Comment explaining WHY
+    // Framework: [reason for rule 2]
     "PMD.Rule2"
 })
+```
+
+**Examples**:
+```java
+// Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
+@SuppressWarnings("java:S1172")
+public void localeChange(final LocaleChangeEvent event) {
+    // ...
+}
+
+// Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+@SuppressWarnings({
+    // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
+    "java:S1948",
+    // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
+    "java:S110",
+    // Framework: Jmix lifecycle methods may have same names as parent methods
+    "java:S2177"
+})
+public class LoginView extends StandardView {
+    // ...
+}
 ```
 
 **Examples**: 

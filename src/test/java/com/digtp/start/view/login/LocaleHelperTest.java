@@ -32,7 +32,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * <p>Tests locale initialization and internationalization updates for login form.
  */
 @ExtendWith(MockitoExtension.class)
-// Test: Test methods may have similar structure but test different scenarios
 @SuppressWarnings({
     // Test: Some tests are clearer as separate methods rather than parameterized
     "java:S5976",
