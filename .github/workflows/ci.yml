@@ -129,7 +129,7 @@ jobs:
 
       - name: Generate coverage report
         run: ./gradlew jacocoTestReport --no-daemon
-        # Explicitly generate XML report for SonarCloud
+        # Generates XML and HTML coverage reports
 
       - name: Verify test coverage
         run: ./gradlew jacocoTestCoverageVerification --no-daemon
@@ -179,6 +179,7 @@ jobs:
           echo "✅ Coverage XML report found"
         # Note: SonarLint runs as part of codeQualityFull job (via Gradle plugin)
         # For local SonarQube server setup, see docker-compose.dev.yml and Makefile (make sonarqube-up)
+        # SonarCloud integration is not configured in CI (uses local SonarQube server for development)
 
   # Build application (runs after tests)
   build:
