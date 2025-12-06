@@ -16,9 +16,9 @@ import java.util.UUID;
  */
 @SuppressWarnings({
     // Test: Test fixtures intentionally use repeated string literals for test data (usernames, passwords)
-    "PMD.AvoidDuplicateLiterals", // duplicate literals
+    "PMD.AvoidDuplicateLiterals",
     // Test: Utility class for test data (TestFixtures), not a test class itself
-    "PMD.TestClassWithoutTestCases" // no test cases
+    "PMD.TestClassWithoutTestCases"
 })
 public final class TestFixtures {
 

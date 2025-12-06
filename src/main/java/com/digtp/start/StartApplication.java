@@ -42,11 +42,11 @@ import org.springframework.core.env.Environment;
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
     "java:S117", // unused variable
     // Framework: AppShellConfigurator interface requires methods with long parameter names
-    "PMD.LongVariable", // long variable name
+    "PMD.LongVariable",
     // Framework: Vaadin route parameters use framework conventions
-    "PMD.FormalParameterNamingConventions", // parameter naming
+    "PMD.FormalParameterNamingConventions",
     // Framework: AppShellConfigurator is not Serializable. No serialVersionUID needed
-    "PMD.MissingSerialVersionUID" // missing serial version UID
+    "PMD.MissingSerialVersionUID"
 })
 public class StartApplication implements AppShellConfigurator {
 

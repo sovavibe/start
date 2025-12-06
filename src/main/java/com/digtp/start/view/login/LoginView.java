@@ -60,7 +60,7 @@ import org.springframework.security.authentication.LockedException;
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
     "java:S117", // unused variable
     // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
-    "PMD.NonSerializableClass" // non-serializable class
+    "PMD.NonSerializableClass"
 })
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
