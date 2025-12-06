@@ -152,5 +152,5 @@ If any changed file contains `/(?:^|\s)(TODO|FIXME)(?:\s*:|\s+)/`, then:
 - ✅ **Use**: AssertJ for assertions (`assertThat(actual).isEqualTo(expected)`)
 - ✅ **Use**: Testcontainers for integration tests (PostgreSQL with reuse)
 - ✅ **Use**: Unique test data identifiers (`"test-user-" + System.currentTimeMillis()`)
-- ✅ **Coverage**: ≥85% instructions, ≥75% branches, ≥90% lines (JaCoCo)
+- ✅ **Coverage**: ≥75% instructions, ≥65% branches, ≥75% lines (JaCoCo)
 

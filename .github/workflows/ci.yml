@@ -178,7 +178,7 @@ jobs:
           fi
           echo "✅ Coverage XML report found"
         # Note: SonarLint runs as part of codeQualityFull job (via Gradle plugin)
-        # Local SonarQube Server is used for development (see docs/quality/SONARQUBE_LOCAL_SETUP.md)
+        # For local SonarQube server setup, see docker-compose.dev.yml and Makefile (make sonarqube-up)
 
   # Build application (runs after tests)
   build:

@@ -24,6 +24,7 @@ if [ -n "$STAGED_JAVA_FILES" ]; then
     fi
     
     # Fast formatting check with parallel execution
+    # Note: --configuration-cache removed due to Spotless compatibility issues
     if [ -f "./gradlew" ]; then
         ./gradlew spotlessCheck --no-daemon --parallel > /dev/null 2>&1 || {
             echo "❌ Formatting check failed. Run './gradlew format' to fix"

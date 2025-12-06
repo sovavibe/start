@@ -71,6 +71,14 @@ public class MainView extends StandardMainView {
     private final transient UiComponents uiComponents;
     private final transient CurrentUserSubstitution currentUserSubstitution;
 
+    /**
+     * Renders user menu button.
+     *
+     * <p>This method is safe to override. Override to customize user menu button rendering.
+     *
+     * @param userDetails user details
+     * @return user menu button component
+     */
     @Install(to = "userMenu", subject = "buttonRenderer")
     @Nullable
     @VisibleForTesting
@@ -105,6 +113,14 @@ public class MainView extends StandardMainView {
         return content;
     }
 
+    /**
+     * Renders user menu header.
+     *
+     * <p>This method is safe to override. Override to customize user menu header rendering.
+     *
+     * @param userDetails user details
+     * @return user menu header component
+     */
     @Install(to = "userMenu", subject = "headerRenderer")
     @Nullable
     @VisibleForTesting
@@ -140,6 +156,14 @@ public class MainView extends StandardMainView {
         return content;
     }
 
+    /**
+     * Creates avatar component.
+     *
+     * <p>This method is safe to override. Override to customize avatar creation.
+     *
+     * @param fullName full name for avatar
+     * @return avatar component
+     */
     @VisibleForTesting
     Avatar createAvatar(final String fullName) {
         final Avatar avatar = uiComponents.create(Avatar.class);
@@ -150,6 +174,14 @@ public class MainView extends StandardMainView {
         return avatar;
     }
 
+    /**
+     * Generates user name from user entity.
+     *
+     * <p>This method is safe to override. Override to customize user name generation.
+     *
+     * @param user user entity
+     * @return generated user name
+     */
     @VisibleForTesting
     String generateUserName(final User user) {
         final String firstName = Objects.requireNonNullElse(user.getFirstName(), "");
@@ -159,6 +191,14 @@ public class MainView extends StandardMainView {
         return userName.isBlank() ? user.getUsername() : userName;
     }
 
+    /**
+     * Checks if user is substituted.
+     *
+     * <p>This method is safe to override. Override to customize substitution detection logic.
+     *
+     * @param user user to check
+     * @return true if user is substituted
+     */
     // SpotBugs RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE excluded via config/spotbugs/exclude.xml
     // The null check is intentional for defensive programming - getAuthenticatedUser() can return null
     @VisibleForTesting

@@ -61,9 +61,9 @@ import lombok.extern.slf4j.Slf4j;
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
     "java:S117", // unused variable
     // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
-    "PMD.NonSerializableClass", // non-serializable class
+    "PMD.NonSerializableClass",
     // Framework: Jmix View: @ViewComponent fields must be after constructor-injected fields
-    "PMD.FieldDeclarationsShouldBeAtStartOfClass" // field order
+    "PMD.FieldDeclarationsShouldBeAtStartOfClass"
 })
 public class UserDetailView extends StandardDetailView<User> {
 
@@ -98,6 +98,13 @@ public class UserDetailView extends StandardDetailView<User> {
      */
     private transient boolean wasNewOnSave;
 
+    /**
+     * Initializes the view.
+     *
+     * <p>This method is safe to override. Override to customize view initialization.
+     *
+     * @param _event initialization event
+     */
     @Subscribe
     // Framework: Jmix lifecycle methods require InitEvent parameter signature
     @SuppressWarnings("java:S1172") // unused parameter
@@ -126,6 +133,13 @@ public class UserDetailView extends StandardDetailView<User> {
      */
     private static final List<String> AVAILABLE_TIME_ZONE_IDS = List.of(TimeZone.getAvailableIDs());
 
+    /**
+     * Initializes entity when view is opened.
+     *
+     * <p>This method is safe to override. Override to customize entity initialization.
+     *
+     * @param event entity initialization event
+     */
     @Subscribe
     public void onInitEntity(final InitEntityEvent<User> event) {
         final User user = event.getEntity();
@@ -138,6 +152,13 @@ public class UserDetailView extends StandardDetailView<User> {
                 Objects.toString(user.getUsername(), "not set"));
     }
 
+    /**
+     * Called when view is ready.
+     *
+     * <p>This method is safe to override. Override to customize view ready behavior.
+     *
+     * @param _event ready event
+     */
     @Subscribe
     public void onReady(final ReadyEvent _event) {
         final User user = getEditedEntity();
@@ -149,6 +170,13 @@ public class UserDetailView extends StandardDetailView<User> {
         }
     }
 
+    /**
+     * Validates entity before save.
+     *
+     * <p>This method is safe to override. Override to customize validation logic.
+     *
+     * @param event validation event
+     */
     @Subscribe
     public void onValidation(final ValidationEvent event) {
         final User user = getEditedEntity();
@@ -224,6 +252,13 @@ public class UserDetailView extends StandardDetailView<User> {
         }
     }
 
+    /**
+     * Called before entity is saved.
+     *
+     * <p>This method is safe to override. Override to customize pre-save logic.
+     *
+     * @param _event before save event
+     */
     @Subscribe
     public void onBeforeSave(final BeforeSaveEvent _event) {
         final User user = getEditedEntity();
@@ -254,6 +289,13 @@ public class UserDetailView extends StandardDetailView<User> {
         }
     }
 
+    /**
+     * Called after entity is saved.
+     *
+     * <p>This method is safe to override. Override to customize post-save logic.
+     *
+     * @param _event after save event
+     */
     @Subscribe
     public void onAfterSave(final AfterSaveEvent _event) {
         final User user = getEditedEntity();

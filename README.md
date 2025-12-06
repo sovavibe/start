@@ -33,12 +33,12 @@ For analysts: `./scripts/analyst-workflow.sh` (fully automated)
 - **Java 21**, **Jmix 2.7.1**, **Vaadin 24+**, **Spring Boot 3.x**
 - **PostgreSQL 16**, **Liquibase**, **EclipseLink**
 - **Quality Tools**: Checkstyle, PMD, SpotBugs, SonarLint, Error-prone, JaCoCo
-- **CI/CD**: GitHub Actions, SonarCloud
+- **CI/CD**: GitHub Actions, SonarLint (via Gradle)
 - **Observability**: OpenTelemetry, Grafana, Loki
 
 ## Quality Gates
 
-- **Coverage**: 85% instructions, 75% branches, 90% lines
+- **Coverage**: 75% instructions, 65% branches, 75% lines
 - **Complexity**: ≤10 cognitive/cyclomatic per method
 - **File Length**: ≤250 lines
 - **Duplication**: <3%

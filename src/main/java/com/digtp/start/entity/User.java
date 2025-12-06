@@ -100,36 +100,85 @@ public class User implements JmixUserDetails, HasTimeZone {
     @Transient
     private Collection<? extends GrantedAuthority> authorities;
 
+    /**
+     * Returns user authorities.
+     *
+     * <p>This method is safe to override. Override to customize authority retrieval logic.
+     *
+     * @return immutable collection of user authorities
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities != null ? List.copyOf(authorities) : List.of();
     }
 
+    /**
+     * Sets user authorities.
+     *
+     * <p>This method is safe to override. Override to customize authority setting logic.
+     *
+     * @param authorities collection of authorities to set
+     */
     @Override
     public void setAuthorities(final Collection<? extends GrantedAuthority> authorities) {
         this.authorities = authorities;
     }
 
+    /**
+     * Checks if account is non-expired.
+     *
+     * <p>This method is safe to override. Override to customize account expiration logic.
+     *
+     * @return true if account is non-expired
+     */
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    /**
+     * Checks if account is non-locked.
+     *
+     * <p>This method is safe to override. Override to customize account locking logic.
+     *
+     * @return true if account is non-locked
+     */
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    /**
+     * Checks if credentials are non-expired.
+     *
+     * <p>This method is safe to override. Override to customize credentials expiration logic.
+     *
+     * @return true if credentials are non-expired
+     */
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    /**
+     * Checks if account is enabled.
+     *
+     * <p>This method is safe to override. Override to customize account enabling logic.
+     *
+     * @return true if account is enabled
+     */
     @Override
     public boolean isEnabled() {
         return Boolean.TRUE.equals(active);
     }
 
+    /**
+     * Returns display name for the user.
+     *
+     * <p>This method is safe to override. Override to customize display name format.
+     *
+     * @return formatted display name
+     */
     @InstanceName
     @DependsOnProperties({"firstName", "lastName", "username"})
     public String getDisplayName() {
@@ -138,11 +187,25 @@ public class User implements JmixUserDetails, HasTimeZone {
         return String.format("%s %s [%s]", firstNameSafe, lastNameSafe, username);
     }
 
+    /**
+     * Returns timezone ID.
+     *
+     * <p>This method is safe to override. Override to customize timezone retrieval logic.
+     *
+     * @return timezone ID
+     */
     @Override
     public String getTimeZoneId() {
         return timeZoneId;
     }
 
+    /**
+     * Checks if timezone is auto-detected.
+     *
+     * <p>This method is safe to override. Override to customize auto timezone detection logic.
+     *
+     * @return true if timezone is auto-detected
+     */
     @Override
     public boolean isAutoTimeZone() {
         return true;

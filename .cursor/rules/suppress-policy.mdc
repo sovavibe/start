@@ -28,19 +28,22 @@ version: "1.2.0"
 **Format for one rule**:
 ```java
 // Framework: [reason why suppression is needed]
-@SuppressWarnings("PMD.RuleName") // rule name or error description
+@SuppressWarnings("PMD.RuleName") // rule name or error description (only if not obvious from rule name)
 ```
 
 **Examples for single suppression**:
 ```java
 // Framework: LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
-@SuppressWarnings("removal") // deprecated API
+@SuppressWarnings("removal") // deprecated API (not obvious from name)
 
 // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
-@SuppressWarnings("java:S1172") // unused parameter
+@SuppressWarnings("java:S1172") // unused parameter (not obvious from code)
 
 // Framework: Pattern matching switch expression - unused variables are intentional
-@SuppressWarnings("java:S117") // unused variable
+@SuppressWarnings("java:S117") // unused variable (not obvious from code)
+
+// Framework: Abstract base class for tests provides common methods
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod") // no comment - rule name is self-explanatory
 ```
 
 **Format for several rules**:
@@ -48,11 +51,13 @@ version: "1.2.0"
 // Framework: [optional general reason] (if all rules share same reason)
 @SuppressWarnings({
     // Framework: [reason for rule 1]
-    "PMD.Rule1", // rule name 1
+    "PMD.Rule1", // rule name 1 (only if not obvious from rule name)
     // Framework: [reason for rule 2]
-    "PMD.Rule2" // rule name 2
+    "PMD.Rule2" // rule name 2 (only if not obvious from rule name)
 })
 ```
+
+**Note**: For PMD rules with self-explanatory names (e.g., `PMD.NonSerializableClass`, `PMD.NullAssignment`, `PMD.AbstractClassWithoutAbstractMethod`), omit the inline comment as the rule name already describes the issue.
 
 **Examples for multiple suppressions**:
 ```java

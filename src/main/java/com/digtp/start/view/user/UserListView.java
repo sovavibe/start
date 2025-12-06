@@ -62,12 +62,19 @@ import lombok.extern.slf4j.Slf4j;
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
     "java:S117", // unused variable
     // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
-    "PMD.NonSerializableClass" // non-serializable class
+    "PMD.NonSerializableClass"
 })
 public class UserListView extends StandardListView<User> {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Initializes the view.
+     *
+     * <p>This method is safe to override. Override to customize view initialization.
+     *
+     * @param _event initialization event
+     */
     @Subscribe
     // Framework: Jmix lifecycle methods require InitEvent parameter signature
     @SuppressWarnings("java:S1172") // unused parameter

@@ -82,6 +82,13 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     @Value("${ui.login.defaultPassword:}")
     private String defaultPassword;
 
+    /**
+     * Initializes the view.
+     *
+     * <p>This method is safe to override. Override to customize view initialization.
+     *
+     * @param _event initialization event
+     */
     @Subscribe
     public void onInit(final InitEvent _event) {
         log.debug("Login view initialized");
@@ -99,6 +106,13 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         }
     }
 
+    /**
+     * Handles login event.
+     *
+     * <p>This method is safe to override. Override to customize login handling.
+     *
+     * @param event login event
+     */
     @Subscribe("login")
     // Framework: LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
     @SuppressWarnings("removal") // deprecated API
@@ -135,6 +149,13 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
         };
     }
 
+    /**
+     * Handles locale change.
+     *
+     * <p>This method is safe to override. Override to customize locale change handling.
+     *
+     * @param event locale change event
+     */
     @Override
     // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
     @SuppressWarnings("java:S1172") // unused parameter

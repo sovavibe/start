@@ -59,11 +59,17 @@ public class PerformanceLoggingAspect {
      *
      * @param joinPoint method execution join point
      * @return method return value
-     * @throws Throwable if method execution throws exception
+     * @throws Exception if method execution throws exception
      */
     @Around("execution(public * com.digtp.start.service..*(..))")
-    public Object logServicePerformance(final ProceedingJoinPoint joinPoint) throws Throwable {
-        return logPerformance(joinPoint, SERVICE_THRESHOLD_MS, "service");
+    public Object logServicePerformance(final ProceedingJoinPoint joinPoint) throws Exception {
+        try {
+            return logPerformance(joinPoint, SERVICE_THRESHOLD_MS, "service");
+        } catch (final Exception e) {
+            throw e;
+        } catch (final Throwable t) {
+            throw new RuntimeException("Unexpected error in service method", t);
+        }
     }
 
     /**
@@ -74,11 +80,17 @@ public class PerformanceLoggingAspect {
      *
      * @param joinPoint method execution join point
      * @return method return value
-     * @throws Throwable if method execution throws exception
+     * @throws Exception if method execution throws exception
      */
     @Around("execution(public * com.digtp.start.view..*(..))")
-    public Object logViewPerformance(final ProceedingJoinPoint joinPoint) throws Throwable {
-        return logPerformance(joinPoint, VIEW_THRESHOLD_MS, "view");
+    public Object logViewPerformance(final ProceedingJoinPoint joinPoint) throws Exception {
+        try {
+            return logPerformance(joinPoint, VIEW_THRESHOLD_MS, "view");
+        } catch (final Exception e) {
+            throw e;
+        } catch (final Throwable t) {
+            throw new RuntimeException("Unexpected error in view method", t);
+        }
     }
 
     /**
@@ -95,20 +107,32 @@ public class PerformanceLoggingAspect {
      * @param thresholdMs threshold in milliseconds
      * @param layer layer name (service/view) for logging
      * @return method return value
-     * @throws Throwable if method execution throws exception
+     * @throws Exception if method execution throws exception
      */
     private Object logPerformance(final ProceedingJoinPoint joinPoint, final long thresholdMs, final String layer)
-            throws Throwable {
+            throws Exception {
         // Early exit if disabled in production or DEBUG logging is off
         final boolean isProduction =
                 Arrays.asList(environment.getActiveProfiles()).contains("prod");
         if (isProduction || !log.isDebugEnabled()) {
-            return joinPoint.proceed();
+            try {
+                return joinPoint.proceed();
+            } catch (final Exception e) {
+                throw e;
+            } catch (final Throwable t) {
+                throw new RuntimeException("Unexpected error in method execution", t);
+            }
         }
 
         final long startTime = System.currentTimeMillis();
         try {
-            return joinPoint.proceed();
+            try {
+                return joinPoint.proceed();
+            } catch (final Exception e) {
+                throw e;
+            } catch (final Throwable t) {
+                throw new RuntimeException("Unexpected error in method execution", t);
+            }
         } finally {
             final long duration = System.currentTimeMillis() - startTime;
             if (duration > thresholdMs) {
