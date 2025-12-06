@@ -70,7 +70,7 @@ public class UserListView extends StandardListView<User> {
 
     @Subscribe
     // Framework: Jmix lifecycle methods require InitEvent parameter signature
-    @SuppressWarnings("java:S1172")
+    @SuppressWarnings("java:S1172") // unused parameter
     public void onInit(final InitEvent _event) {
         log.debug("User list view initialized");
     }

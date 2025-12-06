@@ -4,12 +4,6 @@
  */
 package com.digtp.start.view.login;
 
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.authentication.LockedException;
-
 import com.digtp.start.service.AuditService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.login.AbstractLogin.LoginEvent;
@@ -17,7 +11,6 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
-
 import io.jmix.core.security.AccessDeniedException;
 import io.jmix.flowui.component.loginform.JmixLoginForm;
 import io.jmix.flowui.view.MessageBundle;
@@ -30,6 +23,11 @@ import io.jmix.securityflowui.authentication.AuthDetails;
 import io.jmix.securityflowui.authentication.LoginViewSupport;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 
 /**
  * Login view for user authentication.
@@ -47,22 +45,22 @@ import lombok.extern.slf4j.Slf4j;
 // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
 @SuppressWarnings({
     // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
-    "java:S1948",
+    "java:S1948", // non-serializable field
     // Framework: Jmix views extend multiple framework classes (StandardView, etc.)
-    "java:S110",
+    "java:S110", // too many parents
     // Framework: Jmix lifecycle methods may have same names as parent methods
-    "java:S2177",
+    "java:S2177", // method name conflict
     // Framework: Jmix views extend StandardView which requires design for extension
-    "java:S2150",
+    "java:S2150", // design for extension
     // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
-    "java:S1186",
+    "java:S1186", // missing javadoc
     // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field
     // injection)
-    "java:S6813",
+    "java:S6813", // field injection
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
-    "java:S117",
+    "java:S117", // unused variable
     // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
-    "PMD.NonSerializableClass"
+    "PMD.NonSerializableClass" // non-serializable class
 })
 public class LoginView extends StandardView implements LocaleChangeObserver {
 
@@ -126,7 +124,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
     }
 
     // Framework: Pattern matching switch expression - unused variables are intentional (case labels)
-    @SuppressWarnings("java:S117")
+    @SuppressWarnings("java:S117") // unused variable
     private String getLoginFailureReason(final Exception exception) {
         return switch (exception) {
             case BadCredentialsException ignored -> "invalid credentials";
@@ -139,7 +137,7 @@ public class LoginView extends StandardView implements LocaleChangeObserver {
 
     @Override
     // Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
-    @SuppressWarnings("java:S1172")
+    @SuppressWarnings("java:S1172") // unused parameter
     public void localeChange(final LocaleChangeEvent event) {
         UI.getCurrent().getPage().setTitle(messageBundle.getMessage("LoginView.title"));
         localeHelper.updateLoginI18n(login, messageBundle, event);

@@ -28,7 +28,19 @@ version: "1.2.0"
 **Format for one rule**:
 ```java
 // Framework: [reason why suppression is needed]
-@SuppressWarnings("PMD.RuleName")
+@SuppressWarnings("PMD.RuleName") // rule name or error description
+```
+
+**Examples for single suppression**:
+```java
+// Framework: LoginEvent.getPassword() is deprecated in Vaadin API but no alternative available yet
+@SuppressWarnings("removal") // deprecated API
+
+// Framework: LocaleChangeObserver interface requires LocaleChangeEvent parameter
+@SuppressWarnings("java:S1172") // unused parameter
+
+// Framework: Pattern matching switch expression - unused variables are intentional
+@SuppressWarnings("java:S117") // unused variable
 ```
 
 **Format for several rules**:
@@ -36,9 +48,9 @@ version: "1.2.0"
 // Framework: [optional general reason] (if all rules share same reason)
 @SuppressWarnings({
     // Framework: [reason for rule 1]
-    "PMD.Rule1",
+    "PMD.Rule1", // rule name 1
     // Framework: [reason for rule 2]
-    "PMD.Rule2"
+    "PMD.Rule2" // rule name 2
 })
 ```
 

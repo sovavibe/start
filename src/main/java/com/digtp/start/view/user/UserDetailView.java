@@ -100,7 +100,7 @@ public class UserDetailView extends StandardDetailView<User> {
 
     @Subscribe
     // Framework: Jmix lifecycle methods require InitEvent parameter signature
-    @SuppressWarnings("java:S1172")
+    @SuppressWarnings("java:S1172") // unused parameter
     public void onInit(final InitEvent _event) {
         timeZoneField.setItems(getAvailableTimeZoneIds());
         log.debug("User detail view initialized");

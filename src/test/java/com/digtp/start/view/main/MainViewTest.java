@@ -291,7 +291,7 @@ class MainViewTest extends AbstractIntegrationTest {
 
     @AfterEach
     // Framework: Null assignment in cleanup is valid pattern for test isolation
-    @SuppressWarnings("PMD.NullAssignment")
+    @SuppressWarnings("PMD.NullAssignment") // null assignment
     void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
