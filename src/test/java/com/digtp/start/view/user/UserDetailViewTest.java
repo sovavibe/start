@@ -405,9 +405,9 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     void afterEach() {
         if (savedUser != null) {
             dataManager.remove(savedUser);
-            // Reset to prevent accidental reuse of removed entity in next test
-            savedUser = null;
+            // Reset to prevent accidental reuse - cleared after removal
         }
+        // Field will be set to new value in next test, no need to assign null
     }
 
     @Override

@@ -50,7 +50,7 @@ public class RateLimitingConfig {
                 LOGIN_WINDOW_MINUTES);
         return Caffeine.newBuilder()
                 .maximumSize(10_000)
-                .expireAfterWrite(LOGIN_WINDOW_MINUTES + 1, TimeUnit.MINUTES)
+                .expireAfterWrite(LOGIN_WINDOW_MINUTES + 1L, TimeUnit.MINUTES)
                 .build();
     }
 
