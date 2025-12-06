@@ -17,13 +17,13 @@ import org.junit.jupiter.api.Test;
 // Test: Test methods call reflection which can throw ReflectiveOperationException
 @SuppressWarnings({
     // Test: Some tests are clearer as separate methods rather than parameterized
-    "java:S5976",
+    "java:S5976", // parameterized test
     // Test: Multiple assertions on same object are acceptable in tests for clarity
-    "java:S5853",
+    "java:S5853", // multiple assertions
     // Test: Test methods may have similar structure but test different scenarios
-    "java:S4144",
+    "java:S4144", // similar methods
     // Test: Test methods call reflection which can throw ReflectiveOperationException
-    "java:S1130"
+    "java:S1130" // reflective operation
 })
 class SecurityConstantsTest {
 

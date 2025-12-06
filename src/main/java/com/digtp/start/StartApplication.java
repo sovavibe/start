@@ -38,15 +38,15 @@ import org.springframework.core.env.Environment;
 // Framework: Spring Boot application contains non-serializable framework dependencies (Environment, etc.)
 @SuppressWarnings({
     // Framework: Spring Boot application contains non-serializable framework dependencies (Environment, etc.)
-    "java:S1948",
+    "java:S1948", // non-serializable field
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
-    "java:S117",
+    "java:S117", // unused variable
     // Framework: AppShellConfigurator interface requires methods with long parameter names
-    "PMD.LongVariable",
+    "PMD.LongVariable", // long variable name
     // Framework: Vaadin route parameters use framework conventions
-    "PMD.FormalParameterNamingConventions",
+    "PMD.FormalParameterNamingConventions", // parameter naming
     // Framework: AppShellConfigurator is not Serializable. No serialVersionUID needed
-    "PMD.MissingSerialVersionUID"
+    "PMD.MissingSerialVersionUID" // missing serial version UID
 })
 public class StartApplication implements AppShellConfigurator {
 

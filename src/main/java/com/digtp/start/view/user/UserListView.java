@@ -47,22 +47,22 @@ import lombok.extern.slf4j.Slf4j;
 // Framework: Jmix views extend multiple framework classes (StandardListView, etc.)
 @SuppressWarnings({
     // Framework: Jmix views contain framework-managed non-serializable beans (MessageBundle, UI components)
-    "java:S1948",
+    "java:S1948", // non-serializable field
     // Framework: Jmix views extend multiple framework classes (StandardListView, etc.)
-    "java:S110",
+    "java:S110", // too many parents
     // Framework: Jmix lifecycle methods may have same names as parent methods
-    "java:S2177",
+    "java:S2177", // method name conflict
     // Framework: Jmix views extend StandardListView which requires design for extension
-    "java:S2150",
+    "java:S2150", // design for extension
     // Framework: Jmix lifecycle methods (onInit, etc.) don't need JavaDoc
-    "java:S1186",
+    "java:S1186", // missing javadoc
     // Framework: @ViewComponent is Vaadin/Jmix mechanism for UI component injection from XML (not Spring field
     // injection)
-    "java:S6813",
+    "java:S6813", // field injection
     // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
-    "java:S117",
+    "java:S117", // unused variable
     // Framework: Jmix View contains framework-managed non-serializable beans (MessageBundle, UI components)
-    "PMD.NonSerializableClass"
+    "PMD.NonSerializableClass" // non-serializable class
 })
 public class UserListView extends StandardListView<User> {
 

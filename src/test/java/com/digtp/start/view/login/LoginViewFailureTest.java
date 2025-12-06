@@ -42,15 +42,15 @@ import org.springframework.test.context.ActiveProfiles;
 // Test: LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code
 @SuppressWarnings({
     // Test: LoginEvent.getPassword() is deprecated in Vaadin API but still used in production code
-    "removal",
+    "removal", // deprecated API
     // Test: @MockBean is Spring Boot standard for mocking beans in tests
-    "java:S5738",
+    "java:S5738", // deprecated annotation
     // Test: Some tests are clearer as separate methods rather than parameterized
-    "java:S5976",
+    "java:S5976", // parameterized test
     // Test: Multiple assertions on same object are acceptable in tests for clarity
-    "java:S5853",
+    "java:S5853", // multiple assertions
     // Test: Test methods may have similar structure but test different scenarios
-    "java:S4144"
+    "java:S4144" // similar methods
 })
 class LoginViewFailureTest extends AbstractIntegrationTest {
 
