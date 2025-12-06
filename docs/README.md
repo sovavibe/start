@@ -15,6 +15,12 @@
 - **[Architecture](architecture/ARCHITECTURE.md)** - System architecture (C4 Model)
 - **[SDLC](workflow/SDLC.md)** - Software Development Life Cycle
 
+## Cursor IDE Configuration
+
+- **[Cursor Optimization](CURSOR_OPTIMIZATION.md)** - Optimize Cursor IDE for Vibe Coding
+- **[Cursor Agents](CURSOR_AGENTS.md)** - Complete guide to Cursor agents configuration
+- **[Roles & Team Setup](ROLES.md)** - Team role configuration in Cursor
+
 ## Quality & CI/CD
 
 - **[Quality Gates](quality/QUALITY_GATES.md)** - Quality thresholds and tools

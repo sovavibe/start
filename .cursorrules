@@ -46,6 +46,7 @@ See `.cursor/BUGBOT.md` for Bugbot code review guidelines.
 - SDLC: `docs/workflow/SDLC.md`
 - Quality Gates: `docs/quality/QUALITY_GATES.md`
 - Cursor Optimization: `docs/CURSOR_OPTIMIZATION.md`
+- Cursor Agents: `docs/CURSOR_AGENTS.md`
 
 ## AI Assistant Behavior
 - **Autonomous**: End-to-end implementation
