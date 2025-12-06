@@ -6,9 +6,8 @@
 docs/
 ├── README.md                          # Documentation index
 ├── QUICK_START.md                     # 5-minute quick start
-├── ROLES.md                           # Role-specific commands & Cursor setup
-├── CURSOR_OPTIMIZATION.md             # Cursor IDE optimization guide
-├── CURSOR_AGENTS.md                  # Cursor agents configuration guide
+├── ROLES.md                           # Role-specific commands
+├── CURSOR_CONFIGURATION.md            # Cursor configuration (actual working setup)
 │
 ├── getting-started/
 │   └── SETUP.md                       # Setup instructions

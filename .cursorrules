@@ -1,8 +1,8 @@
 # Start - Vibe Coding Jmix Project
 
-> **Important**: This file is NOT used by Cursor for configuration.
-> Cursor uses `.cursor/rules/*.mdc` files for actual configuration.
-> This file is just a quick reference for developers.
+> **Note**: This file is NOT used by Cursor.  
+> Cursor configuration is in `.cursor/rules/*.mdc` files.  
+> This is just a quick reference.
 
 ## Project Overview
 Production-ready Jmix application template demonstrating **Vibe Coding** philosophy: strict quality gates, minimal suppressions, senior-level code standards.
@@ -49,8 +49,7 @@ See `.cursor/BUGBOT.md` for Bugbot code review guidelines.
 - Setup: `docs/getting-started/SETUP.md`
 - SDLC: `docs/workflow/SDLC.md`
 - Quality Gates: `docs/quality/QUALITY_GATES.md`
-- Cursor Optimization: `docs/CURSOR_OPTIMIZATION.md`
-- Cursor Agents: `docs/CURSOR_AGENTS.md`
+- Cursor Configuration: `docs/CURSOR_CONFIGURATION.md`
 
 ## AI Assistant Behavior
 - **Autonomous**: End-to-end implementation

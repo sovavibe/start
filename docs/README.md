@@ -17,9 +17,8 @@
 
 ## Cursor IDE Configuration
 
-- **[Cursor Optimization](CURSOR_OPTIMIZATION.md)** - Optimize Cursor IDE for Vibe Coding
-- **[Cursor Agents](CURSOR_AGENTS.md)** - Complete guide to Cursor agents configuration
-- **[Roles & Team Setup](ROLES.md)** - Team role configuration in Cursor
+- **[Cursor Configuration](CURSOR_CONFIGURATION.md)** - Actual working configuration
+- **[Roles Guide](ROLES.md)** - Role-specific commands
 
 ## Quality & CI/CD
 
