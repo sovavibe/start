@@ -39,7 +39,6 @@ import org.springframework.core.env.Environment;
 @SuppressWarnings({
     // Framework: Spring Boot application contains non-serializable framework dependencies (Environment, etc.)
     "java:S1948",
-    // Framework: Error Prone StrictUnusedVariable requires underscore prefix for unused variables
     "java:S117",
     // Framework: AppShellConfigurator interface requires methods with long parameter names
     "PMD.LongVariable",
