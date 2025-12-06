@@ -411,7 +411,7 @@ class UserDetailViewTest extends AbstractIntegrationTest {
     }
 
     @Override
-    protected void setUp() {
+    protected void before() {
         // No setup needed for this test class
     }
 }

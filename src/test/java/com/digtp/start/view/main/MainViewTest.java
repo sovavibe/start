@@ -207,7 +207,7 @@ class MainViewTest extends AbstractIntegrationTest {
     // java:S5853 excluded via sonar-project.properties
     void testUserMenuButtonRendererWithUser() {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
-        final MainView mainView = (MainView) getMainView();
+        final MainView mainView = getMainView();
 
         final Component component = mainView.userMenuButtonRenderer(user);
 
@@ -230,7 +230,7 @@ class MainViewTest extends AbstractIntegrationTest {
     @Test
     void testUserMenuHeaderRendererWithUser() {
         final User user = createTestUser(TEST_USERNAME, TEST_FIRST_NAME, TEST_LAST_NAME);
-        final MainView mainView = (MainView) getMainView();
+        final MainView mainView = getMainView();
 
         final Component component = mainView.userMenuHeaderRenderer(user);
 
@@ -299,7 +299,7 @@ class MainViewTest extends AbstractIntegrationTest {
     }
 
     @Override
-    protected void setUp() {
+    protected void before() {
         // No setup needed for this test class
     }
 }

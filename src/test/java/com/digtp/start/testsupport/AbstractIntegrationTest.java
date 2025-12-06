@@ -7,6 +7,7 @@ package com.digtp.start.testsupport;
 import io.jmix.flowui.testassist.UiTestUtils;
 import io.jmix.flowui.view.View;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
@@ -41,7 +42,8 @@ public abstract class AbstractIntegrationTest {
      * <p>Subclasses can override this method to perform test-specific setup.
      * Default implementation does nothing.
      */
-    protected void setUp() {
+    @BeforeEach
+    protected void before() {
         // Default implementation - subclasses can override
     }
 

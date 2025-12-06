@@ -132,13 +132,10 @@ public class User implements JmixUserDetails, HasTimeZone {
 
     @InstanceName
     @DependsOnProperties({"firstName", "lastName", "username"})
-    // SpotBugs FS_FORMAT_STRING_USE_NEWLINE: Text block uses actual newlines, not escape sequences - false positive
-    // Workaround: Use String.format with %n instead of text block to avoid SpotBugs false positive
     public String getDisplayName() {
         final String firstNameSafe = Objects.requireNonNullElse(firstName, "");
         final String lastNameSafe = Objects.requireNonNullElse(lastName, "");
-        return String.format("%s %s [%s]%n", firstNameSafe, lastNameSafe, username)
-                .trim();
+        return String.format("%s %s [%s]", firstNameSafe, lastNameSafe, username);
     }
 
     @Override
