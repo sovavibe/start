@@ -19,9 +19,11 @@ Cursor supports Team Role configuration to customize AI assistant behavior based
 ### Setup via Configuration File
 
 The project includes:
-- **`.cursor/rules/`**: **Primary** configuration system (recommended, modern)
+- **`.cursor/rules/`**: **Primary** configuration system (this is what Cursor uses)
+  - 8 rule files with YAML frontmatter (`alwaysApply`, `globs`, `version`)
+  - `core.mdc` always loaded, others load based on file patterns
 - **`.cursor/BUGBOT.md`**: Code review guidelines for Bugbot
-- **`.cursorrules`**: Optional/legacy quick reference (may be deprecated)
+- **`.cursorrules`**: Optional quick reference (NOT used by Cursor for configuration)
 
 The AI assistant will automatically adapt its behavior based on:
 - The role selected in Cursor settings

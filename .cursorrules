@@ -1,7 +1,8 @@
 # Start - Vibe Coding Jmix Project
 
-> **Note**: This file is optional/legacy. Primary configuration is in `.cursor/rules/*.mdc` files.
-> This file provides quick reference only.
+> **Important**: This file is NOT used by Cursor for configuration.
+> Cursor uses `.cursor/rules/*.mdc` files for actual configuration.
+> This file is just a quick reference for developers.
 
 ## Project Overview
 Production-ready Jmix application template demonstrating **Vibe Coding** philosophy: strict quality gates, minimal suppressions, senior-level code standards.

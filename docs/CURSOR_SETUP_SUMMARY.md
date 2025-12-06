@@ -18,8 +18,9 @@ Quick reference for setting up Cursor IDE for optimal Vibe Coding experience.
 ### 3. Verify Rules
 
 Check that `.cursor/rules/` directory exists with:
-- `core.mdc` (always applied)
-- `jmix.mdc`, `vaadin.mdc`, `patterns.mdc`, etc. (context-based)
+- `core.mdc` (always applied - has `alwaysApply: true` in YAML frontmatter)
+- `jmix.mdc`, `vaadin.mdc`, `patterns.mdc`, etc. (load based on `globs` patterns)
+- Each file has YAML frontmatter with `globs`, `version`, optionally `alwaysApply`
 
 ### 4. Test Configuration
 
@@ -39,7 +40,7 @@ Create a Jmix entity following @jmix.mdc patterns
 │   └── ...
 └── BUGBOT.md          # PR review guidelines
 
-.cursorrules           # Quick reference (optional/legacy - use .cursor/rules/ instead)
+.cursorrules           # Quick reference only (NOT used by Cursor - use .cursor/rules/ for config)
 
 docs/
 ├── CURSOR_OPTIMIZATION.md  # Optimization guide
@@ -69,14 +70,16 @@ docs/
 ## Troubleshooting
 
 **Rules not working?**
-- Check glob patterns in rule files
-- Verify YAML frontmatter syntax
-- Ensure `core.mdc` has `alwaysApply: true`
+- Check `globs` patterns in YAML frontmatter of rule files
+- Verify YAML frontmatter syntax (must start with `---`)
+- Ensure `core.mdc` has `alwaysApply: true` in frontmatter
+- Check file paths match the `globs` patterns
 
 **Agents not responding?**
 - Restart Cursor
-- Check Cursor Settings → Features
-- Verify rule file syntax
+- Verify `.cursor/rules/` directory exists
+- Check YAML frontmatter syntax in rule files
+- Ensure rule files have correct `globs` patterns
 
 ## Status
 

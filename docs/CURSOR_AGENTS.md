@@ -4,7 +4,8 @@ Complete guide to configuring and optimizing Cursor agents for maximum productiv
 
 > **Last Updated**: 2025-01-XX  
 > **Cursor Version**: Current  
-> **Status**: ✅ Verified against current Cursor capabilities
+> **Status**: ✅ Based on actual project configuration  
+> **Note**: This guide describes how agents work with `.cursor/rules/*.mdc` system in this project
 
 ## Overview
 
@@ -83,6 +84,11 @@ Bugbot automatically reviews Pull Requests and:
 
 **Current Setup**: ✅ Already configured with project-specific guidelines
 
+**How It Works**:
+- Bugbot reads `.cursor/BUGBOT.md` for review guidelines
+- Also uses rules from `.cursor/rules/` for context
+- Automatically reviews PRs when they are created/updated
+
 **Key Sections**:
 - Database Migrations (Liquibase)
 - Queries & Data Access
@@ -139,12 +145,13 @@ The Chat Agent provides interactive assistance:
 
 ### Configuration
 
-**Location**: Rules in `.cursor/rules/` (auto-loaded based on context)
+**Location**: Rules in `.cursor/rules/` (this is the actual configuration system)
 
-**How Rules Load**:
-- **Core Rules** (`core.mdc`): Always loaded (`alwaysApply: true`)
-- **Context Rules**: Loaded via glob patterns when editing matching files
-- **References**: Uses `@rule-name.mdc` for efficiency
+**How Rules Load** (based on actual project setup):
+- **Core Rules** (`core.mdc`): Always loaded (`alwaysApply: true` in YAML frontmatter)
+- **Context Rules**: Loaded via `globs` patterns in YAML frontmatter when editing matching files
+- **Example**: `jmix.mdc` has `globs: ["**/entity/**/*.java", ...]` - loads when editing entity files
+- **References**: Rules can reference each other using `@rule-name.mdc` syntax
 
 ### Rule Loading Strategy
 
@@ -203,11 +210,12 @@ Composer Agent generates code across multiple files:
 
 **Location**: Uses same rules as Chat Agent (`.cursor/rules/`)
 
-**How It Works**:
+**How It Works** (based on project setup):
 1. Analyzes project structure
-2. Loads relevant rules based on file types
-3. Generates code following patterns
-4. Maintains consistency with existing code
+2. Loads relevant rules from `.cursor/rules/` based on `globs` patterns
+3. Uses `core.mdc` (always loaded) + context-specific rules
+4. Generates code following patterns defined in rules
+5. Maintains consistency with existing code
 
 ### Best Practices
 
@@ -330,8 +338,8 @@ Create a complete Order management feature:
 ### Custom Agent Behavior
 
 **Configuration System**:
-- **Primary**: `.cursor/rules/*.mdc` files (recommended, modern)
-- **Optional/Legacy**: `.cursorrules` file (may be deprecated)
+- **Primary**: `.cursor/rules/*.mdc` files (this is what Cursor actually uses)
+- **Note**: `.cursorrules` file exists in this project but is NOT used by Cursor for configuration
 
 **How to Influence Agent Behavior**:
 
@@ -416,8 +424,14 @@ Quality: Always run make analyze-full
 
 - **Main Docs**: [https://cursor.com/docs](https://cursor.com/docs)
 - **Bugbot**: [https://cursor.com/docs/bugbot](https://cursor.com/docs/bugbot)
-- **Rules**: Configured via `.cursor/rules/*.mdc` files
-- **Settings**: Cursor Settings → Features
+- **Rules**: Configured via `.cursor/rules/*.mdc` files with YAML frontmatter
+
+### Project Configuration (Actual Setup)
+
+This project uses:
+- **Rules**: `.cursor/rules/*.mdc` (8 files: core, jmix, vaadin, patterns, quality, suppress-policy, git, palantir-style-guide)
+- **Bugbot**: `.cursor/BUGBOT.md`
+- **Format**: Markdown with YAML frontmatter (`alwaysApply`, `globs`, `version`)
 
 ### Project Documentation
 
@@ -431,22 +445,26 @@ Quality: Always run make analyze-full
 
 Your Cursor agents are configured for optimal Vibe Coding:
 
-✅ **Background Agents**: Auto-formatting and imports  
-✅ **Bugbot**: Automatic PR reviews with project guidelines  
-✅ **Chat Agent**: Context-aware assistance with efficient rules  
-✅ **Composer Agent**: Multi-file generation following architecture  
+✅ **Bugbot**: Automatic PR reviews using `.cursor/BUGBOT.md` + `.cursor/rules/`  
+✅ **Chat Agent**: Context-aware assistance using `.cursor/rules/*.mdc` system  
+✅ **Composer Agent**: Multi-file generation using rules from `.cursor/rules/`  
+✅ **Rule System**: 8 rule files with YAML frontmatter (`globs`, `version`, `alwaysApply`)
 
-**Key Principles**:
-1. Enable Background Agents for simple tasks
-2. Let Bugbot handle PR reviews automatically
-3. Use Chat Agent with rule references
-4. Keep rules optimized for token efficiency
-5. Maintain quality gates in all agents
+**Key Configuration** (Based on Actual Project):
+1. **Rules**: `.cursor/rules/*.mdc` files (this is what Cursor reads)
+2. **Bugbot**: `.cursor/BUGBOT.md` for PR review guidelines
+3. **Loading**: `core.mdc` always loaded, others via `globs` patterns
+4. **References**: Rules reference each other via `@rule-name.mdc`
+
+**Important Notes**:
+- `.cursorrules` file exists but is NOT used by Cursor (just reference)
+- All configuration is in `.cursor/rules/*.mdc` files
+- YAML frontmatter controls when rules load (`globs`, `alwaysApply`)
 
 **Next Steps**:
-1. Configure Team Role in Cursor Settings
-2. Test agents with project-specific tasks
-3. Review and customize `.cursor/BUGBOT.md` if needed
-4. Monitor agent behavior and adjust rules as needed
+1. Test agents with project-specific tasks
+2. Review and customize `.cursor/BUGBOT.md` if needed
+3. Monitor agent behavior and adjust rules as needed
+4. Update rule `version` when making changes
 
 Your agents are ready for maximum productivity! 🚀
