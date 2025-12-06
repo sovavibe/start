@@ -185,6 +185,10 @@
         <Class name="~.*Test"/>
         <Bug pattern="UWF_NULL_FIELD"/>
     </Match>
+    <Match>
+        <Class name="~.*Test"/>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
     
     <!--
     Format string false positive: Exclude FS warnings for User entity getDisplayName method
