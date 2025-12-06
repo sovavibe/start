@@ -4,6 +4,7 @@
  */
 package com.digtp.start.config;
 
+import com.palantir.logsafe.exceptions.SafeRuntimeException;
 import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -68,7 +69,7 @@ public class PerformanceLoggingAspect {
         } catch (final Exception e) {
             throw e;
         } catch (final Throwable t) {
-            throw new RuntimeException("Unexpected error in service method", t);
+            throw new SafeRuntimeException("Unexpected error in service method", t);
         }
     }
 
@@ -89,7 +90,7 @@ public class PerformanceLoggingAspect {
         } catch (final Exception e) {
             throw e;
         } catch (final Throwable t) {
-            throw new RuntimeException("Unexpected error in view method", t);
+            throw new SafeRuntimeException("Unexpected error in view method", t);
         }
     }
 
@@ -120,7 +121,7 @@ public class PerformanceLoggingAspect {
             } catch (final Exception e) {
                 throw e;
             } catch (final Throwable t) {
-                throw new RuntimeException("Unexpected error in method execution", t);
+                throw new SafeRuntimeException("Unexpected error in method execution", t);
             }
         }
 
@@ -131,7 +132,7 @@ public class PerformanceLoggingAspect {
             } catch (final Exception e) {
                 throw e;
             } catch (final Throwable t) {
-                throw new RuntimeException("Unexpected error in method execution", t);
+                throw new SafeRuntimeException("Unexpected error in method execution", t);
             }
         } finally {
             final long duration = System.currentTimeMillis() - startTime;

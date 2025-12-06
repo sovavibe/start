@@ -368,8 +368,7 @@
         </module>
         <module name="RegexpSinglelineJava"> <!-- Code Quality: Avoid Fully Qualified Names -->
             <property name="id" value="AvoidFullyQualifiedNames"/>
-            <!-- Exclude package-info.java: FQN required for annotations (imports not allowed in package-info.java) -->
-            <property name="format" value="^(?!\s*(import|package)\s)(?!.*package-info\.java).*\b[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,}\.[A-Z][a-zA-Z0-9]*"/>
+            <property name="format" value="^(?!\s*(import|package)\s).*\b[a-z][a-z0-9]*(\.[a-z][a-z0-9]*){2,}\.[A-Z][a-zA-Z0-9]*"/>
             <property name="message" value="Avoid fully qualified names. Use imports instead. Exception: name conflicts (e.g., com.github.benmanes.caffeine.cache.Cache vs org.springframework.cache.Cache)."/>
             <property name="ignoreComments" value="true"/>
         </module>

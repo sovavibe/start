@@ -14,4 +14,6 @@
     See: https://github.com/palantir/gradle-baseline#compalantirbaseline-checkstyle
 -->
 <suppressions>
+    <!-- AvoidFullyQualifiedNames: package-info.java cannot use imports, FQN is required for annotations -->
+    <suppress files="package-info\.java$" id="AvoidFullyQualifiedNames" />
 </suppressions>
