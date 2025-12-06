@@ -314,6 +314,11 @@ You can create a `.cursorrules` file in project root for global settings. This f
 - **SDLC**: `docs/workflow/SDLC.md`
 - **Roles Guide**: `docs/ROLES.md`
 
+## Related Documentation
+
+For detailed information about Cursor agents, see:
+- **[Cursor Agents Guide](CURSOR_AGENTS.md)** - Complete guide to all Cursor agents
+
 ## Summary
 
 Your current Cursor configuration is **well-optimized** for vibe coding:

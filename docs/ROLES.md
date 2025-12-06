@@ -94,7 +94,9 @@ For maximum efficiency with Cursor:
 4. **Context First**: Search codebase before asking questions
 5. **Quality Gates**: Always run `make analyze-full` before completion
 
-See [Cursor Optimization Guide](CURSOR_OPTIMIZATION.md) for detailed recommendations.
+See:
+- [Cursor Optimization Guide](CURSOR_OPTIMIZATION.md) - General optimization
+- [Cursor Agents Guide](CURSOR_AGENTS.md) - Detailed agent configuration
 
 ## Analyst
 
